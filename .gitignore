@@ -1,0 +1,10 @@
+\#*
+.#*
+*~
+.DS_Store
+make-readme/node_modules
+make-readme/temp.html
+make-readme/generated
+make-readme/package-lock.json
+.vscode
+
