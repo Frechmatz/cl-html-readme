@@ -15,9 +15,8 @@
 		   (make-function-string 'cl-readme:example-code :append-separator t)
 		   (make-function-string 'cl-readme:current-date :append-separator t)
 		   (make-function-string 'cl-readme:make-path :append-separator nil)
-		   ;;(make-function-string 'cl-readme:*HOME-DIRECTORY* :append-separator t)
 		   ;;"<h2>Example</h2>"
-		   ;; Including this code does not work because it contains HTML markup.
+		   ;; Including this code as an example does not work because it contains HTML markup.
 		   ;;(example-code "make-readme/make-readme.lisp")
 		   "<hr/><p><small>Generated " (current-date) "</small></p>"
 		   "</body></html>")))

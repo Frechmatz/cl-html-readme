@@ -1,9 +1,10 @@
 (in-package :cl-readme)
 
-(defparameter *HOME-DIRECTORY* nil "Home directory of the current project.")
+(defparameter *home-directory* nil "Home directory of the current project.")
+(defparameter *tab-width* 4 "Width of a tab. Used, when tabs are to be replaced with space characters.")
 
 (defun validate-home-directory ()
-  (if (not *HOME-DIRECTORY*)
+  (if (not *home-directory*)
       (error "Variable *HOME-DIRECTORY* not set")))
 
 (defun lambda-list-arg-to-string (arg)
@@ -48,8 +49,8 @@
 		   (string-downcase ll)))))
 
 (defun make-function-string (f &key (append-separator t))
-  "Creates a string that consists of the name, the lambda list and the documentation string of a function.<br>
-   The function has the following arguments:
+  "Returns the HTML representation of a function. This function depends on
+   SBCL extensions. The function has the following arguments:
    <ul>
       <li>f A symbol denoting a function.</li>
       <li>:append-separator If t then a separator is added after the documentation string.</li>
@@ -64,8 +65,7 @@
    (if append-separator "<hr/>" "")))
 
 (defun make-condition-string (c &key (append-separator t))
-  "Creates a string that consists of the name and the documentation string of a condition.<br>
-   The function has the following arguments:
+  "Returns the HTML representation of a condition. The function has the following arguments:
    <ul>
       <li>c A symbol denoting a condition.</li>
       <li>:append-separator If t then a separator is added after the documentation string.</li>
@@ -79,22 +79,21 @@
    (if append-separator "<hr/>" "")))
 
 (defun make-variable-string (v &key (append-separator t))
-  "Creates a string that consists of the name and the documentation string of a variable.<br>
-   The function has the following arguments:
+  "Returns the HTML representation of a variable (defvar, defparameter). The function has the following arguments:
    <ul>
       <li>v A symbol denoting a variable.</li>
       <li>:append-separator If t then a separator is added after the documentation string.</li>
    </ul>"
   (concatenate
    'string
-   "<b>" (string-downcase (package-name (symbol-package v))) ":" (symbol-name v) "</b>"
+   "<b>" (string-downcase (package-name (symbol-package v))) ":" (string-downcase  (symbol-name v)) "</b>"
    "<p>"
    (documentation v 'variable)
    "</p>"
    (if append-separator "<hr/>" "")))
 
 (defun current-date ()
-  "Creates a string that consists of the current date and time."
+  "Returns a string representing the current date and time."
   (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
       (get-decoded-time)
     (declare (ignore dow dst-p tz))
@@ -103,18 +102,39 @@
       str)))
 
 (defun make-path (path)
-  "Creates a path relative to *HOME-DIRECTORY*. The function has the following arguments:
+  "Creates a path relative to *home-directory*. The function has the following arguments:
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
    </ul>"
   (validate-home-directory)
-  (concatenate 'string *HOME-DIRECTORY* path))
+  (concatenate 'string *home-directory* path))
 
-(defun read-text-file (path)
-  "Reads a file and returns it as a string. Does not add any styling. 
-   The file must not contain HTML markup. The function has the following arguments:
+(defun format-string (str &key replace-tabs escape)
+  (let ((tab-string (make-sequence 'string *tab-width* :initial-element #\Space)))
+    (let ((string-stream (make-string-output-stream)))
+      (dotimes (i (length str))
+	(let ((ch (elt str i)))
+	  (cond
+	    ((and replace-tabs (eql ch #\Tab))
+	     (write-string tab-string string-stream))
+	    ((and escape (eql ch #\<))
+	     (write-string "&lt;" string-stream))
+	    ((and escape (eql ch #\>))
+	     (write-string "&gt;" string-stream))
+	    ((and escape (eql ch #\&))
+	     (write-string "&amp;" string-stream))
+	    (t (write-char ch string-stream)))))
+      (get-output-stream-string string-stream))))
+
+(defun read-text-file (path &key (replace-tabs nil) (escape nil))
+  "Reads a file and returns it as a string. Does not add any styling. This function
+   is typically used to insert plain HTML files into the documentation.
+   The function has the following arguments:
    <ul>
-      <li>path Path of the file relative to *HOME-DIRECTORY*.</li>
+      <li>path Path of the file relative to *home-directory*.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+      <li>:escape If t then characters such as '<', '>', '&' are replaced with
+          their entities.</li>
    </ul>"
   (let ((output (make-array '(0) :element-type 'base-char
 			    :fill-pointer 0 :adjustable t)))
@@ -124,21 +144,30 @@
 	   (let ((str (read-line fh nil)))
 	     (if (not str)
 		 (return)
-		 (format s "~a~%" str))))))
+		 (format s "~a~%" (format-string str :replace-tabs replace-tabs :escape escape)))))))
     (string-trim '(#\Space #\Tab #\Newline) output)))
 
-(defun example-code (path &key (example-number nil))
-  "Reads a file that represents example code and returns it as a string. 
-   The file must not contain HTML markup. The function has the following arguments:
+(defun example-code (path &key (example-number nil) (omit-header nil))
+  "Returns the HTML representation of example code denoted by a path. Tabs are replaced by 
+   spaces according to the *tab-width* variable. A couple of characters are replaced 
+   with their entities. The function has the following arguments:
    <ul>
-      <li>path Path of the file relative to *HOME-DIRECTORY*.</li>
-      <li>:example-number Optional number of the example. Used for creating the header of the code block.
+      <li>path Path of the file relative to *home-directory*.</li>
+      <li>:example-number Optional number of the example. Used for rendering the header of the code block.</li>
+      <li>:omit-header If t then do not render the \"Example\" heading</li>
    </ul>"
-  (concatenate 'string
-	       "<p><b>Example"
-	       (if example-number (format nil " ~a" example-number) "")
-	       ":</b></p>"
-	       "<p><pre><code>"
-	       (read-text-file path)
-	       "</code></pre></p>"))
+  (if (not omit-header)
+      (concatenate 'string
+		   "<p><b>Example"
+		   (if example-number (format nil " ~a" example-number) "")
+		   ":</b></p>"
+		   "<p><pre><code>"
+		   (read-text-file path :replace-tabs t :escape t)
+		   "</code></pre></p>")
+      (concatenate 'string
+		   "<p><pre><code>"
+		   (read-text-file path :replace-tabs t :escape t)
+		   "</code></pre></p>")))
+
+      
 

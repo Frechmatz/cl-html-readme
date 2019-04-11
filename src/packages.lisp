@@ -1,7 +1,8 @@
 (defpackage :cl-readme
   (:use :cl)
   (:export
-   :*HOME-DIRECTORY*
+   :*home-directory*
+   :*tab-width*
    :example-code
    :make-function-string
    :make-condition-string
