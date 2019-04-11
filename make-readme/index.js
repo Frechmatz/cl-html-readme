@@ -1,9 +1,12 @@
 var TurndownService = require('turndown');
 var fs = require('fs');
 
-var home = '/Users/olli/src/lisp/cl-readme/';
+var htmlFile = process.argv[2];
+var markdownFile = process.argv[3];
 
-var htmlString = fs.readFileSync(home + 'make-readme/generated/readme.html', 'utf8');
+console.log('Input: ' + htmlFile);
+console.log('Output: ' + markdownFile);
+var htmlString = fs.readFileSync(htmlFile, 'utf8');
 var turndownService = new TurndownService();
 var markdown = turndownService.turndown(htmlString);
-fs.writeFileSync(home + 'make-readme/generated/readme.md', markdown);
+fs.writeFileSync(markdownFile, markdown);
