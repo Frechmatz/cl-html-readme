@@ -149,8 +149,7 @@
 
 (defun example-code (path &key (example-number nil) (omit-header nil))
   "Returns the HTML representation of example code denoted by a path. Tabs are replaced by 
-   spaces according to the *tab-width* variable. A couple of characters are replaced 
-   with their entities. The function has the following arguments:
+   spaces according to the *tab-width* variable. The function has the following arguments:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:example-number Optional number of the example. Used for rendering the header of the code block.</li>

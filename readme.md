@@ -112,7 +112,7 @@ Reads a file and returns it as a string. Does not add any styling. This function
 
 **cl-readme:example-code** path &key (example-number nil) (omit-header nil)
 
-Returns the HTML representation of example code denoted by a path. Tabs are replaced by spaces according to the \*tab-width\* variable. A couple of characters are replaced with their entities. The function has the following arguments:
+Returns the HTML representation of example code denoted by a path. Tabs are replaced by spaces according to the \*tab-width\* variable. The function has the following arguments:
 
 *   path Path of the file relative to \*home-directory\*.
 *   :example-number Optional number of the example. Used for rendering the header of the code block.
@@ -134,4 +134,4 @@ Creates a path relative to \*home-directory\*. The function has the following ar
 
 * * *
 
-Generated 2019-04-11 21:44:16
+Generated 2019-04-18 20:39:11
