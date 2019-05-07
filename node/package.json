@@ -1,0 +1,17 @@
+{
+   "name": "cl-readme-html2markdown",
+   "version": "1.0.0",
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "bin": {
+      "cl-readme-html2markdown": "./index.js"
+   },
+   "author": "",
+   "license": "ISC",
+   "dependencies": {
+      "turndown": "5.0.1"
+   }
+}
