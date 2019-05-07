@@ -5,10 +5,20 @@ Readme generation utilities for my Common Lisp projects.
 
 A Readme file in markdown format is created in two steps:
 
-1.  Generate an HTML file using the cl-readme library. Lisp documentation strings are supposed to use HTML as markup language.
-2.  Convert the generated HTML file to markdown using the JavaScript "turndown" library.
+1.  Generate an HTML file using the cl-readme package. Lisp documentation strings are supposed to use HTML as markup language. This package uses SBCL extensions for the generation of lambda list strings.
+2.  Convert the HTML file to markdown using the JavaScript "turndown" library.
 
-The library uses SBCL extensions.
+Installation
+------------
+
+    
+    cd ~/quicklisp/local-projects
+    git clone https://github.com/Frechmatz/cl-readme.git
+    # Install Node.js script cl-readme-html2markdown globally 
+    cd ~/quicklisp/local-projects/cl-readme/node
+    npm install --global
+    # To uninstall use: npm rm --global cl-readme-html2markdown
+    
 
 Example
 -------
@@ -25,11 +35,13 @@ Example
                        "<html><body>"
                        "<h1>cl-readme</h1>"
                        (read-text-file "make-readme/introduction.html")
+                       "<h2>Installation</h2>"
+                       (read-text-file "make-readme/installation.html")
                        "<h2>Example</h2>"
                        "<h3>Generate the HTML file</h3>"
                        (example-code "make-readme/make-readme.lisp" :omit-header t)
-                       "<h3>Generate the markdown file</h3>"
-                       (example-code "make-readme/html2md.sh" :omit-header t)
+                       "<h3>Convert the HTML file to Markdown</h3>"
+                       (read-text-file "make-readme/html2md.html")
                        "<h2>API</h2>"
                        (make-variable-string 'cl-readme:*home-directory* :append-separator t)
                        (make-variable-string 'cl-readme:*tab-width* :append-separator t)
@@ -51,12 +63,11 @@ Example
     
     ;;(write-html)
 
-### Generate the markdown file
+### Convert the HTML file to Markdown
 
-    cd /Users/olli/src/lisp/cl-readme/make-readme
-    node index.js \
-         /Users/olli/src/lisp/cl-readme/make-readme/generated/readme.html \
-         /Users/olli/src/lisp/cl-readme/make-readme/generated/readme.md
+    
+    $ cl-readme-html2markdown /Users/olli/src/lisp/cl-readme/make-readme/generated/readme.html /Users/olli/src/lisp/cl-readme/make-readme/generated/readme.md
+    
 
 API
 ---
@@ -134,4 +145,4 @@ Creates a path relative to \*home-directory\*. The function has the following ar
 
 * * *
 
-Generated 2019-04-18 20:39:11
+Generated 2019-05-07 20:29:03
