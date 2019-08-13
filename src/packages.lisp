@@ -3,6 +3,7 @@
   (:export
    :*home-directory*
    :*tab-width*
+   :doc-to-html
    :example-code
    :make-function-string
    :make-condition-string

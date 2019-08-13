@@ -7,9 +7,9 @@
   :homepage "https://github.com/Frechmatz/cl-readme"
   :description "Readme generation utilities"
   :long-description "Readme generation utilities"
-  :depends-on (:cl-synthesizer)
   :components ((:module "src"
 			:serial t
 			:components ((:file "packages")
+				     (:file "doc-to-html")
 				     (:file "readme-util")))))
 
