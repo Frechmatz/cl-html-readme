@@ -48,12 +48,11 @@
 		   " "
 		   (string-downcase ll)))))
 
-(defun make-function-string (f &key (append-separator t))
+(defun make-function-string (f)
   "Returns the HTML representation of a function. This function depends on
    SBCL extensions. The function has the following arguments:
    <ul>
       <li>f A symbol denoting a function.</li>
-      <li>:append-separator If t then a separator is added after the documentation string.</li>
    </ul>"
   (concatenate
    'string
@@ -61,36 +60,31 @@
    (make-function-declaration-string f)
    "</p><p>"
    (documentation f 'function)
-   "</p>"
-   (if append-separator "<hr/>" "")))
+   "</p>"))
 
-(defun make-condition-string (c &key (append-separator t))
+(defun make-condition-string (c)
   "Returns the HTML representation of a condition. The function has the following arguments:
    <ul>
       <li>c A symbol denoting a condition.</li>
-      <li>:append-separator If t then a separator is added after the documentation string.</li>
    </ul>"
   (concatenate
    'string
    "<b>" (string-downcase (symbol-name c)) "</b>"
    "<p>"
    (documentation c 'type)
-   "</p>"
-   (if append-separator "<hr/>" "")))
+   "</p>"))
 
-(defun make-variable-string (v &key (append-separator t))
+(defun make-variable-string (v)
   "Returns the HTML representation of a variable (defvar, defparameter). The function has the following arguments:
    <ul>
       <li>v A symbol denoting a variable.</li>
-      <li>:append-separator If t then a separator is added after the documentation string.</li>
    </ul>"
   (concatenate
    'string
    "<b>" (string-downcase (package-name (symbol-package v))) ":" (string-downcase  (symbol-name v)) "</b>"
    "<p>"
    (documentation v 'variable)
-   "</p>"
-   (if append-separator "<hr/>" "")))
+   "</p>"))
 
 (defun current-date ()
   "Returns a string representing the current date and time."
