@@ -8,38 +8,38 @@
   (format nil "Generated-Id-~a" name))
 
 ;;
-;; SECTION
+;; HEADING
 ;;
 
-(defun section-p (l)
-  (and (symbolp (first l)) (string= (symbol-name (first l)) "SECTION")))
+(defun heading-p (l)
+  (and (symbolp (first l)) (string= (symbol-name (first l)) "HEADING")))
 
-(defun section-settings (section)
-  (second section))
+(defun heading-settings (heading)
+  (second heading))
 
-(defun section-settings-name (section)
-  "Returns the :name property of section. Signals an error when the name is nil or empty."
-  (let ((name (getf (section-settings section) :name)))
+(defun heading-settings-name (heading)
+  "Returns the :name property of heading. Signals an error when the name is nil or empty."
+  (let ((name (getf (heading-settings heading) :name)))
     (if (or (not name) (string= "" name))
-	(error (format nil "Section must have a :name property that is not empty and not nil: ~a" section)))
+	(error (format nil "Heading must have a :name property that is not empty and not nil: ~a" heading)))
     name))
 
-(defun section-id (section)
-  "Returns an id generated out of the :name property of the section."
-  (make-id (section-settings-name section)))
+(defun heading-id (heading)
+  "Returns an id generated out of the :name property of the heading."
+  (make-id (heading-settings-name heading)))
 
 ;;
-;; Table of contents related SECTION
+;; Table of contents related HEADING
 ;;
 
-(defun toc-section-p (l)
-  (and (section-p l) (getf (section-settings l) :toc)))
+(defun toc-heading-p (l)
+  (and (heading-p l) (getf (heading-settings l) :toc)))
 
-(defun toc-section-chapter-p (l)
-  (and (section-p l) (eq :chapter (getf (section-settings l) :toc))))
+(defun toc-heading-chapter-p (l)
+  (and (heading-p l) (eq :chapter (getf (heading-settings l) :toc))))
 
-(defun toc-section-item-p (l)
-  (and (section-p l) (eq :item (getf (section-settings l) :toc))))
+(defun toc-heading-item-p (l)
+  (and (heading-p l) (eq :item (getf (heading-settings l) :toc))))
 
 ;;
 ;; TOC (table of contents)
@@ -75,21 +75,21 @@
 	     (cond
 	       ((not (listp sub-list))
 		nil)
-	       ((toc-section-chapter-p sub-list)
+	       ((toc-heading-chapter-p sub-list)
 		;; <li>...<ul>...</ul></li>
 		(format
 		 output-stream "<li><a href=\"#~a\">~a</a><ul>"
-		 (section-id sub-list)
-		 (section-settings-name sub-list))
+		 (heading-id sub-list)
+		 (heading-settings-name sub-list))
 		(dolist (item (rest (rest sub-list)))
 		  (generate-html-toc-impl item))
 		(format output-stream "</ul></li>"))
-	       ((toc-section-item-p sub-list)
+	       ((toc-heading-item-p sub-list)
 		;; <li>...</li>
 		(format
 		 output-stream "<li><a href=\"#~a\">~a</a></li>"
-		 (section-id sub-list)
-		 (section-settings-name sub-list))
+		 (heading-id sub-list)
+		 (heading-settings-name sub-list))
 		(dolist (item (rest (rest sub-list)))
 		  (generate-html-toc-impl item)))
 	       (t
@@ -106,8 +106,8 @@
 ;;
 
 (defclass html-writer () ())
-(defgeneric open-semantic (html-writer section-element))
-(defgeneric close-semantic (html-writer section-element))
+(defgeneric open-semantic (html-writer heading-element))
+(defgeneric close-semantic (html-writer heading-element))
 
 (defmethod open-semantic ((writer html-writer) semantic-element-settings)
   (format nil "<~a>" (getf semantic-element-settings :name)))
@@ -128,14 +128,14 @@
 		(dolist (item (rest (rest sub-list)))
 		  (doc-to-html-impl (+ 1 heading-level) item))
 		(format output-stream "~a" (close-semantic html-writer (semantic-settings sub-list))))
-	       ((section-p sub-list)
+	       ((heading-p sub-list)
 		(format
 		 output-stream "<h~a~a>~a</h~a>"
 		 (+ 1 heading-level)
-		 (if (section-id sub-list)
-		     (format nil " id=\"~a\"" (section-id sub-list))
+		 (if (heading-id sub-list)
+		     (format nil " id=\"~a\"" (heading-id sub-list))
 		     "")
-		 (section-settings-name sub-list)
+		 (heading-settings-name sub-list)
 		 (+ 1 heading-level))
 		(dolist (item (rest (rest sub-list)))
 		  (doc-to-html-impl (+ 1 heading-level) item)))
