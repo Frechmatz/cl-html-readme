@@ -29,17 +29,11 @@
   (make-id (heading-settings-name heading)))
 
 ;;
-;; Table of contents related HEADING
+;; Table of contents relevant HEADING
 ;;
 
 (defun toc-heading-p (l)
   (and (heading-p l) (getf (heading-settings l) :toc)))
-
-(defun toc-heading-chapter-p (l)
-  (and (heading-p l) (eq :chapter (getf (heading-settings l) :toc))))
-
-(defun toc-heading-item-p (l)
-  (and (heading-p l) (eq :item (getf (heading-settings l) :toc))))
 
 ;;
 ;; TOC (table of contents)
@@ -54,7 +48,6 @@
 ;;
 ;;
 
-
 (defun semantic-p (l)
   (and (symbolp (first l)) (string= (symbol-name (first l)) "SEMANTIC")))
 
@@ -68,14 +61,32 @@
 	(error (format nil "Semantic must have a :name property that is not empty and not nil: ~a" semantic-element)))
     name))
 
+;;
+;; TOC generation
+;;
 
 (defun generate-html-toc (output-stream doc)
   "Traverse doc and generate a HTML list representing the TOC"
-  (labels ((generate-html-toc-impl (sub-list)
+  (labels ((sub-toc-p (sub-list)
+	     "Check if sub-list contains toc relevant headings.
+              Not a very efficient implementation as sub-tree may get parsed two times."
 	     (cond
 	       ((not (listp sub-list))
 		nil)
-	       ((toc-heading-chapter-p sub-list)
+	       ((toc-heading-p sub-list)
+		t)
+	       (t
+		(let ((found nil))
+		  (dolist (item sub-list)
+		    (if (sub-toc-p item)
+			(setf found t)))
+		  found))))
+	   (generate-html-toc-impl (sub-list)
+	     (cond
+	       ((not (listp sub-list))
+		nil)
+	       ((and (toc-heading-p sub-list) (sub-toc-p sub-list))
+		;; Current element is toc relevant and has toc-relevant sub elements
 		;; <li>...<ul>...</ul></li>
 		(format
 		 output-stream "<li><a href=\"#~a\">~a</a><ul>"
@@ -84,7 +95,8 @@
 		(dolist (item (rest (rest sub-list)))
 		  (generate-html-toc-impl item))
 		(format output-stream "</ul></li>"))
-	       ((toc-heading-item-p sub-list)
+	       ((and (toc-heading-p sub-list) (not (sub-toc-p sub-list)))
+		;; Current element is toc relevant and has no toc-relevant sub elements
 		;; <li>...</li>
 		(format
 		 output-stream "<li><a href=\"#~a\">~a</a></li>"
