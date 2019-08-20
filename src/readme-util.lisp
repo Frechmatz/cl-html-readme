@@ -48,44 +48,6 @@
 		   " "
 		   (string-downcase ll)))))
 
-(defun make-function-string (f)
-  "Returns the HTML representation of a function. This function depends on
-   SBCL extensions. The function has the following arguments:
-   <ul>
-      <li>f A symbol denoting a function.</li>
-   </ul>"
-  (concatenate
-   'string
-   "<p>"
-   (make-function-declaration-string f)
-   "</p><p>"
-   (documentation f 'function)
-   "</p>"))
-
-(defun make-condition-string (c)
-  "Returns the HTML representation of a condition. The function has the following arguments:
-   <ul>
-      <li>c A symbol denoting a condition.</li>
-   </ul>"
-  (concatenate
-   'string
-   "<b>" (string-downcase (symbol-name c)) "</b>"
-   "<p>"
-   (documentation c 'type)
-   "</p>"))
-
-(defun make-variable-string (v)
-  "Returns the HTML representation of a variable (defvar, defparameter). The function has the following arguments:
-   <ul>
-      <li>v A symbol denoting a variable.</li>
-   </ul>"
-  (concatenate
-   'string
-   "<b>" (string-downcase (package-name (symbol-package v))) ":" (string-downcase  (symbol-name v)) "</b>"
-   "<p>"
-   (documentation v 'variable)
-   "</p>"))
-
 (defun current-date ()
   "Returns a string representing the current date and time."
   (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
@@ -120,16 +82,7 @@
 	    (t (write-char ch string-stream)))))
       (get-output-stream-string string-stream))))
 
-(defun read-text-file (path &key (replace-tabs nil) (escape nil))
-  "Reads a file and returns it as a string. Does not add any styling. This function
-   is typically used to insert plain HTML files into the documentation.
-   The function has the following arguments:
-   <ul>
-      <li>path Path of the file relative to *home-directory*.</li>
-      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
-      <li>:escape If t then characters such as '<', '>', '&' are replaced with
-          their entities.</li>
-   </ul>"
+(defun read-file-impl (path &key (replace-tabs nil) (escape nil))
   (let ((output (make-array '(0) :element-type 'base-char
 			    :fill-pointer 0 :adjustable t)))
     (with-output-to-string (s output)
@@ -141,26 +94,23 @@
 		 (format s "~a~%" (format-string str :replace-tabs replace-tabs :escape escape)))))))
     (string-trim '(#\Space #\Tab #\Newline) output)))
 
-(defun example-code (path &key (example-number nil) (omit-header nil))
-  "Returns the HTML representation of example code denoted by a path. Tabs are replaced by 
+(defun read-verbatim (path &key (replace-tabs nil))
+  "Reads a file and returns it as a string. Does not add any styling. This function
+   is typically used to insert plain HTML files into the documentation.
+   The function has the following arguments:
+   <ul>
+      <li>path Path of the file relative to *home-directory*.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+   </ul>"
+  (read-file-impl path :replace-tabs replace-tabs :escape nil))
+
+(defun read-code (path)
+  "Returns the HTML representation of code denoted by a path. Tabs are replaced by 
    spaces according to the *tab-width* variable. The function has the following arguments:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
-      <li>:example-number Optional number of the example. Used for rendering the header of the code block.</li>
-      <li>:omit-header If t then do not render the \"Example\" heading</li>
    </ul>"
-  (if (not omit-header)
-      (concatenate 'string
-		   "<p><b>Example"
-		   (if example-number (format nil " ~a" example-number) "")
-		   ":</b></p>"
-		   "<p><pre><code>"
-		   (read-text-file path :replace-tabs t :escape t)
-		   "</code></pre></p>")
-      (concatenate 'string
-		   "<p><pre><code>"
-		   (read-text-file path :replace-tabs t :escape t)
-		   "</code></pre></p>")))
-
-      
-
+  (concatenate 'string
+	       "<p><pre><code>"
+	       (read-verbatim path :replace-tabs t :escape t)
+	       "</code></pre></p>"))

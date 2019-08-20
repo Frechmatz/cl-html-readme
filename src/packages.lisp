@@ -5,13 +5,11 @@
    :*tab-width*
    :html-writer
    :doc-to-html
-   :example-code
-   :make-function-string
-   :make-condition-string
-   :make-variable-string
-   :read-text-file
+   :read-verbatim
+   :read-code
    :current-date
    :make-path
    :open-semantic
-   :close-semantic))
+   :close-semantic
+   :make-function-declaration-string))
 
