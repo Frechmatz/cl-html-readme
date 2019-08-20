@@ -35,8 +35,8 @@
 (defun toc-section-p (l)
   (and (section-p l) (getf (section-settings l) :toc)))
 
-(defun toc-section-section-p (l)
-  (and (section-p l) (eq :section (getf (section-settings l) :toc))))
+(defun toc-section-chapter-p (l)
+  (and (section-p l) (eq :chapter (getf (section-settings l) :toc))))
 
 (defun toc-section-item-p (l)
   (and (section-p l) (eq :item (getf (section-settings l) :toc))))
@@ -75,7 +75,7 @@
 	     (cond
 	       ((not (listp sub-list))
 		nil)
-	       ((toc-section-section-p sub-list)
+	       ((toc-section-chapter-p sub-list)
 		;; <li>...<ul>...</ul></li>
 		(format
 		 output-stream "<li><a href=\"#~a\">~a</a><ul>"
