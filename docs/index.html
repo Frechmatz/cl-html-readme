@@ -1,0 +1,99 @@
+<html><body><h1 id="Generated-Id-cl-readme">cl-readme</h1>Readme generation utilities for my Common Lisp projects. The key concepts of this library are as follows:
+<ul>
+    <li>Readmes are using HTML as markup language.</li>
+    <li>Documentation strings are supposed to use HTML as markup language.</li>
+    <li>The library provides a DSL for generation of HTML headings and a Table Of Contents.</li>
+    <li>The library does not wrap functionality that is provided by the Common Lisp standard library, such as
+	getting the documentation string of a function.</li>
+    <li>Verbatim HTML output via plain hard coded strings.</li>
+</ul><h2 id="Generated-Id-Table of contents">Table of contents</h2><ul><li><a href="#Generated-Id-Installation">Installation</a><ul></ul></li><li><a href="#Generated-Id-Example">Example</a><ul></ul></li><li><a href="#Generated-Id-API">API</a><ul></ul></li></ul><h2 id="Generated-Id-Installation">Installation</h2><pre><code>
+cd ~/quicklisp/local-projects
+git clone https://github.com/Frechmatz/cl-readme.git
+</code></pre><h2 id="Generated-Id-Example">Example</h2><p><pre><code>(in-package :cl-readme-make-readme)
+
+;;
+;; Helper functions
+;;
+
+(defun make-function-string (f)
+  (concatenate
+   'string
+   "&lt;p&gt;"
+   (cl-readme:sbcl-make-function-decl f)
+   "&lt;/p&gt;&lt;p&gt;"
+   (documentation f 'function)
+   "&lt;/p&gt;"))
+
+(defun make-condition-string (c)
+  (concatenate
+   'string
+   "&lt;b&gt;" (string-downcase (symbol-name c)) "&lt;/b&gt;"
+   "&lt;p&gt;"
+   (documentation c 'type)
+   "&lt;/p&gt;"))
+
+(defun make-variable-string (v)
+  (concatenate
+   'string
+   "&lt;b&gt;" (string-downcase (package-name (symbol-package v))) ":" (string-downcase  (symbol-name v)) "&lt;/b&gt;"
+   "&lt;p&gt;"
+   (documentation v 'variable)
+   "&lt;/p&gt;"))
+
+;;
+;; Documentation
+;;
+
+(defun get-doc ()
+  (let ((tree
+         `("&lt;html&gt;&lt;body&gt;"
+           (heading (:name "cl-readme")
+                    ,(cl-readme:read-verbatim "make-readme/introduction.html")
+                    (heading (:name "Table of contents")
+                             TOC)
+                    (heading (:name "Installation" :toc t)
+                             ,(cl-readme:read-verbatim "make-readme/installation.html"))
+                    (heading (:name "Example" :toc t)
+                             ,(cl-readme:read-code "make-readme/make-readme.lisp"))
+                    (heading (:name "API":toc t)
+                             ,(make-variable-string 'cl-readme:*home-directory*)
+                             ,(make-variable-string 'cl-readme:*tab-width*)
+                             ,(make-function-string 'cl-readme:read-verbatim)
+                             ,(make-function-string 'cl-readme:read-code)
+                             ,(make-function-string 'cl-readme:make-path)
+                             ,(make-function-string 'cl-readme:current-date)
+                             ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
+           "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(cl-readme:current-date) "&lt;/small&gt;&lt;/p&gt;"
+           "&lt;/body&gt;&lt;/html&gt;")))
+    tree))
+
+;;
+;; Generate HTML file out of documentation
+;;
+
+(defun make-readme ()
+  (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-readme/")
+        (cl-readme:*tab-width* 8))
+    (with-open-file (fh (cl-readme:make-path "docs/index.html")
+                        :direction :output
+                        :if-exists :supersede
+                        :if-does-not-exist :create
+                        :external-format :utf-8)
+      (let ((w (make-instance 'cl-readme:html-writer)))
+        (cl-readme:doc-to-html w fh (get-doc))))
+  "DONE"))
+
+;;(make-readme)</code></pre></p><h2 id="Generated-Id-API">API</h2><b>cl-readme:*home-directory*</b><p>Home directory of the current project.</p><b>cl-readme:*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><p><b>cl-readme:read-verbatim</b> path &key (replace-tabs nil) </p><p>Reads a file and returns it as a string. Does not add any styling. This function
+   is typically used to insert plain HTML files into the documentation.
+   The function has the following arguments:
+   <ul>
+      <li>path Path of the file relative to *home-directory*.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+   </ul></p><p><b>cl-readme:read-code</b> path </p><p>Returns the HTML representation of code denoted by a path. Tabs are replaced by 
+   spaces according to the *tab-width* variable. The function has the following arguments:
+   <ul>
+      <li>path Path of the file relative to *home-directory*.</li>
+   </ul></p><p><b>cl-readme:make-path</b> path </p><p>Creates a path relative to *home-directory*. The function has the following arguments:
+   <ul>
+      <li>path The path, e.g. examples/example-1.lisp.</li>
+   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Creates a function declaration string using SBCL specific functionality.</p><hr/><p><small>Generated 2019-09-07  00:32:45</small></p></body></html>

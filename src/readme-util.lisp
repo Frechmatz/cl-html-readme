@@ -29,7 +29,8 @@
     (t (format nil "~a" arg))))
 
 ;; uses sbcl extensions
-(defun make-function-declaration-string (f)
+(defun sbcl-make-function-decl (f)
+  "Creates a function declaration string using SBCL specific functionality."
   (let ((f-name (symbol-name f))
 	(f-lambda-list-str
 	 (mapcar
@@ -82,7 +83,7 @@
 	    (t (write-char ch string-stream)))))
       (get-output-stream-string string-stream))))
 
-(defun read-file-impl (path &key (replace-tabs nil) (escape nil))
+(defun read-file (path &key (replace-tabs nil) (escape nil))
   (let ((output (make-array '(0) :element-type 'base-char
 			    :fill-pointer 0 :adjustable t)))
     (with-output-to-string (s output)
@@ -102,7 +103,7 @@
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
    </ul>"
-  (read-file-impl path :replace-tabs replace-tabs :escape nil))
+  (read-file path :replace-tabs replace-tabs :escape nil))
 
 (defun read-code (path)
   "Returns the HTML representation of code denoted by a path. Tabs are replaced by 
@@ -112,5 +113,5 @@
    </ul>"
   (concatenate 'string
 	       "<p><pre><code>"
-	       (read-verbatim path :replace-tabs t :escape t)
+	       (read-file path :replace-tabs t :escape t)
 	       "</code></pre></p>"))

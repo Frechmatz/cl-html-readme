@@ -11,5 +11,5 @@
    :make-path
    :open-semantic
    :close-semantic
-   :make-function-declaration-string))
+   :sbcl-make-function-decl))
 

@@ -1,10 +1,9 @@
-Readme generation utilities for my Common Lisp projects.</br>
-<p>
-  A Readme file in markdown format is created in two steps:
-  <ol>
-    <li>Generate an HTML file using the cl-readme package. Lisp documentation strings are supposed
-      to use HTML as markup language. This package uses SBCL extensions for the generation of lambda list strings.</li>
-    <li>Convert the HTML file to markdown using the JavaScript "turndown" library.</li>
-  </ol>
-</p>
-
+Readme generation utilities for my Common Lisp projects. The key concepts of this library are as follows:
+<ul>
+    <li>Readmes are using HTML as markup language.</li>
+    <li>Documentation strings are supposed to use HTML as markup language.</li>
+    <li>The library provides a DSL for generation of HTML headings and a Table Of Contents.</li>
+    <li>The library does not wrap functionality that is provided by the Common Lisp standard library, such as
+	getting the documentation string of a function.</li>
+    <li>Verbatim HTML output via plain hard coded strings.</li>
+</ul>

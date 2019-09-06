@@ -1,38 +1,76 @@
 (in-package :cl-readme-make-readme)
 
-(defun write-html ()
+;;
+;; Helper functions
+;;
+
+(defun make-function-string (f)
+  (concatenate
+   'string
+   "<p>"
+   (cl-readme:sbcl-make-function-decl f)
+   "</p><p>"
+   (documentation f 'function)
+   "</p>"))
+
+(defun make-condition-string (c)
+  (concatenate
+   'string
+   "<b>" (string-downcase (symbol-name c)) "</b>"
+   "<p>"
+   (documentation c 'type)
+   "</p>"))
+
+(defun make-variable-string (v)
+  (concatenate
+   'string
+   "<b>" (string-downcase (package-name (symbol-package v))) ":" (string-downcase  (symbol-name v)) "</b>"
+   "<p>"
+   (documentation v 'variable)
+   "</p>"))
+
+;;
+;; Documentation
+;;
+
+(defun get-doc ()
+  (let ((tree
+	 `("<html><body>"
+           (heading (:name "cl-readme")
+		    ,(cl-readme:read-verbatim "make-readme/introduction.html")
+		    (heading (:name "Table of contents")
+			     TOC)
+		    (heading (:name "Installation" :toc t)
+			     ,(cl-readme:read-verbatim "make-readme/installation.html"))
+		    (heading (:name "Example" :toc t)
+			     ,(cl-readme:read-code "make-readme/make-readme.lisp"))
+		    (heading (:name "API":toc t)
+			     ,(make-variable-string 'cl-readme:*home-directory*)
+			     ,(make-variable-string 'cl-readme:*tab-width*)
+			     ,(make-function-string 'cl-readme:read-verbatim)
+			     ,(make-function-string 'cl-readme:read-code)
+			     ,(make-function-string 'cl-readme:make-path)
+			     ,(make-function-string 'cl-readme:current-date)
+			     ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
+           "<hr/><p><small>Generated " ,(cl-readme:current-date) "</small></p>"
+           "</body></html>")))
+    tree))
+
+;;
+;; Generate HTML file out of documentation
+;;
+
+(defun make-readme ()
   (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-readme/")
 	(cl-readme:*tab-width* 8))
-    (let ((docstr (concatenate
-                   'string
-                   "<html><body>"
-                   "<h1>cl-readme</h1>"
-		   (read-text-file "make-readme/introduction.html")
-		   "<h2>Installation</h2>"
-		   (read-text-file "make-readme/installation.html")
-		   "<h2>Example</h2>"
-		   "<h3>Generate the HTML file</h3>"
-                   (example-code "make-readme/make-readme.lisp" :omit-header t)
-		   "<h3>Convert the HTML file to Markdown</h3>"
-                   (read-text-file "make-readme/html2md.html")
-                   "<h2>API</h2>"
-                   (make-variable-string 'cl-readme:*home-directory*)
-                   (make-variable-string 'cl-readme:*tab-width*)
-                   (make-function-string 'cl-readme:make-function-string)
-                   (make-function-string 'cl-readme:make-condition-string)
-                   (make-function-string 'cl-readme:make-variable-string)
-                   (make-function-string 'cl-readme:read-text-file)
-                   (make-function-string 'cl-readme:example-code)
-                   (make-function-string 'cl-readme:current-date)
-                   (make-function-string 'cl-readme:make-path)
-                   "<hr/><p><small>Generated " (current-date) "</small></p>"
-                   "</body></html>")))
-      (with-open-file (fh (make-path "make-readme/generated/readme.html")
-                          :direction :output
-                          :if-exists :supersede
-                          :if-does-not-exist :create
-                          :external-format :utf-8)
-        (format fh "~a" docstr)))))
+    (with-open-file (fh (cl-readme:make-path "docs/index.html")
+			:direction :output
+			:if-exists :supersede
+			:if-does-not-exist :create
+			:external-format :utf-8)
+      (let ((w (make-instance 'cl-readme:html-writer)))
+	(cl-readme:doc-to-html w fh (get-doc))))
+  "DONE"))
 
-;;(write-html)
+;;(make-readme)
 
