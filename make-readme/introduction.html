@@ -1,9 +1,8 @@
-Readme generation utilities for my Common Lisp projects. The key concepts of this library are as follows:
+Readme generation utilities for my Common Lisp projects. The key concepts are as follows:
 <ul>
-    <li>Readmes are using HTML as markup language.</li>
-    <li>Documentation strings are supposed to use HTML as markup language.</li>
-    <li>The library provides a DSL for generation of HTML headings and a Table Of Contents.</li>
-    <li>The library does not wrap functionality that is provided by the Common Lisp standard library, such as
-	getting the documentation string of a function.</li>
+    <li>Readmes are using HTML as markup language. A project has a readme.md that links to github.io where the HTML documentation is hosted.</li>
+    <li>Docstrings are using HTML as markup language.</li>
     <li>Verbatim HTML output via plain hard coded strings.</li>
+    <li>This library provides a DSL for generation of HTML headings, a Table Of Contents and HTML semantic elements, as well as a couple of helper functions such as reading code and verbatim HTML files.</li>
+    <li>This library does not provide functionality such as getting the docstring of a function.</li>
 </ul>

@@ -30,7 +30,7 @@
 
 ;; uses sbcl extensions
 (defun sbcl-make-function-decl (f)
-  "Creates a function declaration string using SBCL specific functionality."
+  "Returns a function declaration string using SBCL specific functionality."
   (let ((f-name (symbol-name f))
 	(f-lambda-list-str
 	 (mapcar
@@ -106,8 +106,9 @@
   (read-file path :replace-tabs replace-tabs :escape nil))
 
 (defun read-code (path)
-  "Returns the HTML representation of code denoted by a path. Tabs are replaced by 
-   spaces according to the *tab-width* variable. The function has the following arguments:
+  "Reads a file that represents code and returns it as string. Tabs are replaced by 
+   spaces according to the *tab-width* variable. Special characters are replaced with their HTML character entities.
+   The code is embedded into HTML &lt;p&gt;&lt;pre&gt;&lt;code&gt; markup. The function has the following arguments:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
    </ul>"
