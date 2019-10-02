@@ -13,14 +13,6 @@
    (documentation f 'function)
    "</p>"))
 
-(defun make-condition-string (c)
-  (concatenate
-   'string
-   "<b>" (string-downcase (symbol-name c)) "</b>"
-   "<p>"
-   (documentation c 'type)
-   "</p>"))
-
 (defun make-variable-string (v)
   (concatenate
    'string
