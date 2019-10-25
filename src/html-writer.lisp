@@ -5,7 +5,7 @@
   ;; https://gist.github.com/asabaylus/3071099
   ;; tolowercase
   ;; spaces durch - ersetzen
-  (format nil "Generated-Id-~a" name))
+  (format nil "id-~a" name))
 
 ;;
 ;; HEADING
@@ -138,7 +138,7 @@
 	       ((semantic-p sub-list)
 		(format output-stream "~a" (open-semantic html-writer (semantic-settings sub-list)))
 		(dolist (item (rest (rest sub-list)))
-		  (doc-to-html-impl (+ 1 heading-level) item))
+		  (doc-to-html-impl heading-level item))
 		(format output-stream "~a" (close-semantic html-writer (semantic-settings sub-list))))
 	       ((heading-p sub-list)
 		(format
