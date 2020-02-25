@@ -57,12 +57,6 @@
 ;; Generate HTML file
 ;;
 
-(defclass cl-readme-readme-writer (cl-readme:html-writer) ())
-
-;; Override open-semantic in order to add a class attribute
-(defmethod cl-readme:open-semantic ((writer cl-readme-readme-writer) semantic-element-settings)
-  (format nil "<~a class=\"container\">" (getf semantic-element-settings :name)))
-
 (defun make-readme ()
   (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-readme/")
 	(cl-readme:*tab-width* 8))
@@ -71,9 +65,8 @@
 			:if-exists :supersede
 			:if-does-not-exist :create
 			:external-format :utf-8)
-      (let ((w (make-instance 'cl-readme-readme-writer)))
-	(cl-readme:doc-to-html w fh (get-documentation))))
-  "DONE"))
+      (cl-readme:doc-to-html fh (get-documentation))))
+  "DONE")
 
 ;;(make-readme)
 

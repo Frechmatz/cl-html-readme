@@ -1,39 +1,40 @@
 (in-package :cl-readme)
 
 (defun make-id (name)
-  ;; Table of content in Github flavored markdown
-  ;; https://gist.github.com/asabaylus/3071099
-  ;; tolowercase
-  ;; spaces durch - ersetzen
   (format nil "id-~a" name))
+
+(defun dsl-element-p (element-list symbol)
+  (if (and (symbolp (first element-list)) (string= (symbol-name (first element-list)) (symbol-name symbol)))
+      (if (not (listp (second element-list))) ;; TODO More strict check. Must be a property list
+	  (error (format nil "Element ~a does not have a property list" symbol))
+	  t)
+      nil))
+      
+(defun get-dsl-element-settings (element-list)
+  (second element-list))
+
+(defun get-dsl-element-settings-property (l property &key (mandatory nil))
+  (let ((v (getf (get-dsl-element-settings l) property)))
+    (if (and mandatory (not v))
+	(error (format nil "Missing mandatory property ~a in element ~a" property l)))
+    v))
 
 ;;
 ;; HEADING
 ;;
 
 (defun heading-p (l)
-  (and (symbolp (first l)) (string= (symbol-name (first l)) "HEADING")))
+  (dsl-element-p l 'heading))
 
-(defun heading-settings (heading)
-  (second heading))
+(defun heading-settings (l)
+  (get-dsl-element-settings l))
 
-(defun heading-settings-name (heading)
-  "Returns the :name property of heading. Signals an error when the name is nil or empty."
-  (let ((name (getf (heading-settings heading) :name)))
-    (if (or (not name) (string= "" name))
-	(error (format nil "Heading must have a :name property that is not empty and not nil: ~a" heading)))
-    name))
+(defun heading-settings-name (l)
+  (get-dsl-element-settings-property l :name :mandatory t))
 
 (defun heading-id (heading)
   "Returns an id generated out of the :name property of the heading."
   (make-id (heading-settings-name heading)))
-
-;;
-;; Table of contents relevant HEADING
-;;
-
-(defun toc-heading-p (l)
-  (and (heading-p l) (getf (heading-settings l) :toc)))
 
 ;;
 ;; TOC (table of contents)
@@ -51,15 +52,8 @@
 (defun semantic-p (l)
   (and (symbolp (first l)) (string= (symbol-name (first l)) "SEMANTIC")))
 
-(defun semantic-settings (element)
-  (second element))
-
-(defun semantic-settings-name (semantic-element)
-  "Returns the :name property of semantic-element. Signals an error when the name is nil or empty."
-  (let ((name (getf (semantic-settings semantic-element) :name)))
-    (if (or (not name) (string= "" name))
-	(error (format nil "Semantic must have a :name property that is not empty and not nil: ~a" semantic-element)))
-    name))
+(defun semantic-settings-name (l)
+  (get-dsl-element-settings-property l :name :mandatory t))
 
 ;;
 ;; TOC generation
@@ -67,7 +61,9 @@
 
 (defun generate-html-toc (output-stream doc)
   "Traverse doc and generate a HTML list representing the TOC"
-  (labels ((sub-toc-p (sub-list)
+  (labels ((toc-heading-p (l)
+	     (and (heading-p l) (getf (heading-settings l) :toc)))
+	   (sub-toc-p (sub-list)
 	     "Check if sub-list contains toc relevant headings.
               Not a very efficient implementation as sub-tree may get parsed two times."
 	     (cond
@@ -117,30 +113,20 @@
 ;;
 ;;
 
-(defclass html-writer () ())
-(defgeneric open-semantic (html-writer heading-element))
-(defgeneric close-semantic (html-writer heading-element))
-
-(defmethod open-semantic ((writer html-writer) semantic-element-settings)
-  (format nil "<~a>" (getf semantic-element-settings :name)))
-
-(defmethod close-semantic ((writer html-writer) semantic-element-settings)
-  (format nil "</~a>" (getf semantic-element-settings :name)))
-
-(defun doc-to-html (html-writer output-stream doc)
-  ""
+(defun doc-to-html (output-stream doc)
+  "Convert documentation to HTML"
   (labels ((doc-to-html-impl (heading-level sub-list)
 	     (cond
 	       ((toc-p sub-list)
 		(generate-html-toc output-stream doc))
 	       ((not (listp sub-list))
 		(format output-stream "~a" sub-list))
-	       ((semantic-p sub-list)
-		(format output-stream "~a" (open-semantic html-writer (semantic-settings sub-list)))
+	       ((semantic-p sub-list) ;; TODO Write class attribute if present
+		(format output-stream "<~a>" (semantic-settings-name sub-list))
 		(dolist (item (rest (rest sub-list)))
 		  (doc-to-html-impl heading-level item))
-		(format output-stream "~a" (close-semantic html-writer (semantic-settings sub-list))))
-	       ((heading-p sub-list)
+		(format output-stream "</~a>" (semantic-settings-name sub-list)))
+	       ((heading-p sub-list) ;; TODO Write class attribute if present
 		(format
 		 output-stream "<h~a~a>~a</h~a>"
 		 (+ 1 heading-level)
