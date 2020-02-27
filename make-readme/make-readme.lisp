@@ -34,7 +34,7 @@
 		     ,(cl-readme:read-verbatim "make-readme/introduction.html"))
 	   (semantic (:name "nav")
 		     (heading (:name "Table of contents")
-			      TOC))
+			      (toc)))
 	   (semantic (:name "section")
 		     (heading (:name "Installation" :toc t)
 			      ,(cl-readme:read-verbatim "make-readme/installation.html"))
