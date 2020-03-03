@@ -1,14 +1,14 @@
-<html><body><header><h1 id="id-cl-readme">cl-readme</h1>Readme generation utilities for my Common Lisp projects. The key concepts are as follows:
+<html><body><header><h1>cl-readme</h1>Readme generation utilities for my Common Lisp projects. The key concepts are as follows:
 <ul>
     <li>Readmes are using HTML as markup language. A project has a readme.md that links to github.io where the HTML documentation is hosted.</li>
     <li>Docstrings are using HTML as markup language.</li>
     <li>Verbatim HTML output via plain hard coded strings.</li>
     <li>This library provides a DSL for generation of HTML headings, a Table Of Contents and HTML semantic elements, as well as a couple of helper functions such as reading code and verbatim HTML files.</li>
     <li>This library does not provide functionality such as getting the docstring of a function.</li>
-</ul></header><nav><h1 id="id-Table of contents">Table of contents</h1><ul><li><a href="#id-Installation">Installation</a><ul></ul></li><li><a href="#id-Example">Example</a><ul></ul></li><li><a href="#id-API">API</a><ul></ul></li></ul></nav><section><h1 id="id-Installation">Installation</h1><pre><code>
+</ul></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation-1">Installation</a><ul></ul></li><li><a href="#Example-2">Example</a><ul></ul></li><li><a href="#API-3">API</a><ul></ul></li></ul></nav><section><h1 id="Installation-1">Installation</h1><pre><code>
 cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-readme.git
-</code></pre><h1 id="id-Example">Example</h1><p><pre><code>(in-package :cl-readme-make-readme)
+</code></pre><h1 id="Example-2">Example</h1><p><pre><code>(in-package :cl-readme-make-readme)
 
 ;;
 ;; Helper functions
@@ -78,7 +78,7 @@ git clone https://github.com/Frechmatz/cl-readme.git
       (cl-readme:doc-to-html fh (get-documentation))))
   "DONE")
 
-;;(make-readme)</code></pre></p><h1 id="id-API">API</h1><b>cl-readme:*home-directory*</b><p>Home directory of the current project.</p><b>cl-readme:*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><p><b>cl-readme:read-verbatim</b> path &key (replace-tabs nil) </p><p>Reads a file and returns it as a string. Does not add any styling. This function
+;;(make-readme)</code></pre></p><h1 id="API-3">API</h1><b>cl-readme:*home-directory*</b><p>Home directory of the current project.</p><b>cl-readme:*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><p><b>cl-readme:read-verbatim</b> path &key (replace-tabs nil) </p><p>Reads a file and returns it as a string. Does not add any styling. This function
    is typically used to insert plain HTML files into the documentation.
    The function has the following arguments:
    <ul>
@@ -92,4 +92,4 @@ git clone https://github.com/Frechmatz/cl-readme.git
    </ul></p><p><b>cl-readme:make-path</b> path </p><p>Creates a path relative to *home-directory*. The function has the following arguments:
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
-   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.</p></section><footer><hr/><p><small>Generated 2020-02-27  22:50:17</small></p></footer></body></html>
+   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.</p></section><footer><hr/><p><small>Generated 2020-03-03  21:20:40</small></p></footer></body></html>
