@@ -1,8 +1,5 @@
 (in-package :cl-readme)
 
-(defun make-id (name)
-  (format nil "id-~a" name))
-
 ;;
 ;; DSL
 ;;
@@ -17,7 +14,7 @@
   (getf (second l) :name))
 
 (defun get-heading-id (l)
-  (make-id (get-heading-name l)))
+  (getf (second l) :id))
 
 (defun toc-p (l)
   (and (symbolp (first l)) (string= (symbol-name (first l)) "TOC")))
@@ -78,15 +75,29 @@
     (generate-html-toc-impl doc)
     (format output-stream "</ul>")))
 
-(defun set-heading-ids (doc)
-  (labels ((clone-list (l)
-             (if (not (listp l))
-                 l
-                 (let ((c (list)))
-                   (dolist (item l)
-                     (push (clone-list item) c))
-                   (reverse c)))))
-    (clone-list doc)))
+(defun set-toc-heading-ids (doc)
+  (let ((counter 0))
+    (labels ((make-id (heading-settings)
+	       (setf counter (+ 1 counter))
+	       (format nil "~a-~a" (getf heading-settings :name) counter))
+	     (clone-list (l)
+               (if (not (listp l))
+                   l
+                   (let ((c (list)))
+		     (cond
+		       ((toc-heading-p l)
+			(let ((heading-settings (copy-list (second l))))
+			  (push 'heading c)
+			  (setf (getf heading-settings :id) (make-id heading-settings))
+			  (push heading-settings c)
+			  (dolist (item (rest (rest l)))
+			    (push (clone-list item) c))))
+		       (t
+			(dolist (item l)
+			  (push (clone-list item) c))
+			))
+                     (reverse c)))))
+      (clone-list doc))))
 
 
 ;;
@@ -126,5 +137,7 @@
     nil))
 
 (defun doc-to-html (output-stream doc)
-  (let ((rewritten-doc (set-heading-ids doc)))
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
+  (let ((rewritten-doc (set-toc-heading-ids doc)))
+    ;;(break)
     (doc-to-html-internal output-stream rewritten-doc)))
