@@ -77,7 +77,7 @@
 	     (cond
 	       ((not (listp sub-list))
 		nil)
-	       ((and (toc-heading-p sub-list) (sub-toc-p sub-list))
+	       ((and (toc-heading-p sub-list) (sub-toc-p (rest (rest sub-list))))
 		;; Current element is a toc-heading and contains sub toc-headings
 		;; <li>...<ul>...</ul></li>
 		(format
@@ -87,7 +87,7 @@
 		(dolist (item (rest (rest sub-list)))
 		  (toc-to-html-impl item))
 		(format output-stream "</ul></li>"))
-	       ((and (toc-heading-p sub-list) (not (sub-toc-p sub-list)))
+	       ((toc-heading-p sub-list)
 		;; Current element is a toc-heading that has no sub toc-headings
 		;; <li>...</li>
 		(format
