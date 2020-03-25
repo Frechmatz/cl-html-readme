@@ -1,8 +1,5 @@
 (in-package :cl-readme)
 
-(defparameter *home-directory* nil "Home directory of the current project.")
-(defparameter *tab-width* 8 "Width of a tab. Used, when tabs are to be replaced with space characters.")
-
 (defun validate-home-directory ()
   (if (not *home-directory*)
       (error "Variable *HOME-DIRECTORY* not set")))

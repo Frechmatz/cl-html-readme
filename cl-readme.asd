@@ -10,6 +10,7 @@
   :components ((:module "src"
 			:serial t
 			:components ((:file "packages")
+				     (:file "variables")
 				     (:file "html-writer")
 				     (:file "readme-util")))))
 

@@ -73,7 +73,7 @@
 		    (if (sub-toc-p item)
 			(setf found t)))
 		  found))))
-	   (toc-to-html-impl (sub-list)
+	   (toc-to-html-impl (toc-level sub-list)
 	     (cond
 	       ((not (listp sub-list))
 		nil)
@@ -81,26 +81,34 @@
 		;; Current element is a toc-heading and contains sub toc-headings
 		;; <li>...<ul>...</ul></li>
 		(format
-		 output-stream "<li><a href=\"#~a\">~a</a><ul>"
+		 output-stream "<li~a><a href=\"#~a\">~a</a><ul~a>"
+		 (if (funcall *get-toc-item-class* toc-level)
+		     (format nil " class=\"~a\"" (funcall *get-toc-item-class* toc-level)) "")
 		 (get-heading-id sub-list)
-		 (get-heading-name sub-list))
+		 (get-heading-name sub-list)
+		 (if (funcall *get-toc-container-class* toc-level)
+		     (format nil " class=\"~a\"" (funcall *get-toc-container-class* toc-level)) ""))
 		(dolist (item (rest (rest sub-list)))
-		  (toc-to-html-impl item))
+		  (toc-to-html-impl (+ 1 toc-level) item))
 		(format output-stream "</ul></li>"))
 	       ((toc-heading-p sub-list)
 		;; Current element is a toc-heading that has no sub toc-headings
 		;; <li>...</li>
 		(format
-		 output-stream "<li><a href=\"#~a\">~a</a></li>"
+		 output-stream "<li~a><a href=\"#~a\">~a</a></li>"
+		 (if (funcall *get-toc-item-class* toc-level)
+		     (format nil " class=\"~a\"" (funcall *get-toc-item-class* toc-level)) "")
 		 (get-heading-id sub-list)
 		 (get-heading-name sub-list))
 		(dolist (item (rest (rest sub-list)))
-		  (toc-to-html-impl item)))
+		  (toc-to-html-impl (+ 1 toc-level) item)))
 	       (t
 		(dolist (item sub-list)
-		  (toc-to-html-impl item))))))
-    (format output-stream "<ul>")
-    (toc-to-html-impl doc)
+		  (toc-to-html-impl toc-level item))))))
+    (format output-stream "<ul~a>"
+	    (if (funcall *get-toc-container-class* 0)
+		(format nil " class=\"~a\"" (funcall *get-toc-container-class* 0)) ""))
+    (toc-to-html-impl 1 doc)
     (format output-stream "</ul>")))
 
 (defun doc-to-html-internal (output-stream doc)
@@ -111,17 +119,19 @@
 		(format output-stream "~a" sub-list))
 	       ((toc-p sub-list)
 		(toc-to-html output-stream doc))
-	       ((semantic-p sub-list) ;; TODO Write class attribute if present
+	       ((semantic-p sub-list)
 		(format output-stream "<~a>" (get-semantic-name sub-list))
 		(dolist (item (rest (rest sub-list)))
 		  (doc-to-html-impl heading-level item))
 		(format output-stream "</~a>" (get-semantic-name sub-list)))
-	       ((heading-p sub-list) ;; TODO Write class attribute if present
+	       ((heading-p sub-list)
 		(format
-		 output-stream "<h~a~a>~a</h~a>"
+		 output-stream "<h~a~a~a>~a</h~a>"
 		 (+ 1 heading-level) ;; TODO Take care of maximum HTML heading level
 		 (if (get-heading-id sub-list)
 		     (format nil " id=\"~a\"" (get-heading-id sub-list)) "")
+		 (if (funcall *get-heading-class* heading-level)
+		     (format nil " class=\"~a\"" (funcall *get-heading-class* heading-level)) "")
 		 (get-heading-name sub-list)
 		 (+ 1 heading-level))
 		(dolist (item (rest (rest sub-list)))

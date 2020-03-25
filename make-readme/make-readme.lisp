@@ -43,6 +43,9 @@
 		     (heading (:name "API":toc t)
 			      ,(make-variable-string 'cl-readme:*home-directory*)
 			      ,(make-variable-string 'cl-readme:*tab-width*)
+			      ,(make-variable-string 'cl-readme:*get-heading-class*)
+			      ,(make-variable-string 'cl-readme:*get-toc-container-class*)
+			      ,(make-variable-string 'cl-readme:*get-toc-item-class*)
 			      ,(make-function-string 'cl-readme:read-verbatim)
 			      ,(make-function-string 'cl-readme:read-code)
 			      ,(make-function-string 'cl-readme:make-path)
@@ -59,7 +62,13 @@
 
 (defun make-readme ()
   (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-readme/")
-	(cl-readme:*tab-width* 8))
+	(cl-readme:*tab-width* 8)
+	(cl-readme:*get-heading-class*
+	 (lambda(level) (format nil "header-class-~a" level)))
+	(cl-readme:*get-toc-container-class*
+	 (lambda(level) (format nil "toc-container-class-~a" level)))
+	(cl-readme:*get-toc-item-class*
+	 (lambda(level) (format nil "toc-item-class-~a" level))))
     (with-open-file (fh (cl-readme:make-path "docs/index.html")
 			:direction :output
 			:if-exists :supersede
