@@ -22,13 +22,11 @@
    "</p>"))
 
 ;;
-;; Documentation
+;; Readme
 ;;
 
-(defun get-documentation ()
-  "Returns the documentation as a list using the DSL."
-  (let ((documentation
-	 `("<html><body>"
+(defun get-readme ()
+  `("<html><body>"
 	   (semantic (:name "header")
 		     (heading (:name "cl-readme"))
 		     ,(cl-readme:read-verbatim "make-readme/introduction.html"))
@@ -53,8 +51,7 @@
 			      ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
 	   (semantic (:name "footer")
 		     "<hr/><p><small>Generated " ,(cl-readme:current-date) "</small></p>")
-	   "</body></html>")))
-    documentation))
+	   "</body></html>"))
 
 ;;
 ;; Generate HTML file
@@ -74,7 +71,7 @@
 			:if-exists :supersede
 			:if-does-not-exist :create
 			:external-format :utf-8)
-      (cl-readme:doc-to-html fh (get-documentation))))
+      (cl-readme:doc-to-html fh (get-readme))))
   "DONE")
 
 ;;(make-readme)
