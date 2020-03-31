@@ -9,14 +9,18 @@
    'string
    "<p>"
    (cl-readme:sbcl-make-function-decl f)
-   "</p><p>"
+   "</p>"
+   "<p>"
    (documentation f 'function)
    "</p>"))
 
 (defun make-variable-string (v)
   (concatenate
    'string
-   "<b>" (string-downcase (package-name (symbol-package v))) ":" (string-downcase  (symbol-name v)) "</b>"
+   "<b>"
+   (string-downcase (package-name (symbol-package v))) ":"
+   (string-downcase  (symbol-name v))
+   "</b>"
    "<p>"
    (documentation v 'variable)
    "</p>"))
@@ -27,31 +31,31 @@
 
 (defun get-readme ()
   `("<html><body>"
-	   (semantic (:name "header")
-		     (heading (:name "cl-readme"))
-		     ,(cl-readme:read-verbatim "make-readme/introduction.html"))
-	   (semantic (:name "nav")
-		     (heading (:name "Table of contents")
-			      (toc)))
-	   (semantic (:name "section")
-		     (heading (:name "Installation" :toc t)
-			      ,(cl-readme:read-verbatim "make-readme/installation.html"))
-		     (heading (:name "Example" :toc t)
-			      ,(cl-readme:read-code "make-readme/make-readme.lisp"))
-		     (heading (:name "API":toc t)
-			      ,(make-variable-string 'cl-readme:*home-directory*)
-			      ,(make-variable-string 'cl-readme:*tab-width*)
-			      ,(make-variable-string 'cl-readme:*get-heading-class*)
-			      ,(make-variable-string 'cl-readme:*get-toc-container-class*)
-			      ,(make-variable-string 'cl-readme:*get-toc-item-class*)
-			      ,(make-function-string 'cl-readme:read-verbatim)
-			      ,(make-function-string 'cl-readme:read-code)
-			      ,(make-function-string 'cl-readme:make-path)
-			      ,(make-function-string 'cl-readme:current-date)
-			      ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
-	   (semantic (:name "footer")
-		     "<hr/><p><small>Generated " ,(cl-readme:current-date) "</small></p>")
-	   "</body></html>"))
+    (semantic (:name "header")
+	      (heading (:name "cl-readme"))
+	      ,(cl-readme:read-verbatim "make-readme/introduction.html"))
+    (semantic (:name "nav")
+	      (heading (:name "Table of contents")
+		       (toc)))
+    (semantic (:name "section")
+	      (heading (:name "Installation" :toc t)
+		       ,(cl-readme:read-verbatim "make-readme/installation.html"))
+	      (heading (:name "Example" :toc t)
+		       ,(cl-readme:read-code "make-readme/make-readme.lisp"))
+	      (heading (:name "API":toc t)
+		       ,(make-variable-string 'cl-readme:*home-directory*)
+		       ,(make-variable-string 'cl-readme:*tab-width*)
+		       ,(make-variable-string 'cl-readme:*get-heading-class*)
+		       ,(make-variable-string 'cl-readme:*get-toc-container-class*)
+		       ,(make-variable-string 'cl-readme:*get-toc-item-class*)
+		       ,(make-function-string 'cl-readme:read-verbatim)
+		       ,(make-function-string 'cl-readme:read-code)
+		       ,(make-function-string 'cl-readme:make-path)
+		       ,(make-function-string 'cl-readme:current-date)
+		       ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
+    (semantic (:name "footer")
+	      "<hr/><p><small>Generated " ,(cl-readme:current-date) "</small></p>")
+    "</body></html>"))
 
 ;;
 ;; Generate HTML file

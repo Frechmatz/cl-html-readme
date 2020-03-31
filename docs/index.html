@@ -18,14 +18,18 @@ git clone https://github.com/Frechmatz/cl-readme.git
    'string
    "&lt;p&gt;"
    (cl-readme:sbcl-make-function-decl f)
-   "&lt;/p&gt;&lt;p&gt;"
+   "&lt;/p&gt;"
+   "&lt;p&gt;"
    (documentation f 'function)
    "&lt;/p&gt;"))
 
 (defun make-variable-string (v)
   (concatenate
    'string
-   "&lt;b&gt;" (string-downcase (package-name (symbol-package v))) ":" (string-downcase  (symbol-name v)) "&lt;/b&gt;"
+   "&lt;b&gt;"
+   (string-downcase (package-name (symbol-package v))) ":"
+   (string-downcase  (symbol-name v))
+   "&lt;/b&gt;"
    "&lt;p&gt;"
    (documentation v 'variable)
    "&lt;/p&gt;"))
@@ -36,31 +40,31 @@ git clone https://github.com/Frechmatz/cl-readme.git
 
 (defun get-readme ()
   `("&lt;html&gt;&lt;body&gt;"
-           (semantic (:name "header")
-                     (heading (:name "cl-readme"))
-                     ,(cl-readme:read-verbatim "make-readme/introduction.html"))
-           (semantic (:name "nav")
-                     (heading (:name "Table of contents")
-                              (toc)))
-           (semantic (:name "section")
-                     (heading (:name "Installation" :toc t)
-                              ,(cl-readme:read-verbatim "make-readme/installation.html"))
-                     (heading (:name "Example" :toc t)
-                              ,(cl-readme:read-code "make-readme/make-readme.lisp"))
-                     (heading (:name "API":toc t)
-                              ,(make-variable-string 'cl-readme:*home-directory*)
-                              ,(make-variable-string 'cl-readme:*tab-width*)
-                              ,(make-variable-string 'cl-readme:*get-heading-class*)
-                              ,(make-variable-string 'cl-readme:*get-toc-container-class*)
-                              ,(make-variable-string 'cl-readme:*get-toc-item-class*)
-                              ,(make-function-string 'cl-readme:read-verbatim)
-                              ,(make-function-string 'cl-readme:read-code)
-                              ,(make-function-string 'cl-readme:make-path)
-                              ,(make-function-string 'cl-readme:current-date)
-                              ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
-           (semantic (:name "footer")
-                     "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(cl-readme:current-date) "&lt;/small&gt;&lt;/p&gt;")
-           "&lt;/body&gt;&lt;/html&gt;"))
+    (semantic (:name "header")
+              (heading (:name "cl-readme"))
+              ,(cl-readme:read-verbatim "make-readme/introduction.html"))
+    (semantic (:name "nav")
+              (heading (:name "Table of contents")
+                       (toc)))
+    (semantic (:name "section")
+              (heading (:name "Installation" :toc t)
+                       ,(cl-readme:read-verbatim "make-readme/installation.html"))
+              (heading (:name "Example" :toc t)
+                       ,(cl-readme:read-code "make-readme/make-readme.lisp"))
+              (heading (:name "API":toc t)
+                       ,(make-variable-string 'cl-readme:*home-directory*)
+                       ,(make-variable-string 'cl-readme:*tab-width*)
+                       ,(make-variable-string 'cl-readme:*get-heading-class*)
+                       ,(make-variable-string 'cl-readme:*get-toc-container-class*)
+                       ,(make-variable-string 'cl-readme:*get-toc-item-class*)
+                       ,(make-function-string 'cl-readme:read-verbatim)
+                       ,(make-function-string 'cl-readme:read-code)
+                       ,(make-function-string 'cl-readme:make-path)
+                       ,(make-function-string 'cl-readme:current-date)
+                       ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
+    (semantic (:name "footer")
+              "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(cl-readme:current-date) "&lt;/small&gt;&lt;/p&gt;")
+    "&lt;/body&gt;&lt;/html&gt;"))
 
 ;;
 ;; Generate HTML file
@@ -103,4 +107,4 @@ or a string.</p><p><b>cl-readme:read-verbatim</b> path &key (replace-tabs nil) <
    </ul></p><p><b>cl-readme:make-path</b> path </p><p>Creates a path relative to *home-directory*. The function has the following arguments:
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
-   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.</p></section><footer><hr/><p><small>Generated 2020-03-31  19:11:20</small></p></footer></body></html>
+   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.</p></section><footer><hr/><p><small>Generated 2020-03-31  19:24:55</small></p></footer></body></html>
