@@ -61,6 +61,7 @@ git clone https://github.com/Frechmatz/cl-readme.git
                        ,(make-function-string 'cl-readme:read-code)
                        ,(make-function-string 'cl-readme:make-path)
                        ,(make-function-string 'cl-readme:current-date)
+                       ,(make-function-string 'cl-readme:sbcl-make-function-lambda-list-str)
                        ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
     (semantic (:name "footer")
               "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(cl-readme:current-date) "&lt;/small&gt;&lt;/p&gt;")
@@ -107,4 +108,5 @@ or a string.</p><p><b>cl-readme:read-verbatim</b> path &key (replace-tabs nil) <
    </ul></p><p><b>cl-readme:make-path</b> path </p><p>Creates a path relative to *home-directory*. The function has the following arguments:
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
-   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.</p></section><footer><hr/><p><small>Generated 2020-03-31  19:24:55</small></p></footer></body></html>
+   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-lambda-list-str</b> f </p><p>Returns a string representing the parameters of a function. Uses SBCL specific functionality.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.
+   This function is deprecated.</p></section><footer><hr/><p><small>Generated 2020-08-21  00:46:39</small></p></footer></body></html>

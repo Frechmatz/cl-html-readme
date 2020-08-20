@@ -52,6 +52,7 @@
 		       ,(make-function-string 'cl-readme:read-code)
 		       ,(make-function-string 'cl-readme:make-path)
 		       ,(make-function-string 'cl-readme:current-date)
+		       ,(make-function-string 'cl-readme:sbcl-make-function-lambda-list-str)
 		       ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
     (semantic (:name "footer")
 	      "<hr/><p><small>Generated " ,(cl-readme:current-date) "</small></p>")
