@@ -14,5 +14,6 @@
    :make-path
    :open-semantic
    :close-semantic
-   :sbcl-make-function-decl))
+   :sbcl-make-function-decl ;; DEPRECATED
+   :sbcl-make-function-lambda-list-str))
 
