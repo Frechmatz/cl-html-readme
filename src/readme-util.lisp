@@ -26,8 +26,22 @@
     (t (format nil "~a" arg))))
 
 ;; uses sbcl extensions
+(defun sbcl-make-function-lambda-list-str (f)
+  "Returns a string representing the parameters of a function. Uses SBCL specific functionality."
+  (let ((f-lambda-list-str
+	 (mapcar
+	  (lambda (item) (lambda-list-arg-to-string item))
+	  (sb-introspect:function-lambda-list f))))
+    (let ((ll (reduce
+	       (lambda(buffer item) (concatenate 'string buffer item " "))
+	       f-lambda-list-str
+	       :initial-value "")))
+      (string-downcase ll))))
+
+;; uses sbcl extensions
 (defun sbcl-make-function-decl (f)
-  "Returns a function declaration string using SBCL specific functionality."
+  "Returns a function declaration string using SBCL specific functionality.
+   This function is deprecated."
   (let ((f-name (symbol-name f))
 	(f-lambda-list-str
 	 (mapcar
