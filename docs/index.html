@@ -72,7 +72,7 @@ git clone https://github.com/Frechmatz/cl-readme.git
 ;;
 
 (defun make-readme ()
-  (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-readme/")
+  (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme))
         (cl-readme:*tab-width* 8)
         (cl-readme:*get-heading-class*
          (lambda(level) (format nil "header-class-~a" level)))
@@ -109,4 +109,4 @@ or a string.</p><p><b>cl-readme:read-verbatim</b> path &key (replace-tabs nil) <
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
    </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-lambda-list-str</b> f </p><p>Returns a string representing the parameters of a function. Uses SBCL specific functionality.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.
-   This function is deprecated.</p></section><footer><hr/><p><small>Generated 2020-08-21  00:46:39</small></p></footer></body></html>
+   This function is deprecated.</p></section><footer><hr/><p><small>Generated 2020-08-25  19:33:30</small></p></footer></body></html>
