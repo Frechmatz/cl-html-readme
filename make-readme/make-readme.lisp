@@ -63,7 +63,7 @@
 ;;
 
 (defun make-readme ()
-  (let ((cl-readme:*home-directory* "/Users/olli/src/lisp/cl-readme/")
+  (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme))
 	(cl-readme:*tab-width* 8)
 	(cl-readme:*get-heading-class*
 	 (lambda(level) (format nil "header-class-~a" level)))
