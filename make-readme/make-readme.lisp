@@ -14,10 +14,7 @@
 (defun make-variable-string (v)
   (concatenate
    'string
-   "<b>"
-   (string-downcase (package-name (symbol-package v))) ":"
-   (string-downcase  (symbol-name v))
-   "</b>"
+   "<b>" (string-downcase  (symbol-name v)) "</b>"
    "<p>" (documentation v 'variable) "</p>"))
 
 (defun read-code-file (path)

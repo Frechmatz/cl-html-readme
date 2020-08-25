@@ -26,10 +26,7 @@ git clone https://github.com/Frechmatz/cl-readme.git
 (defun make-variable-string (v)
   (concatenate
    'string
-   "&lt;b&gt;"
-   (string-downcase (package-name (symbol-package v))) ":"
-   (string-downcase  (symbol-name v))
-   "&lt;/b&gt;"
+   "&lt;b&gt;" (string-downcase  (symbol-name v)) "&lt;/b&gt;"
    "&lt;p&gt;" (documentation v 'variable) "&lt;/p&gt;"))
 
 (defun read-code-file (path)
@@ -88,11 +85,11 @@ git clone https://github.com/Frechmatz/cl-readme.git
       (cl-readme:doc-to-html fh (get-readme))))
   "DONE")
 
-;;(make-readme)</code></pre></p><h1 id="API-3">API</h1><b>cl-readme:*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>cl-readme:*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>cl-readme:*get-heading-class*</b><p>Function that returns the value of the HTML class attribute of a heading element.
+;;(make-readme)</code></pre></p><h1 id="API-3">API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>*get-heading-class*</b><p>Function that returns the value of the HTML class attribute of a heading element.
  The function is called with the indentation level of the heading element and must return nil
-or a string.</p><b>cl-readme:*get-toc-container-class*</b><p>Function that returns the value of the HTML class attribute of a toc &lt;ul&gt; element.
+or a string.</p><b>*get-toc-container-class*</b><p>Function that returns the value of the HTML class attribute of a toc &lt;ul&gt; element.
  The function is called with the indentation level of the toc element and must return nil
-or a string.</p><b>cl-readme:*get-toc-item-class*</b><p>Function that returns the value of the HTML class attribute of a toc &lt;li&gt; element.
+or a string.</p><b>*get-toc-item-class*</b><p>Function that returns the value of the HTML class attribute of a toc &lt;li&gt; element.
  The function is called with the indentation level of the toc element and must return nil
 or a string.</p><b>read-file</b>&nbsp;path &key (replace-tabs nil) (escape nil) <p>Reads a text file and returns it as a string. The function has the following arguments:
    <ul>
@@ -116,4 +113,4 @@ or a string.</p><b>read-file</b>&nbsp;path &key (replace-tabs nil) (escape nil) 
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
    </ul></p><b>current-date</b>&nbsp;<p>Returns a string representing the current date and time.</p><b>sbcl-make-function-lambda-list-str</b>&nbsp;f <p>Returns a string representing the parameters of a function. Uses SBCL specific functionality.</p><b>sbcl-make-function-decl</b>&nbsp;f <p>Returns a function declaration string using SBCL specific functionality.
-   <p>This function is deprecated and has been replaced with sbcl-make-function-lambda-list-str.</p></p></section><footer><hr/><p><small>Generated 2020-08-25  22:22:02</small></p></footer></body></html>
+   <p>This function is deprecated and has been replaced with sbcl-make-function-lambda-list-str.</p></p></section><footer><hr/><p><small>Generated 2020-08-25  22:27:23</small></p></footer></body></html>
