@@ -75,7 +75,9 @@
       <li>path The path, e.g. examples/example-1.lisp.</li>
    </ul>"
   (validate-home-directory)
-  (concatenate 'string *home-directory* path))
+  (if (pathnamep *home-directory*)
+      (merge-pathnames path *home-directory*)
+      (concatenate 'string *home-directory* path)))
 
 (defun format-string (str &key replace-tabs escape)
   (let ((l 0))
