@@ -8,8 +8,9 @@
    :*get-toc-item-class*
    :html-writer
    :doc-to-html
-   :read-verbatim
-   :read-code
+   :read-file
+   :read-verbatim ;; DEPRECATED
+   :read-code ;; DEPRECATED
    :current-date
    :make-path
    :open-semantic

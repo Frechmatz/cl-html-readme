@@ -41,7 +41,7 @@
 ;; uses sbcl extensions
 (defun sbcl-make-function-decl (f)
   "Returns a function declaration string using SBCL specific functionality.
-   This function is deprecated."
+   <p>This function is deprecated and has been replaced with sbcl-make-function-lambda-list-str.</p>"
   (let ((f-name (symbol-name f))
 	(f-lambda-list-str
 	 (mapcar
@@ -112,6 +112,12 @@
 	(get-output-stream-string string-stream)))))
 
 (defun read-file (path &key (replace-tabs nil) (escape nil))
+  "Reads a text file and returns it as a string. The function has the following arguments:
+   <ul>
+      <li>path Path of the file relative to *home-directory*.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+      <li>:escape If t then special characters are replaced with HTML character entities.</li>
+   </ul>"
   (let ((output (make-array '(0) :element-type 'base-char
 			    :fill-pointer 0 :adjustable t)))
     (with-output-to-string (s output)
@@ -130,7 +136,8 @@
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
-   </ul>"
+   </ul>
+   <p>This function is deprecated and has been replaced with read-file.</p>"
   (read-file path :replace-tabs replace-tabs :escape nil))
 
 (defun read-code (path)
@@ -139,7 +146,8 @@
    The code is embedded into HTML &lt;p&gt;&lt;pre&gt;&lt;code&gt; markup. The function has the following arguments:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
-   </ul>"
+   </ul>
+   <p>This function is deprecated and has been replaced with read-file.</p>"
   (concatenate 'string
 	       "<p><pre><code>"
 	       (read-file path :replace-tabs t :escape t)

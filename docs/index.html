@@ -1,27 +1,27 @@
-<html><body><header><h1 class="header-class-0">cl-readme</h1>Readme generation utilities for my Common Lisp projects. The key concepts are as follows:
+<html><body><header><h1>cl-readme</h1>A Documentation Generator for Common Lisp projects. The key concepts are as follows:
 <ul>
-    <li>Readmes are using HTML as markup language.</li>
+    <li>The generated documentation consists of HTML files.</li>
     <li>Docstrings are using HTML as markup language.</li>
-    <li>Verbatim HTML output via plain hard coded strings.</li>
-</ul>
-<p>The library provides a DSL for generation of HTML headings, a Table Of Contents and HTML semantic elements.</p></header><nav><h1 class="header-class-0">Table of contents</h1><ul class="toc-container-class-0"><li class="toc-item-class-1"><a href="#Installation-1">Installation</a></li><li class="toc-item-class-1"><a href="#Example-2">Example</a></li><li class="toc-item-class-1"><a href="#API-3">API</a></li></ul></nav><section><h1 id="Installation-1" class="header-class-0">Installation</h1><pre><code>
+    <li>Adding verbatim HTML to the documentation via plain strings or HTML files.</li>
+    <li>Easy integration of source code files.</li>
+    <li>Generation of HTML headings, a Table Of Contents and HTML semantic elements via a DSL.</li>
+    <li>No wrapping of the <a href="http://www.lispworks.com/documentation/lw50/CLHS/Body/f_docume.htm">documentation</a> function.</li>
+    <li>Keeping predefined HTML markup at a minimum.</li>
+</ul><p>The source code is available <a href="https://github.com/Frechmatz/cl-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation-1">Installation</a></li><li><a href="#Example-2">Example</a></li><li><a href="#API-3">API</a></li></ul></nav><section><h1 id="Installation-1">Installation</h1><pre><code>
 cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-readme.git
-</code></pre><h1 id="Example-2" class="header-class-0">Example</h1><p><pre><code>(in-package :cl-readme-make-readme)
+</code></pre><h1 id="Example-2">Example</h1><p><pre><code>(in-package :cl-readme-make-readme)
 
 ;;
-;; Helper functions
+;; Formatting functions
 ;;
 
 (defun make-function-string (f)
   (concatenate
    'string
-   "&lt;p&gt;"
-   (cl-readme:sbcl-make-function-decl f)
-   "&lt;/p&gt;"
-   "&lt;p&gt;"
-   (documentation f 'function)
-   "&lt;/p&gt;"))
+   "&lt;b&gt;" (string-downcase (symbol-name f)) "&lt;/b&gt;&amp;nbsp;"
+   (cl-readme:sbcl-make-function-lambda-list-str f) 
+   "&lt;p&gt;" (documentation f 'function) "&lt;/p&gt;"))
 
 (defun make-variable-string (v)
   (concatenate
@@ -30,9 +30,14 @@ git clone https://github.com/Frechmatz/cl-readme.git
    (string-downcase (package-name (symbol-package v))) ":"
    (string-downcase  (symbol-name v))
    "&lt;/b&gt;"
-   "&lt;p&gt;"
-   (documentation v 'variable)
-   "&lt;/p&gt;"))
+   "&lt;p&gt;" (documentation v 'variable) "&lt;/p&gt;"))
+
+(defun read-code-file (path)
+  (concatenate
+   'string
+   "&lt;p&gt;&lt;pre&gt;&lt;code&gt;"
+   (cl-readme:read-file path :replace-tabs t :escape t)
+   "&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;"))
 
 ;;
 ;; Readme
@@ -42,21 +47,23 @@ git clone https://github.com/Frechmatz/cl-readme.git
   `("&lt;html&gt;&lt;body&gt;"
     (semantic (:name "header")
               (heading (:name "cl-readme"))
-              ,(cl-readme:read-verbatim "make-readme/introduction.html"))
+              ,(cl-readme:read-file "make-readme/introduction.html")
+              "&lt;p&gt;The source code is available &lt;a href=\"https://github.com/Frechmatz/cl-readme\"&gt;here&lt;/a&gt;.&lt;/p&gt;")
     (semantic (:name "nav")
               (heading (:name "Table of contents")
                        (toc)))
     (semantic (:name "section")
               (heading (:name "Installation" :toc t)
-                       ,(cl-readme:read-verbatim "make-readme/installation.html"))
+                       ,(cl-readme:read-file "make-readme/installation.html"))
               (heading (:name "Example" :toc t)
-                       ,(cl-readme:read-code "make-readme/make-readme.lisp"))
+                       ,(read-code-file "make-readme/make-readme.lisp"))
               (heading (:name "API":toc t)
                        ,(make-variable-string 'cl-readme:*home-directory*)
                        ,(make-variable-string 'cl-readme:*tab-width*)
                        ,(make-variable-string 'cl-readme:*get-heading-class*)
                        ,(make-variable-string 'cl-readme:*get-toc-container-class*)
                        ,(make-variable-string 'cl-readme:*get-toc-item-class*)
+                       ,(make-function-string 'cl-readme:read-file)
                        ,(make-function-string 'cl-readme:read-verbatim)
                        ,(make-function-string 'cl-readme:read-code)
                        ,(make-function-string 'cl-readme:make-path)
@@ -68,18 +75,11 @@ git clone https://github.com/Frechmatz/cl-readme.git
     "&lt;/body&gt;&lt;/html&gt;"))
 
 ;;
-;; Generate HTML file
+;; Generate readme
 ;;
 
 (defun make-readme ()
-  (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme))
-        (cl-readme:*tab-width* 8)
-        (cl-readme:*get-heading-class*
-         (lambda(level) (format nil "header-class-~a" level)))
-        (cl-readme:*get-toc-container-class*
-         (lambda(level) (format nil "toc-container-class-~a" level)))
-        (cl-readme:*get-toc-item-class*
-         (lambda(level) (format nil "toc-item-class-~a" level))))
+  (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme)))
     (with-open-file (fh (cl-readme:make-path "docs/index.html")
                         :direction :output
                         :if-exists :supersede
@@ -88,25 +88,32 @@ git clone https://github.com/Frechmatz/cl-readme.git
       (cl-readme:doc-to-html fh (get-readme))))
   "DONE")
 
-;;(make-readme)</code></pre></p><h1 id="API-3" class="header-class-0">API</h1><b>cl-readme:*home-directory*</b><p>Home directory of the current project.</p><b>cl-readme:*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>cl-readme:*get-heading-class*</b><p>Function that returns the value of the HTML class attribute of a heading element.
+;;(make-readme)</code></pre></p><h1 id="API-3">API</h1><b>cl-readme:*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>cl-readme:*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>cl-readme:*get-heading-class*</b><p>Function that returns the value of the HTML class attribute of a heading element.
  The function is called with the indentation level of the heading element and must return nil
 or a string.</p><b>cl-readme:*get-toc-container-class*</b><p>Function that returns the value of the HTML class attribute of a toc &lt;ul&gt; element.
  The function is called with the indentation level of the toc element and must return nil
 or a string.</p><b>cl-readme:*get-toc-item-class*</b><p>Function that returns the value of the HTML class attribute of a toc &lt;li&gt; element.
  The function is called with the indentation level of the toc element and must return nil
-or a string.</p><p><b>cl-readme:read-verbatim</b> path &key (replace-tabs nil) </p><p>Reads a file and returns it as a string. Does not add any styling. This function
+or a string.</p><b>read-file</b>&nbsp;path &key (replace-tabs nil) (escape nil) <p>Reads a text file and returns it as a string. The function has the following arguments:
+   <ul>
+      <li>path Path of the file relative to *home-directory*.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+      <li>:escape If t then special characters are replaced with HTML character entities.</li>
+   </ul></p><b>read-verbatim</b>&nbsp;path &key (replace-tabs nil) <p>Reads a file and returns it as a string. Does not add any styling. This function
    is typically used to insert plain HTML files into the documentation.
    The function has the following arguments:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
-   </ul></p><p><b>cl-readme:read-code</b> path </p><p>Reads a file that represents code and returns it as string. Tabs are replaced by 
+   </ul>
+   <p>This function is deprecated and has been replaced with read-file.</p></p><b>read-code</b>&nbsp;path <p>Reads a file that represents code and returns it as string. Tabs are replaced by 
    spaces according to the *tab-width* variable. Special characters are replaced with their HTML character entities.
    The code is embedded into HTML &lt;p&gt;&lt;pre&gt;&lt;code&gt; markup. The function has the following arguments:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
-   </ul></p><p><b>cl-readme:make-path</b> path </p><p>Creates a path relative to *home-directory*. The function has the following arguments:
+   </ul>
+   <p>This function is deprecated and has been replaced with read-file.</p></p><b>make-path</b>&nbsp;path <p>Creates a path relative to *home-directory*. The function has the following arguments:
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
-   </ul></p><p><b>cl-readme:current-date</b> </p><p>Returns a string representing the current date and time.</p><p><b>cl-readme:sbcl-make-function-lambda-list-str</b> f </p><p>Returns a string representing the parameters of a function. Uses SBCL specific functionality.</p><p><b>cl-readme:sbcl-make-function-decl</b> f </p><p>Returns a function declaration string using SBCL specific functionality.
-   This function is deprecated.</p></section><footer><hr/><p><small>Generated 2020-08-25  19:33:30</small></p></footer></body></html>
+   </ul></p><b>current-date</b>&nbsp;<p>Returns a string representing the current date and time.</p><b>sbcl-make-function-lambda-list-str</b>&nbsp;f <p>Returns a string representing the parameters of a function. Uses SBCL specific functionality.</p><b>sbcl-make-function-decl</b>&nbsp;f <p>Returns a function declaration string using SBCL specific functionality.
+   <p>This function is deprecated and has been replaced with sbcl-make-function-lambda-list-str.</p></p></section><footer><hr/><p><small>Generated 2020-08-25  22:22:02</small></p></footer></body></html>
