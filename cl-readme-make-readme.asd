@@ -7,8 +7,13 @@
   :homepage "https://github.com/Frechmatz/cl-readme"
   :description "Readme generation utilities"
   :long-description "Readme generation utilities"
-  :depends-on (:cl-readme)
-  :components ((:module "make-readme"
+  :components ((:module "src"
+			:serial t
+			:components ((:file "packages")
+				     (:file "variables")
+				     (:file "html-writer")
+				     (:file "readme-util")))
+	       (:module "make-readme"
 			:serial t
 			:components ((:file "packages")
 				     (:file "make-readme")))))
