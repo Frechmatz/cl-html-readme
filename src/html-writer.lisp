@@ -25,6 +25,20 @@
 (defun get-semantic-name (l)
   (getf (second l) :name))
 
+(defun has-toc-headings (sub-list)
+  "Brute force implementation to check if a list contains toc-headings"
+  (cond
+    ((not (listp sub-list))
+     nil)
+    ((toc-heading-p sub-list)
+     t)
+    (t
+     (let ((found nil))
+       (dolist (item sub-list)
+	 (if (has-toc-headings item)
+	     (setf found t)))
+       found))))
+
 ;;
 ;; Rewriting
 ;;
@@ -54,10 +68,44 @@
                      (reverse c)))))
       (clone-list doc))))
 
+;; TODO Set properties such as id and name at toc elements
+;; TODO Introduce make-node function
+(defun generate-toc (doc)
+  (let ((tree-builder (make-instance 'tree-builder)))
+    (labels ((traverse (sub-list)
+	       (cond
+		 ((not (listp sub-list))
+		  nil)
+		 ((and (toc-heading-p sub-list) (has-toc-headings (rest (rest sub-list))))
+		  (let ((node (list 'toc-container :name (get-heading-name sub-list))))
+		    (open-node tree-builder node)
+		    (dolist (item (rest (rest sub-list)))
+		      (traverse item) result)
+		    (close-node tree-builder)))
+		 ((toc-heading-p sub-list)
+		  (let ((node (list 'toc-item :name (get-heading-name sub-list))))
+		    (add-node tree-builder node)
+		    (dolist (item (rest (rest sub-list)))
+		      (traverse item) result)))
+		 (t
+		  (dolist (item sub-list)
+		    (traverse item))))))
+      (traverse doc)
+      (get-tree tree-builder))))
+
+;; TODO Rewrite toc symbol
+(defun set-toc (doc)
+  (declare (ignore doc))
+  nil
+  )
+
+
+
 ;;
 ;; HTML Generation
 ;;
 
+;; TODO Remove this function and add HTML generation to doc-to-html-internal
 (defun toc-to-html (output-stream doc)
   "Traverse doc and generate a HTML list representing the TOC"
   (labels ((sub-toc-p (sub-list)
@@ -150,3 +198,32 @@
 (defun doc-to-html (output-stream doc)
   "Convert documentation to HTML"
   (doc-to-html-internal output-stream (set-toc-heading-ids doc)))
+
+
+;;
+;; Test
+;;
+
+(defun get-test-doc-1 ()
+  `((heading (:name "1" :toc t))
+    "Text"
+    (heading (:name "2" :toc t))
+    "Text"
+    (heading (:name "3" :toc t)
+	     "Text"
+	     (heading (:name "3.1" :toc t))
+	     "Text"
+	     (heading (:name "3.2" :toc t)))
+    (heading (:name "4" :toc t))))
+
+(defun test-1 ()
+  (let ((doc (get-test-doc-1)))
+    (let ((id-enriched-doc (set-toc-heading-ids doc)))
+      (format t "~%Added Ids: ~a~%" id-enriched-doc)
+      (let ((parsed-toc (generate-toc id-enriched-doc)))
+	(format t "~%Parsed Toc: ~a~%" parsed-toc))
+      ;; TODO Rewrote TOC
+      )))
+
+;;(test-1)
+

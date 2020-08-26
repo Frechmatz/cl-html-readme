@@ -11,6 +11,7 @@
 			:serial t
 			:components ((:file "packages")
 				     (:file "variables")
+				     (:file "tree-builder")
 				     (:file "html-writer")
 				     (:file "readme-util")))))
 
