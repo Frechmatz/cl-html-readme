@@ -1,5 +1,7 @@
 (in-package :cl-readme)
 
+(require :sb-introspect)
+
 (defun validate-home-directory ()
   (if (not *home-directory*)
       (error "Variable *HOME-DIRECTORY* not set")))
