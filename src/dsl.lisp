@@ -1,5 +1,14 @@
-(in-package :cl-readme)
+(in-package :cl-readme-dsl)
 
+;;
+;; DSL definition and tooling
+;;
+;; Todos
+;; - Validation
+;;
+
+;;
+;; Language definition:
 ;;
 ;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> })
 ;; <semantic>      ::= (semantic <properties> { <string> | <heading> | <toc> })
@@ -52,78 +61,135 @@
   nil)
 
 ;;
-;; Tree Walker
+;; DSL-Tree Walker
 ;;
 
+(define-condition dsl-syntax-error (error)
+  ((message :initarg :message :reader dsl-syntax-error-message)))
+
 (defun walk-tree (documentation &key open-element close-element text)
+  "Walk a DSL tree. The function has the following arguments:
+   <ul>
+   <li>documentation A list consisting of a DSL <documentation> expression./li>
+   <li>:open-element A function that is called when a DSL element is opened.
+     <p>(lambda(element-symbol element-properties))</p>
+     May return a context.</li>
+   <li>:close-element A function that is called when a previously opened DSL element closes.
+     <p>(lambda(context)) Context argument as returned by open-element.</p></li>
+   <li>:text A function that is called for each text node.
+     <p>(lambda(str))</p></li>
+   </ul>"
   (labels ((walk-tree-impl (l)
-	     ;;(format t "~%walk-tree-impl called with ~a" l)
-	     ;; TODO Überlegen, ob ich l gegen nil testen muss
 	     (if (not (listp l))
 		 (progn
 		   (if (not (stringp l))
-		       (error "Syntax error. Object ~a must be a string" l))
+		       (error
+			'dsl-syntax-error
+			:message (format nil "~a is not a string" l)))
 		   (funcall text l))
 		 (progn
 		   (let* ((element-symbol (first l))
 			  (element-properties (second l)) 
 			  (dsl-element (get-dsl-element element-symbol)))
 		     (if (not dsl-element)
-			 (error "Syntax error. Object ~a does not represent a DSL element"
-				element-symbol))
+			 (error
+			  'dsl-syntax-error
+			  :message (format nil "~a is not a DSL element" element-symbol)))
 		     (validate-properties dsl-element element-properties)
 		     (let ((context (funcall open-element element-symbol element-properties)))
 		       (dolist (item (rest (rest l)))
 			 (walk-tree-impl item))
-		       (funcall close-element element-symbol element-properties context)))))))
+		       (funcall close-element context)))))))
     (dolist (item documentation)
       (walk-tree-impl item))
     nil))
 
 ;;
-;; Test stuff
+;; DSL-Tree builder
 ;;
 
-(defun test-walk-tree (documentation)
-  (format t "~%~%test-walk-tree called with ~a~%" documentation)
-  (walk-tree
-   documentation 
-   :open-element (lambda(element element-properties)
-		   (format t "~%open-element: ~a ~a" element element-properties)
-		   (format nil "close-context-~a" element))
-   :close-element (lambda(element element-properties context)
-		    (format t "~%close-element: ~a ~a ~a" element element-properties context))
-   :text (lambda(str) (format t "~%text: ~a" str))))
+(defclass tree-builder ()
+  ((node-stack :initform nil)
+   (root-node :initform nil)))
 
-(defun test-1 ()
-  (test-walk-tree '("OLLI" "MAUSI" "BAUCHI")))
+(defgeneric open-element (tree-builder element-symbol element-properties))
+(defgeneric close-element (tree-builder))
+(defgeneric add-text (tree-builder text))
+(defgeneric get-tree (tree-builder))
 
-;;(test-1)
+(defclass dsl-element-node ()
+  ((element-symbol :initarg :element-symbol)
+   (element-properties :initarg :element-properties)
+   (content :initform (list))))
 
+(defun push-content (dsl-element-node item)
+  (assert (typep dsl-element-node 'dsl-element-node))
+  (let ((l (slot-value dsl-element-node 'content)))
+    (setf (slot-value dsl-element-node 'content) (push item l)))
+  nil)
+    
+(defun push-stack (tree-builder item)
+  (assert (typep item 'dsl-element-node))
+  (let ((l (slot-value tree-builder 'node-stack)))
+    (setf (slot-value tree-builder 'node-stack) (push item l))))
 
-(defun test-2 ()
-  (test-walk-tree '("OLLI" (heading (:name "MAUSI") "BAUCHI"))))
+(defun pop-stack (tree-builder)
+  (let ((stack (slot-value tree-builder 'node-stack)))
+    (let ((r (rest stack)))
+      (setf (slot-value tree-builder 'node-stack) r))))
 
-;;(test-2)
+(defclass dsl-text-node ()
+  ((text :initarg :text)))
 
-(defun test-3 ()
-  (test-walk-tree '((heading (:name "OLLI") "MAUSI" "BAUCHI"))))
+(defmethod initialize-instance :after ((instance tree-builder) &rest init-args)
+  (declare (ignore init-args))
+  (let ((node (make-instance 'dsl-element-node :element-symbol 'root :element-properties nil)))
+    (setf (slot-value instance 'root-node) node)
+    (setf (slot-value instance 'node-stack) (list node))))
 
-;;(test-3)
+(defmethod open-element ((instance tree-builder) element-symbol element-properties)
+  (if (not (get-dsl-element element-symbol))
+      (error (format nil "Not a DSL element: ~a" element-symbol)))
+  (let ((node (make-instance
+	       'dsl-element-node
+	       :element-symbol element-symbol
+	       :element-properties element-properties))
+	(stack-pointer (first (slot-value instance 'node-stack))))
+    (push-content stack-pointer node)
+    (push-stack instance node))
+  nil)
 
-(defun test-4 ()
-  (test-walk-tree '((heading (:name "OLLI") (heading (:name "MAUSI") "BAUCHI")))))
+(defmethod close-element ((instance tree-builder))
+  (pop-stack instance)
+  nil)
 
-;;(test-4)
+(defmethod add-text ((instance tree-builder) text)
+  (if (not (stringp text))
+      (error "Text must be a string"))
+  (let ((node (make-instance 'dsl-text-node :text text))
+	(stack-pointer (first (slot-value instance 'node-stack))))
+    (push-content stack-pointer node))
+  nil)
 
-
-(defun test-5-no-dsl-symbol ()
-  (test-walk-tree '((unknown (:name "OLLI") "MAUSI" "BAUCHI"))))
-
-;;(test-5-no-dsl-symbol)
-
-(defun test-6-nested-string ()
-  (test-walk-tree '("OLLI" ("MAUSI" "BAUCHI"))))
-
-;;(test-6-nested-string)
+(defmethod get-tree ((instance tree-builder))
+  "Generate resulting tree"
+  (if (not (eq 1 (length (slot-value instance 'node-stack))))
+      (error "Unbalanced tree"))
+  (labels ((process-node (node)
+	     (if (typep node 'dsl-text-node)
+		 (slot-value node 'text)
+		 (progn
+		   (assert (typep node 'dsl-element-node))
+		   (let ((element nil))
+		     (dolist (content-node (slot-value node 'content))
+		       (push (process-node content-node) element))
+		     (push (slot-value node 'element-properties) element)
+		     (push (slot-value node 'element-symbol) element)
+		     element)))))
+    (let ((tree nil) (root-node (slot-value instance 'root-node)))
+      (assert (typep root-node 'dsl-element-node))
+      (let ((content-nodes (slot-value root-node 'content)))
+	(dolist (node content-nodes)
+	  (push (process-node node) tree)))
+      tree)))
 

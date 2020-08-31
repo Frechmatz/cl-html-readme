@@ -10,8 +10,8 @@
   :components ((:module "src"
 			:serial t
 			:components ((:file "packages")
+				     (:file "dsl")
 				     (:file "variables")
-				     (:file "tree-builder")
-				     (:file "html-writer")
+;;				     (:file "html-writer")
 				     (:file "readme-util")))))
 
