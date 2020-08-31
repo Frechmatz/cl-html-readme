@@ -6,8 +6,8 @@
 	       (cl-readme-dsl:walk-tree
 		doc
 		:open-element
-		(lambda(element properties)
-		  (declare (ignore properties))
+		(lambda(element properties content)
+		  (declare (ignore properties content))
 		  (push element recorded) nil) 
 		:close-element
 		(lambda(context)
@@ -28,8 +28,8 @@
 	       (cl-readme-dsl:walk-tree
 		doc
 		:open-element
-		(lambda(element properties)
-		  (declare (ignore element))
+		(lambda(element properties content)
+		  (declare (ignore element content))
 		  (push "HEADING" recorded)
 		  (push (getf properties :name) recorded)
 		  nil) 
@@ -55,8 +55,8 @@
 		   (cl-readme-dsl:walk-tree
 		    doc
 		    :open-element
-		    (lambda(element properties)
-		      (declare (ignore element properties))
+		    (lambda(element properties content)
+		      (declare (ignore element properties content))
 		      nil) 
 		    :close-element
 		    (lambda(context)
@@ -78,8 +78,8 @@
 		   (cl-readme-dsl:walk-tree
 		    doc
 		    :open-element
-		    (lambda(element properties)
-		      (declare (ignore element properties))
+		    (lambda(element properties content)
+		      (declare (ignore element properties content))
 		      nil) 
 		    :close-element
 		    (lambda(context)
@@ -100,8 +100,8 @@
 	       (cl-readme-dsl:walk-tree
 		doc
 		:open-element
-		(lambda(element properties)
-		  (declare (ignore element))
+		(lambda(element properties content)
+		  (declare (ignore element content))
 		  (push "HEADING" recorded)
 		  (push (getf properties :name) recorded)
 		  "CLOSE-CONTEXT") 
@@ -118,3 +118,24 @@
 	       (assert-equal "HEADING-1-NAME" (third recorded))
 	       (assert-equal "CLOSE-CONTEXT" (fourth recorded))
 	       (assert-equal "STR-2" (fifth recorded))))
+
+(define-test walk-tree-test-6 ()
+	     (let ((doc '("STR-0" (heading (:name "HEADING-1-NAME") "STR-1.1" "STR-1.2")))
+		   (recorded nil))
+	       (cl-readme-dsl:walk-tree
+		doc
+		:open-element
+		(lambda(element properties content)
+		  (declare (ignore element))
+		  (push content recorded)
+		  nil) 
+		:close-element
+		(lambda(context) (declare (ignore context)) nil)
+		:text
+		(lambda(str) (declare (ignore str))))
+	       (let ((content (first recorded)))
+		 (assert-equal "STR-1.1" (first content))
+		 (assert-equal "STR-1.2" (second content)))))
+
+
+

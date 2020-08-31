@@ -72,7 +72,7 @@
    <ul>
    <li>documentation A list consisting of a DSL <documentation> expression./li>
    <li>:open-element A function that is called when a DSL element is opened.
-     <p>(lambda(element-symbol element-properties))</p>
+     <p>(lambda(element-symbol element-properties content))</p>
      May return a context.</li>
    <li>:close-element A function that is called when a previously opened DSL element closes.
      <p>(lambda(context)) Context argument as returned by open-element.</p></li>
@@ -96,8 +96,13 @@
 			  'dsl-syntax-error
 			  :message (format nil "~a is not a DSL element" element-symbol)))
 		     (validate-properties dsl-element element-properties)
-		     (let ((context (funcall open-element element-symbol element-properties)))
-		       (dolist (item (rest (rest l)))
+		     (let* ((content (rest (rest l)))
+			    (context (funcall
+				      open-element
+				      element-symbol
+				      element-properties
+				      content)))
+		       (dolist (item content)
 			 (walk-tree-impl item))
 		       (funcall close-element context)))))))
     (dolist (item documentation)
