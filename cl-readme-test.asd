@@ -13,11 +13,12 @@
 			:components ((:file "packages")
 				     (:file "dsl")
 				     (:file "variables")
-;;				     (:file "html-writer")
+				     (:file "html-writer")
 				     (:file "readme-util")))
 	       (:module "test"
 			:serial t
 			:components ((:file "packages")
 				     (:file "walk-tree-test")
-				     (:file "tree-builder-test")))))
+				     (:file "tree-builder-test")
+				     (:file "extract-toc-test")))))
 

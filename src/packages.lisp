@@ -35,5 +35,6 @@
    :open-element
    :close-element
    :add-text
-   :get-tree))
+   :get-tree
+   :extract-toc))
 

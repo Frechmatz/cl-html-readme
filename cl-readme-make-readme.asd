@@ -12,7 +12,7 @@
 			:components ((:file "packages")
 				     (:file "dsl")
 				     (:file "variables")
-;;				     (:file "html-writer")
+				     (:file "html-writer")
 				     (:file "readme-util")))
 	       (:module "make-readme"
 			:serial t

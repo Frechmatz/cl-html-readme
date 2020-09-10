@@ -16,6 +16,7 @@
 ;; <toc>           ::= (toc <properties>)
 ;; <properties>    ::= A property list
 ;; <string>        ::= A string literal
+;; Internal TOC elements
 ;; <toc-root>      ::= (toc-root <properties> { <toc-item> | <toc-container> })
 ;; <toc-item>      ::= (toc-item <properties>)
 ;; <toc-container> ::= (toc-container <properties> { <toc-item> | <toc-container> })
@@ -197,4 +198,56 @@
 	(dolist (node content-nodes)
 	  (push (process-node node) tree)))
       tree)))
+
+;;
+;; TOC extraction
+;;
+
+(defun extract-toc (doc)
+  "Returns an instance of <toc-root>"
+  (flet ((has-toc-elements (doc)
+	   "Recursive descent to check if doc contains toc-headings"
+	   (let ((found nil))
+	     (cl-readme-dsl:walk-tree
+	      doc
+	      :open-element
+	      (lambda(element-symbol element-properties content)
+		(declare (ignore element-symbol content))
+		(if (getf element-properties :toc)
+		    (setf found t)))
+	      :close-element
+	      (lambda(context) (declare (ignore context)) nil)
+	      :text
+	      (lambda(str) (declare (ignore str)) nil))
+	     found)))
+    (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
+      (cl-readme-dsl:open-element tree-builder 'toc-root nil)
+      (cl-readme-dsl:walk-tree
+       doc
+       :open-element
+       (lambda(element-symbol element-properties content)
+	 (declare (ignore element-symbol))
+	 (if (getf element-properties :toc)
+	     (progn
+	       (if (has-toc-elements content)
+		   (progn
+		     (cl-readme-dsl:open-element tree-builder 'toc-container element-properties)
+		     t)
+		   (progn
+		     (cl-readme-dsl:open-element tree-builder 'toc-item element-properties)
+		     t)))
+	     (progn
+	       nil)))
+       :close-element
+       (lambda(context)
+	 (if context
+	     (cl-readme-dsl:close-element tree-builder)))
+       :text
+       (lambda(str)
+	 (declare (ignore str))
+	 nil))
+      (cl-readme-dsl:close-element tree-builder)
+      (let ((tree (cl-readme-dsl:get-tree tree-builder)))
+	(first tree)))))
+
 

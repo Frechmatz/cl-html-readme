@@ -16,7 +16,8 @@
       (cl-readme-dsl:walk-tree
        doc
        :open-element
-       (lambda(element-symbol element-properties)
+       (lambda(element-symbol element-properties content)
+	 (declare (ignore content))
 	 (if (getf element-properties :toc)
 	     (cl-readme-dsl:open-element builder element-symbol (set-id element-properties))
 	     (cl-readme-dsl:open-element builder element-symbol element-properties))
@@ -47,6 +48,38 @@
      (lambda(str) (declare (ignore str)) nil))
     found))
 
+(defun extract-toc (doc)
+  (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
+    (cl-readme-dsl:open-element tree-builder 'toc-root nil)
+    (cl-readme-dsl:walk-tree
+     doc
+     :open-element
+     (lambda(element-symbol element-properties content)
+       (declare (ignore element-symbol))
+       (if (getf element-properties :toc)
+	   (progn
+	     (if (has-toc-elements content)
+		 (progn
+		   (cl-readme-dsl:open-element tree-builder 'toc-container element-properties)
+		   t)
+		 (progn
+		   (cl-readme-dsl:open-element tree-builder 'toc-item element-properties)
+		   t)))
+	   (progn
+	     nil)))
+     :close-element
+     (lambda(context)
+       (if context
+	   (cl-readme-dsl:close-element tree-builder)))
+     :text
+     (lambda(str)
+       (declare (ignore str))
+       nil))
+    (cl-readme-dsl:close-element tree-builder)
+    (let ((tree (cl-readme-dsl:get-tree tree-builder)))
+      tree)))
+
+
 ;;
 ;; API
 ;;
@@ -56,9 +89,12 @@
   (declare (ignore output-stream))
   ;;(doc-to-html-internal output-stream (set-toc-heading-ids doc)))
   (let ((doc-1 (set-toc-ids doc)))
-    (format t "~%=====================GENERATED=======================~%")
+    (format t "~%===================== Id-Enriched =======================~%")
     (format t "~%~a~%" doc-1)
-    (format t "~%=====================GENERATED=======================~%")
-    nil))
+    (format t "~%===================== Id-Enriched =======================~%")
+    (let ((toc (extract-toc doc-1)))
+      (format t "~%===================== Extracted Toc =======================~%")
+      (format t "~%~a~%" toc)
+      (format t "~%===================== Extracted Toc =======================~%")))
 
-
+  nil)
