@@ -4,7 +4,8 @@
 ;; Rewriting
 ;;
 
-(defun attach-heading-ids (doc)
+;; TODO Take care of already set :id property
+(defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation tree."
   (let ((counter 0) (tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
     (labels ((set-id (properties)
@@ -50,7 +51,7 @@
        (lambda(str) (cl-readme-dsl:add-text tree-builder str)))
     (cl-readme-dsl:get-tree tree-builder)))
 
-(defun attach-heading-indentation-levels (doc)
+(defun set-heading-indentation-levels (doc)
   "Set indentation levels of heading elements."
   (let ((level 0) (tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
     (labels ((set-indentation-level (properties)
@@ -178,27 +179,8 @@
 
 (defun doc-to-html (output-stream doc)
   "Convert documentation to HTML"
-  ;;(format t "~%===================== Initial Doc Start =======================~%")
-  ;;(format t "~%~a~%" doc)
-  ;;(format t "~%===================== Initial Doc End =======================~%")
-
-  (setf doc (attach-heading-ids doc))
-
-  ;;(format t "~%===================== Heading Ids attached Start =======================~%")
-  ;;(format t "~%~a~%" doc)
-  ;;(format t "~%===================== Heading Ids attached End =======================~%")
-
+  (setf doc (set-heading-ids doc))
   (setf doc (set-toc doc))
-
-  ;;(format t "~%===================== Set Toc Start =======================~%")
-  ;;(format t "~%~a~%" doc)
-  ;;(format t "~%===================== Set Toc End =======================~%")
-
-  (setf doc (attach-heading-indentation-levels doc))
-
-  ;;(format t "~%===================== Indentation Levels attached Start =======================~%")
-  ;;(format t "~%~a~%" doc)
-  ;;(format t "~%===================== Indentation Levels attached End =======================~%")
-
+  (setf doc (set-heading-indentation-levels doc))
   (serialize output-stream doc)
   nil)
