@@ -1,25 +1,31 @@
 (in-package :cl-readme-dsl)
 
 ;;
-;; DSL
+;; DSL of cl-readme
 ;;
-;; Todos:
-;; - Validation
-;; - Be more specific about properties (mandatory / optional)
+
 ;;
 ;; DSL definition:
 ;;
-;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
-;; <semantic>      ::= (semantic <properties> { <string> | <heading> | <toc> })
-;; <heading>       ::= (heading <properties> { <string> | <heading> | <toc> })
-;; <toc>           ::= (toc <properties>)
-;; <properties>    ::= A property list
-;; <string>        ::= A string literal
-;; Internal TOC elements
-;; <toc-root>      ::= (toc-root <properties> { <toc-item> | <toc-container> })
-;; <toc-item>      ::= (toc-item <properties>)
-;; <toc-container> ::= (toc-container <properties> { <toc-item> | <toc-container> })
+;; <documentation>       ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
 ;;
+;; <semantic>            ::= (semantic (<semantic-properties>) { <string> | <heading> | <toc> | <toc-root> })
+;; <heading>             ::= (heading (<heading-properties>) { <string> | <heading> | <toc> | <toc-root> })
+;; <toc>                 ::= (toc ()) ;; High level representation of <toc-root> element.
+;; <toc-root>            ::= (toc-root () { <toc-item> | <toc-container> })
+;; <toc-item>            ::= (toc-item (<toc-properties>))
+;; <toc-container>       ::= (toc-container (<toc-properties>) { <toc-item> | <toc-container> })
+;;
+;; <semantic-properties> ::= :name <string> [<styling>]
+;; <heading-properties>  ::= :name <string> [:id <string>] [:toc t | nil] [<styling>] [<toc-styling>]
+;; <toc-properties>      ::= :name <string> :id <string> <styling>
+;;
+;; <styling>             ::= [:class <string>] [:style <string>]
+;; <toc-styling>         ::= [:toc-class <string>] [:toc-style <string>]
+;;
+;; <string>              ::= A string literal
+;;
+
 
 (defparameter *dsl-elements*
   '((:name "SEMANTIC" :semantic-p t :mandatory-properties (:name))
@@ -67,6 +73,7 @@
 (define-condition dsl-syntax-error (error)
   ((message :initarg :message :reader dsl-syntax-error-message)))
 
+;; TODO: Validation of tree
 (defun walk-tree (documentation &key open-element close-element text)
   "Walk a DSL tree. The function has the following arguments:
    <ul>
@@ -224,6 +231,7 @@
 	      (lambda(str) (declare (ignore str)) nil))
 	     found))
 	 (remove-toc-property (properties)
+	   (setf properties (copy-list properties))
 	   (setf (getf properties :toc) nil)
 	   properties))
     (let ((toc-root-pending t))
