@@ -4,10 +4,9 @@
 ;; Rewriting
 ;;
 
-
-(defun set-toc-ids (doc)
+(defun attach-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation tree."
-  (let ((counter 0) (builder (make-instance 'cl-readme-dsl:tree-builder)))
+  (let ((counter 0) (tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
     (labels ((set-id (properties)
 	       (let ((l (copy-list properties)))
 		 (setf counter (+ 1 counter))
@@ -19,66 +18,159 @@
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (if (getf element-properties :toc)
-	     (cl-readme-dsl:open-element builder element-symbol (set-id element-properties))
-	     (cl-readme-dsl:open-element builder element-symbol element-properties))
+	     (cl-readme-dsl:open-element tree-builder element-symbol (set-id element-properties))
+	     (cl-readme-dsl:open-element tree-builder element-symbol element-properties))
 	 nil)
        :close-element
-       (lambda(context) (declare (ignore context)) (cl-readme-dsl:close-element builder))
+       (lambda(context) (declare (ignore context)) (cl-readme-dsl:close-element tree-builder))
        :text
-       (lambda(str) (cl-readme-dsl:add-text builder str)))
-      (cl-readme-dsl:get-tree builder))))
+       (lambda(str) (cl-readme-dsl:add-text tree-builder str)))
+      (cl-readme-dsl:get-tree tree-builder))))
 
-;;
-;;
-;;
-
-(defun has-toc-elements (doc)
-  "Brute force implementation to check if a list contains toc-headings"
-  (let ((found nil))
-    (cl-readme-dsl:walk-tree
-     doc
-     :open-element
-     (lambda(element-symbol element-properties content)
-       (declare (ignore element-symbol content))
-       (if (getf element-properties :toc)
-	   (setf found t)))
-     :close-element
-     (lambda(context) (declare (ignore context)) nil)
-     :text
-     (lambda(str) (declare (ignore str)) nil))
-    found))
-
-(defun extract-toc (doc)
+(defun set-toc (doc)
+  "Replace toc element with toc-root"
   (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
-    (cl-readme-dsl:open-element tree-builder 'toc-root nil)
     (cl-readme-dsl:walk-tree
      doc
      :open-element
      (lambda(element-symbol element-properties content)
-       (declare (ignore element-symbol))
-       (if (getf element-properties :toc)
+       (declare (ignore content))
+       (if (cl-readme-dsl:toc-p element-symbol)
 	   (progn
-	     (if (has-toc-elements content)
-		 (progn
-		   (cl-readme-dsl:open-element tree-builder 'toc-container element-properties)
-		   t)
-		 (progn
-		   (cl-readme-dsl:open-element tree-builder 'toc-item element-properties)
-		   t)))
+	     (cl-readme-dsl:extract-toc doc tree-builder)
+	     :ignore-close-element)
 	   (progn
-	     nil)))
+	     (cl-readme-dsl:open-element tree-builder element-symbol element-properties)
+	     t)))
+       :close-element
+       (lambda(context)
+	 (if (not (eq context :ignore-close-element))
+	     (cl-readme-dsl:close-element tree-builder)))
+       :text
+       (lambda(str) (cl-readme-dsl:add-text tree-builder str)))
+    (cl-readme-dsl:get-tree tree-builder)))
+
+(defun attach-heading-indentation-levels (doc)
+  "Set indentation levels of heading elements."
+  (let ((level 0) (tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
+    (labels ((set-indentation-level (properties)
+	       (let ((l (copy-list properties)))
+		 (setf (getf l :level) level)
+		 l)))
+      (cl-readme-dsl:walk-tree
+       doc
+       :open-element
+       (lambda(element-symbol element-properties content)
+	 (declare (ignore content))
+	 (if (cl-readme-dsl:heading-p element-symbol)
+	     (progn
+	       (cl-readme-dsl:open-element
+		tree-builder element-symbol
+		(set-indentation-level element-properties))
+	       (setf level (+ 1 level))
+	       :decrement-level)
+	     (progn
+	       (cl-readme-dsl:open-element tree-builder element-symbol element-properties)
+	       nil)))
+       :close-element
+       (lambda(context)
+	 (if (eq context :decrement-level)
+	     (setf level (+ -1 level)))
+	 (cl-readme-dsl:close-element tree-builder))
+       :text
+       (lambda(str) (cl-readme-dsl:add-text tree-builder str)))
+      (cl-readme-dsl:get-tree tree-builder))))
+
+;;
+;; HTML generation
+;;
+
+(defun serialize (output-stream doc)
+  (labels ((format-class (properties)
+	     (if (getf properties :class)
+		 (format nil " class=\"~a\" " (getf properties :class))
+		 ""))
+	   (format-style (properties)
+	     (if (getf properties :style)
+		 (format nil " style=\"~a\" " (getf properties :style))
+		 ""))
+	   (format-toc-class (properties)
+	     (if (getf properties :toc-class)
+		 (format nil " class=\"~a\" " (getf properties :toc-class))
+		 ""))
+	   (format-toc-style (properties)
+	     (if (getf properties :toc-style)
+		 (format nil " style=\"~a\" " (getf properties :toc-style))
+		 ""))
+	   (format-heading (properties)
+	     (let ((level (getf properties :level)))
+	       (if (<= level 5)
+		   (format nil "h~a" (+ 1 level))
+		   (format nil "h6")))))
+    (cl-readme-dsl:walk-tree
+     doc
+     :open-element
+     (lambda(element-symbol element-properties content)
+       (declare (ignore content))
+       (cond
+	 ((cl-readme-dsl:heading-p element-symbol)
+	  ;; <h{level} id={id} class={class} style={style}> {name} </h{level}>
+	  (format
+	   output-stream
+	   "<~a id=\"~a\" ~a ~a>~a</~a>"
+	   (format-heading element-properties)
+	   (getf element-properties :id)
+	   (format-class element-properties)
+	   (format-style element-properties)
+	   (getf element-properties :name)
+	   (format-heading element-properties))
+	  nil)
+	 ((cl-readme-dsl:semantic-p element-symbol)
+	  ;; <{name} class={class} style={style}>...</{name}>
+	  (format
+	   output-stream
+	   "<~a ~a ~a>"
+	   (getf element-properties :name)
+	   (format-class element-properties)
+	   (format-style element-properties))
+	  (format nil "</~a>" (getf element-properties :name)))
+	 ((cl-readme-dsl:toc-root-p element-symbol)
+	  ;; <ul class={class} style={style}>...</ul>
+	  (format
+	   output-stream
+	   "<ul ~a ~a>"
+	   (format-toc-class element-properties)
+	   (format-toc-style element-properties))
+	  "</ul>")
+	 ((cl-readme-dsl:toc-item-p element-symbol)
+	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> </li>
+	  (format
+	   output-stream
+	   "<li ~a ~a> <a href=\"#~a\">~a</a></li>"
+	   (format-toc-class element-properties)
+	   (format-toc-style element-properties)
+	   (getf element-properties :id)
+	   (getf element-properties :name))
+	  nil)
+	 ((cl-readme-dsl:toc-container-p element-symbol)
+	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> <ul>...</ul> </li>
+	  (format
+	   output-stream
+	   "<li ~a ~a><a href=\"#~a\">~a</a><ul>"
+	   (format-toc-class element-properties)
+	   (format-toc-style element-properties)
+	   (getf element-properties :id)
+	   (getf element-properties :name))
+	  "</ul></li>")
+	 (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
      :close-element
      (lambda(context)
        (if context
-	   (cl-readme-dsl:close-element tree-builder)))
+	   (format output-stream "~a" context)))
      :text
      (lambda(str)
-       (declare (ignore str))
-       nil))
-    (cl-readme-dsl:close-element tree-builder)
-    (let ((tree (cl-readme-dsl:get-tree tree-builder)))
-      tree)))
-
+       (format output-stream "~a" str)))
+    nil))
 
 ;;
 ;; API
@@ -86,15 +178,27 @@
 
 (defun doc-to-html (output-stream doc)
   "Convert documentation to HTML"
-  (declare (ignore output-stream))
-  ;;(doc-to-html-internal output-stream (set-toc-heading-ids doc)))
-  (let ((doc-1 (set-toc-ids doc)))
-    (format t "~%===================== Id-Enriched =======================~%")
-    (format t "~%~a~%" doc-1)
-    (format t "~%===================== Id-Enriched =======================~%")
-    (let ((toc (extract-toc doc-1)))
-      (format t "~%===================== Extracted Toc =======================~%")
-      (format t "~%~a~%" toc)
-      (format t "~%===================== Extracted Toc =======================~%")))
+  ;;(format t "~%===================== Initial Doc Start =======================~%")
+  ;;(format t "~%~a~%" doc)
+  ;;(format t "~%===================== Initial Doc End =======================~%")
 
+  (setf doc (attach-heading-ids doc))
+
+  ;;(format t "~%===================== Heading Ids attached Start =======================~%")
+  ;;(format t "~%~a~%" doc)
+  ;;(format t "~%===================== Heading Ids attached End =======================~%")
+
+  (setf doc (set-toc doc))
+
+  ;;(format t "~%===================== Set Toc Start =======================~%")
+  ;;(format t "~%~a~%" doc)
+  ;;(format t "~%===================== Set Toc End =======================~%")
+
+  (setf doc (attach-heading-indentation-levels doc))
+
+  ;;(format t "~%===================== Indentation Levels attached Start =======================~%")
+  ;;(format t "~%~a~%" doc)
+  ;;(format t "~%===================== Indentation Levels attached End =======================~%")
+
+  (serialize output-stream doc)
   nil)

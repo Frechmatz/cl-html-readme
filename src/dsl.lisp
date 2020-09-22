@@ -1,16 +1,15 @@
 (in-package :cl-readme-dsl)
 
 ;;
-;; DSL definition and tooling
+;; DSL
 ;;
-;; Todos
+;; Todos:
 ;; - Validation
+;; - Be more specific about properties (mandatory / optional)
 ;;
-
+;; DSL definition:
 ;;
-;; Language definition:
-;;
-;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> })
+;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
 ;; <semantic>      ::= (semantic <properties> { <string> | <heading> | <toc> })
 ;; <heading>       ::= (heading <properties> { <string> | <heading> | <toc> })
 ;; <toc>           ::= (toc <properties>)
@@ -71,22 +70,24 @@
 (defun walk-tree (documentation &key open-element close-element text)
   "Walk a DSL tree. The function has the following arguments:
    <ul>
-   <li>documentation A list consisting of a DSL <documentation> expression./li>
+   <li>documentation An instance of <documentation>./li>
    <li>:open-element A function that is called when a DSL element is opened.
      <p>(lambda(element-symbol element-properties content))</p>
-     May return a context.</li>
+     Returns a context that is passed to :close-element.</li>
    <li>:close-element A function that is called when a previously opened DSL element closes.
-     <p>(lambda(context)) Context argument as returned by open-element.</p></li>
+     <p>(lambda(context)) Context value as returned by open-element.</p></li>
    <li>:text A function that is called for each text node.
      <p>(lambda(str))</p></li>
    </ul>"
+  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (labels ((walk-tree-impl (l)
+	     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	     (if (not (listp l))
 		 (progn
 		   (if (not (stringp l))
 		       (error
 			'dsl-syntax-error
-			:message (format nil "~a is not a string" l)))
+			:message (format nil "Not a string: ~a" l)))
 		   (funcall text l))
 		 (progn
 		   (let* ((element-symbol (first l))
@@ -95,7 +96,7 @@
 		     (if (not dsl-element)
 			 (error
 			  'dsl-syntax-error
-			  :message (format nil "~a is not a DSL element" element-symbol)))
+			  :message (format nil "Not a DSL element: ~a " element-symbol)))
 		     (validate-properties dsl-element element-properties)
 		     (let* ((content (rest (rest l)))
 			    (context (funcall
@@ -141,6 +142,8 @@
 
 (defun pop-stack (tree-builder)
   (let ((stack (slot-value tree-builder 'node-stack)))
+    (if (not (< 1 (length stack)))
+	(error (format nil "Stack underflow. Probably unbalanced open/close-element calls.")))
     (let ((r (rest stack)))
       (setf (slot-value tree-builder 'node-stack) r))))
 
@@ -203,10 +206,10 @@
 ;; TOC extraction
 ;;
 
-(defun extract-toc (doc)
-  "Returns an instance of <toc-root>"
+(defun extract-toc (doc tree-builder)
+  "Extracts toc and pushes toc-root, toc-container, toc-item elements into the builder."
   (flet ((has-toc-elements (doc)
-	   "Recursive descent to check if doc contains toc-headings"
+	   "Recursive descent to check if doc contains toc relevant elements"
 	   (let ((found nil))
 	     (cl-readme-dsl:walk-tree
 	      doc
@@ -219,9 +222,11 @@
 	      (lambda(context) (declare (ignore context)) nil)
 	      :text
 	      (lambda(str) (declare (ignore str)) nil))
-	     found)))
-    (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
-      (cl-readme-dsl:open-element tree-builder 'toc-root nil)
+	     found))
+	 (remove-toc-property (properties)
+	   (setf (getf properties :toc) nil)
+	   properties))
+    (let ((toc-root-pending t))
       (cl-readme-dsl:walk-tree
        doc
        :open-element
@@ -229,12 +234,22 @@
 	 (declare (ignore element-symbol))
 	 (if (getf element-properties :toc)
 	     (progn
+	       (if toc-root-pending
+		   (progn
+		     (cl-readme-dsl:open-element tree-builder 'toc-root nil)
+		     (setf toc-root-pending nil)))
 	       (if (has-toc-elements content)
 		   (progn
-		     (cl-readme-dsl:open-element tree-builder 'toc-container element-properties)
+		     (cl-readme-dsl:open-element
+		      tree-builder
+		      'toc-container
+		      (remove-toc-property element-properties))
 		     t)
 		   (progn
-		     (cl-readme-dsl:open-element tree-builder 'toc-item element-properties)
+		     (cl-readme-dsl:open-element
+		      tree-builder
+		      'toc-item
+		      (remove-toc-property element-properties))
 		     t)))
 	     (progn
 	       nil)))
@@ -246,8 +261,7 @@
        (lambda(str)
 	 (declare (ignore str))
 	 nil))
-      (cl-readme-dsl:close-element tree-builder)
-      (let ((tree (cl-readme-dsl:get-tree tree-builder)))
-	(first tree)))))
-
+      (if (not toc-root-pending)
+	  (cl-readme-dsl:close-element tree-builder))))
+  nil)
 

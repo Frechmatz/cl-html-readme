@@ -4,9 +4,6 @@
   (:export
    :*home-directory*
    :*tab-width*
-   :*get-heading-class*
-   :*get-toc-container-class*
-   :*get-toc-item-class*
    :html-writer
    :doc-to-html
    :read-file

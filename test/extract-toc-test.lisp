@@ -1,10 +1,12 @@
 (in-package :cl-readme-test)
 
 (define-test test-extract-toc-1 ()
-	     (let ((doc '((heading (:name "H1" :toc t))
+	     (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder))
+		   (doc '((heading (:name "H1" :toc t))
 			  (heading (:name "H2" :toc t))
 			  (heading (:name "H3" :toc t)))))
-	       (let ((toc (cl-readme-dsl:extract-toc doc)))
+	       (cl-readme-dsl:extract-toc doc tree-builder)
+	       (let ((toc (first (cl-readme-dsl:get-tree tree-builder))))
 		 ;; p ::= <properties>
 		 ;; toc ::= (toc-root p (toc-item p) (toc-item p) (toc-item p))
 		 (assert-true 5 (length toc))
@@ -18,12 +20,14 @@
 		   (assert-equal "H3" (getf (second ti-3) :name))))))
 
 (define-test test-extract-toc-2 ()
-	     (let ((doc '((heading (:name "H1" :toc t))
+	     (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder))
+		   (doc '((heading (:name "H1" :toc t))
 			  (heading (:name "H2" :toc t)
 			   (heading (:name "H2.1" :toc t))
 			   (heading (:name "H2.2" :toc t)))
 			  (heading (:name "H3" :toc t)))))
-	       (let ((toc (cl-readme-dsl:extract-toc doc)))
+	       (cl-readme-dsl:extract-toc doc tree-builder)
+	       (let ((toc (first (cl-readme-dsl:get-tree tree-builder))))
 		 ;; p ::= <properties>
 		 ;; toc ::= (toc-root p (toc-item p) (toc-container p (toc-item p) (toc-item p))
 		 ;; (toc-item p))
@@ -45,7 +49,8 @@
 
 
 (define-test test-extract-toc-3 ()
-	     (let ((doc '((heading (:name "XXX")
+	     (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder))
+		   (doc '((heading (:name "XXX")
 			   (heading (:name "H1" :toc t))
 			   "XXXX"
 			   (heading (:name "XX"))
@@ -58,7 +63,8 @@
 				     (heading (:name "H2.2" :toc t))))
 			   "XXXX"
 			   (heading (:name "H3" :toc t))))))
-	       (let ((toc (cl-readme-dsl:extract-toc doc)))
+	       (cl-readme-dsl:extract-toc doc tree-builder)
+	       (let ((toc (first (cl-readme-dsl:get-tree tree-builder))))
 		 ;; p ::= <properties>
 		 ;; toc ::= (toc-root p (toc-item p) (toc-container p (toc-item p) (toc-item p))
 		 ;; (toc-item p))
@@ -79,3 +85,11 @@
 		     (assert-equal "H3" (getf (second ti-3) :name)))))))
 
 
+(define-test test-extract-toc-4 ()
+	     (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder))
+		   (doc '((heading (:name "H1"))
+			  (heading (:name "H2"))
+			  (heading (:name "H3")))))
+	       (cl-readme-dsl:extract-toc doc tree-builder)
+	       (let ((toc (first (cl-readme-dsl:get-tree tree-builder))))
+		 (assert-false toc))))
