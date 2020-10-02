@@ -1,4 +1,3 @@
-#+:sbcl (require :sb-introspect)
 (defpackage :cl-readme
   (:use :cl)
   (:export
@@ -7,14 +6,7 @@
    :html-writer
    :doc-to-html
    :read-file
-   :read-verbatim ;; DEPRECATED
-   :read-code ;; DEPRECATED
-   :current-date
-   :make-path
-   :open-semantic
-   :close-semantic
-   :sbcl-make-function-decl ;; DEPRECATED
-   :sbcl-make-function-lambda-list-str))
+   :make-path))
 
 (defpackage :cl-readme-dsl
   (:use :cl)

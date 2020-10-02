@@ -13,95 +13,96 @@ git clone https://github.com/Frechmatz/cl-readme.git
 </code></pre><h1 id="Example-2"  >Example</h1><p><pre><code>(in-package :cl-readme-make-readme)
 
 ;;
-;; Formatting functions
+;; Helper functions
 ;;
 
-(defun make-function-string (f)
-  (concatenate
-   'string
-   "&lt;b&gt;" (string-downcase (symbol-name f)) "&lt;/b&gt;&amp;nbsp;"
-   (cl-readme:sbcl-make-function-lambda-list-str f) 
-   "&lt;p&gt;" (documentation f 'function) "&lt;/p&gt;"))
+(defun get-node (index package-name symbol-name)
+  (aref (docparser:query
+         index
+         :package-name (string-upcase package-name)
+         :symbol-name (string-upcase symbol-name))
+        0))
+  
+(defun make-function-string (index package-name symbol-name)
+  (let* ((node (get-node index package-name symbol-name))
+         (lambda-list (docparser:operator-lambda-list node)))
+    (concatenate
+     'string
+     "&lt;b&gt;" (string-downcase symbol-name) "&lt;/b&gt;&amp;nbsp;"
+     (string-downcase (format nil "~a" (if lambda-list lambda-list "()")))
+     "&lt;p&gt;" (docparser:node-docstring node) "&lt;/p&gt;")))
 
-(defun make-variable-string (v)
-  (concatenate
-   'string
-   "&lt;b&gt;" (string-downcase  (symbol-name v)) "&lt;/b&gt;"
-   "&lt;p&gt;" (documentation v 'variable) "&lt;/p&gt;"))
-
-(defun read-code-file (path)
+(defun make-variable-string (index package-name symbol-name)
+  (let ((node (get-node index package-name symbol-name)))
+    (concatenate
+     'string
+     "&lt;b&gt;" (string-downcase symbol-name) "&lt;/b&gt;"
+     "&lt;p&gt;" (docparser:node-docstring node) "&lt;/p&gt;")))
+  
+(defun make-code-string (path)
   (concatenate
    'string
    "&lt;p&gt;&lt;pre&gt;&lt;code&gt;"
    (cl-readme:read-file path :replace-tabs t :escape t)
    "&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;"))
 
+(defun now ()
+  "Returns a string representing the current date and time."
+  (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
+      (get-decoded-time)
+    (declare (ignore dow dst-p tz))
+    ;; 2018-09-19 21:28:16
+    (let ((str (format nil "~4,'0d-~2,'0d-~2,'0d  ~2,'0d:~2,'0d:~2,'0d" yr mon day hr min sec)))
+      str)))
+
 ;;
 ;; Readme
 ;;
 
-(defun get-readme ()
-  `("&lt;html&gt;&lt;body&gt;"
-    (semantic (:name "header")
-              (heading (:name "cl-readme"))
-              ,(cl-readme:read-file "make-readme/introduction.html")
-              "&lt;p&gt;The source code is available &lt;a href=\"https://github.com/Frechmatz/cl-readme\"&gt;here&lt;/a&gt;.&lt;/p&gt;")
-    (semantic (:name "nav")
-              (heading (:name "Table of contents")
-                       (toc)))
-    (semantic (:name "section")
-              (heading (:name "Installation" :toc t)
-                       ,(cl-readme:read-file "make-readme/installation.html"))
-              (heading (:name "Example" :toc t)
-                       ,(read-code-file "make-readme/make-readme.lisp"))
-              (heading (:name "API":toc t)
-                       ,(make-variable-string 'cl-readme:*home-directory*)
-                       ,(make-variable-string 'cl-readme:*tab-width*)
-                       ,(make-function-string 'cl-readme:read-file)
-                       ,(make-function-string 'cl-readme:read-verbatim)
-                       ,(make-function-string 'cl-readme:read-code)
-                       ,(make-function-string 'cl-readme:make-path)
-                       ,(make-function-string 'cl-readme:current-date)
-                       ,(make-function-string 'cl-readme:sbcl-make-function-lambda-list-str)
-                       ,(make-function-string 'cl-readme:sbcl-make-function-decl)))
-    (semantic (:name "footer")
-              "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(cl-readme:current-date) "&lt;/small&gt;&lt;/p&gt;")
-    "&lt;/body&gt;&lt;/html&gt;"))
+(defun get-readme (index)
+    `("&lt;html&gt;&lt;body&gt;"
+      (semantic (:name "header")
+                (heading (:name "cl-readme"))
+                ,(cl-readme:read-file "make-readme/introduction.html")
+                "&lt;p&gt;The source code is available &lt;a href=\"https://github.com/Frechmatz/cl-readme\"&gt;here&lt;/a&gt;.&lt;/p&gt;")
+      (semantic (:name "nav")
+                (heading (:name "Table of contents")
+                         (toc)))
+      (semantic (:name "section")
+                (heading (:name "Installation" :toc t)
+                         ,(cl-readme:read-file "make-readme/installation.html"))
+                (heading (:name "Example" :toc t)
+                         ,(make-code-string "make-readme/make-readme.lisp"))
+                (heading (:name "API":toc t)
+                         ,(make-variable-string index "cl-readme" "*home-directory*")
+                         ,(make-variable-string index "cl-readme" "*tab-width*")
+                         ,(make-function-string index "cl-readme" "make-path")
+                         ,(make-function-string index "cl-readme" "read-file")))
+      (semantic (:name "footer")
+                "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(now) "&lt;/small&gt;&lt;/p&gt;")
+      "&lt;/body&gt;&lt;/html&gt;"))
 
 ;;
 ;; Generate readme
 ;;
 
 (defun make-readme ()
-  (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme)))
-    (with-open-file (fh (cl-readme:make-path "docs/index.html")
-                        :direction :output
-                        :if-exists :supersede
-                        :if-does-not-exist :create
-                        :external-format :utf-8)
-      (cl-readme:doc-to-html fh (get-readme))))
-  "DONE")
+  (let ((index (docparser:parse :cl-readme)))
+    (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme)))
+      (with-open-file (fh (cl-readme:make-path "docs/index.html")
+                          :direction :output
+                          :if-exists :supersede
+                          :if-does-not-exist :create
+                          :external-format :utf-8)
+        (cl-readme:doc-to-html fh (get-readme index)))))
+    "DONE")
 
-;;(make-readme)</code></pre></p><h1 id="API-3"  >API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>read-file</b>&nbsp;path &key (replace-tabs nil) (escape nil) <p>Reads a text file and returns it as a string. The function has the following arguments:
+;;(make-readme)</code></pre></p><h1 id="API-3"  >API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>make-path</b>&nbsp;(path)<p>Creates a path relative to *home-directory*. The function has the following arguments:
+   <ul>
+      <li>path The path, e.g. examples/example-1.lisp.</li>
+   </ul></p><b>read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following arguments:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p><b>read-verbatim</b>&nbsp;path &key (replace-tabs nil) <p>Reads a file and returns it as a string. Does not add any styling. This function
-   is typically used to insert plain HTML files into the documentation.
-   The function has the following arguments:
-   <ul>
-      <li>path Path of the file relative to *home-directory*.</li>
-      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
-   </ul>
-   <p>This function is deprecated and has been replaced with read-file.</p></p><b>read-code</b>&nbsp;path <p>Reads a file that represents code and returns it as string. Tabs are replaced by 
-   spaces according to the *tab-width* variable. Special characters are replaced with their HTML character entities.
-   The code is embedded into HTML &lt;p&gt;&lt;pre&gt;&lt;code&gt; markup. The function has the following arguments:
-   <ul>
-      <li>path Path of the file relative to *home-directory*.</li>
-   </ul>
-   <p>This function is deprecated and has been replaced with read-file.</p></p><b>make-path</b>&nbsp;path <p>Creates a path relative to *home-directory*. The function has the following arguments:
-   <ul>
-      <li>path The path, e.g. examples/example-1.lisp.</li>
-   </ul></p><b>current-date</b>&nbsp;<p>Returns a string representing the current date and time.</p><b>sbcl-make-function-lambda-list-str</b>&nbsp;f <p>Returns a string representing the parameters of a function. Uses SBCL specific functionality.</p><b>sbcl-make-function-decl</b>&nbsp;f <p>Returns a function declaration string using SBCL specific functionality.
-   <p>This function is deprecated and has been replaced with sbcl-make-function-lambda-list-str.</p></p></section><footer  ><hr/><p><small>Generated 2020-09-22  20:22:10</small></p></footer></body></html>
+   </ul></p></section><footer  ><hr/><p><small>Generated 2020-10-02  20:22:52</small></p></footer></body></html>
