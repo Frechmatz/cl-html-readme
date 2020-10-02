@@ -1,6 +1,6 @@
 (load "init-ql")
-(asdf:load-system "cl-readme-test" :force t)
-(in-package :cl-readme-test)
+(asdf:load-system "cl-html-readme-test" :force t)
+(in-package :cl-html-readme-test)
 (format t "~%Running tests...~%")
 (setf lisp-unit:*print-failures* t)
 ;;(use-debugger)

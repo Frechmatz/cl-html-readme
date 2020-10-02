@@ -1,2 +1,2 @@
-(defpackage :cl-readme-test
+(defpackage :cl-html-readme-test
   (:use :cl :lisp-unit ))

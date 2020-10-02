@@ -1,4 +1,4 @@
-(in-package :cl-readme-make-readme)
+(in-package :cl-html-readme-make-readme)
 
 ;;
 ;; Helper functions
@@ -31,7 +31,7 @@
   (concatenate
    'string
    "<p><pre><code>"
-   (cl-readme:read-file path :replace-tabs t :escape t)
+   (cl-html-readme:read-file path :replace-tabs t :escape t)
    "</code></pre></p>"))
 
 (defun now ()
@@ -50,22 +50,22 @@
 (defun get-readme (index)
     `("<html><body>"
       (semantic (:name "header")
-		(heading (:name "cl-readme"))
-		,(cl-readme:read-file "make-readme/introduction.html")
-		"<p>The source code is available <a href=\"https://github.com/Frechmatz/cl-readme\">here</a>.</p>")
+		(heading (:name "cl-html-readme"))
+		,(cl-html-readme:read-file "make-readme/introduction.html")
+		"<p>The source code is available <a href=\"https://github.com/Frechmatz/cl-html-readme\">here</a>.</p>")
       (semantic (:name "nav")
 		(heading (:name "Table of contents")
 			 (toc)))
       (semantic (:name "section")
 		(heading (:name "Installation" :toc t)
-			 ,(cl-readme:read-file "make-readme/installation.html"))
+			 ,(cl-html-readme:read-file "make-readme/installation.html"))
 		(heading (:name "Example" :toc t)
 			 ,(make-code-string "make-readme/make-readme.lisp"))
 		(heading (:name "API":toc t)
-			 ,(make-variable-string index "cl-readme" "*home-directory*")
-			 ,(make-variable-string index "cl-readme" "*tab-width*")
-			 ,(make-function-string index "cl-readme" "make-path")
-			 ,(make-function-string index "cl-readme" "read-file")))
+			 ,(make-variable-string index "cl-html-readme" "*home-directory*")
+			 ,(make-variable-string index "cl-html-readme" "*tab-width*")
+			 ,(make-function-string index "cl-html-readme" "make-path")
+			 ,(make-function-string index "cl-html-readme" "read-file")))
       (semantic (:name "footer")
 		"<hr/><p><small>Generated " ,(now) "</small></p>")
       "</body></html>"))
@@ -75,14 +75,14 @@
 ;;
 
 (defun make-readme ()
-  (let ((index (docparser:parse :cl-readme)))
-    (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme)))
-      (with-open-file (fh (cl-readme:make-path "docs/index.html")
+  (let ((index (docparser:parse :cl-html-readme)))
+    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme-make-readme)))
+      (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output
 			  :if-exists :supersede
 			  :if-does-not-exist :create
 			  :external-format :utf-8)
-	(cl-readme:doc-to-html fh (get-readme index)))))
+	(cl-html-readme:doc-to-html fh (get-readme index)))))
     "DONE")
 
 ;;(make-readme)

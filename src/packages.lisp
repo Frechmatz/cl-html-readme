@@ -1,4 +1,4 @@
-(defpackage :cl-readme
+(defpackage :cl-html-readme
   (:use :cl)
   (:export
    :*home-directory*
@@ -8,7 +8,7 @@
    :read-file
    :make-path))
 
-(defpackage :cl-readme-dsl
+(defpackage :cl-html-readme-dsl
   (:use :cl)
   (:export
    :semantic-p

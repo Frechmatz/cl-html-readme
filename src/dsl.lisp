@@ -1,7 +1,7 @@
-(in-package :cl-readme-dsl)
+(in-package :cl-html-readme-dsl)
 
 ;;
-;; DSL of cl-readme
+;; DSL of cl-html-readme
 ;;
 
 ;;
@@ -218,7 +218,7 @@
   (flet ((has-toc-elements (doc)
 	   "Recursive descent to check if doc contains toc relevant elements"
 	   (let ((found nil))
-	     (cl-readme-dsl:walk-tree
+	     (cl-html-readme-dsl:walk-tree
 	      doc
 	      :open-element
 	      (lambda(element-symbol element-properties content)
@@ -235,7 +235,7 @@
 	   (setf (getf properties :toc) nil)
 	   properties))
     (let ((toc-root-pending t))
-      (cl-readme-dsl:walk-tree
+      (cl-html-readme-dsl:walk-tree
        doc
        :open-element
        (lambda(element-symbol element-properties content)
@@ -244,17 +244,17 @@
 	     (progn
 	       (if toc-root-pending
 		   (progn
-		     (cl-readme-dsl:open-element tree-builder 'toc-root nil)
+		     (cl-html-readme-dsl:open-element tree-builder 'toc-root nil)
 		     (setf toc-root-pending nil)))
 	       (if (has-toc-elements content)
 		   (progn
-		     (cl-readme-dsl:open-element
+		     (cl-html-readme-dsl:open-element
 		      tree-builder
 		      'toc-container
 		      (remove-toc-property element-properties))
 		     t)
 		   (progn
-		     (cl-readme-dsl:open-element
+		     (cl-html-readme-dsl:open-element
 		      tree-builder
 		      'toc-item
 		      (remove-toc-property element-properties))
@@ -264,12 +264,12 @@
        :close-element
        (lambda(context)
 	 (if context
-	     (cl-readme-dsl:close-element tree-builder)))
+	     (cl-html-readme-dsl:close-element tree-builder)))
        :text
        (lambda(str)
 	 (declare (ignore str))
 	 nil))
       (if (not toc-root-pending)
-	  (cl-readme-dsl:close-element tree-builder))))
+	  (cl-html-readme-dsl:close-element tree-builder))))
   nil)
 

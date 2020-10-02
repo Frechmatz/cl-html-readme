@@ -1,4 +1,4 @@
-(in-package :cl-readme)
+(in-package :cl-html-readme)
 
 (defun make-path (path)
   "Creates a path relative to *home-directory*. The function has the following arguments:

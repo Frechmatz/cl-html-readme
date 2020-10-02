@@ -1,4 +1,4 @@
-<html><body><header  ><h1 id="NIL"  >cl-readme</h1>A Documentation Generator for Common Lisp projects. The key concepts are as follows:
+<html><body><header  ><h1 id="NIL"  >cl-html-readme</h1>A Documentation Generator for Common Lisp projects. The key concepts are as follows:
 <ul>
     <li>The generated documentation consists of HTML files.</li>
     <li>Docstrings are using HTML as markup language.</li>
@@ -7,10 +7,10 @@
     <li>Generation of HTML headings, a Table Of Contents and HTML semantic elements via a DSL.</li>
     <li>No wrapping of the <a href="http://www.lispworks.com/documentation/lw50/CLHS/Body/f_docume.htm">documentation</a> function.</li>
     <li>Keeping predefined HTML markup at a minimum.</li>
-</ul><p>The source code is available <a href="https://github.com/Frechmatz/cl-readme">here</a>.</p></header><nav  ><h1 id="NIL"  >Table of contents</h1><ul  ><li  > <a href="#Installation-1">Installation</a></li><li  > <a href="#Example-2">Example</a></li><li  > <a href="#API-3">API</a></li></ul></nav><section  ><h1 id="Installation-1"  >Installation</h1><pre><code>
+</ul><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav  ><h1 id="NIL"  >Table of contents</h1><ul  ><li  > <a href="#Installation-1">Installation</a></li><li  > <a href="#Example-2">Example</a></li><li  > <a href="#API-3">API</a></li></ul></nav><section  ><h1 id="Installation-1"  >Installation</h1><pre><code>
 cd ~/quicklisp/local-projects
-git clone https://github.com/Frechmatz/cl-readme.git
-</code></pre><h1 id="Example-2"  >Example</h1><p><pre><code>(in-package :cl-readme-make-readme)
+git clone https://github.com/Frechmatz/cl-html-readme.git
+</code></pre><h1 id="Example-2"  >Example</h1><p><pre><code>(in-package :cl-html-readme-make-readme)
 
 ;;
 ;; Helper functions
@@ -43,7 +43,7 @@ git clone https://github.com/Frechmatz/cl-readme.git
   (concatenate
    'string
    "&lt;p&gt;&lt;pre&gt;&lt;code&gt;"
-   (cl-readme:read-file path :replace-tabs t :escape t)
+   (cl-html-readme:read-file path :replace-tabs t :escape t)
    "&lt;/code&gt;&lt;/pre&gt;&lt;/p&gt;"))
 
 (defun now ()
@@ -62,22 +62,22 @@ git clone https://github.com/Frechmatz/cl-readme.git
 (defun get-readme (index)
     `("&lt;html&gt;&lt;body&gt;"
       (semantic (:name "header")
-                (heading (:name "cl-readme"))
-                ,(cl-readme:read-file "make-readme/introduction.html")
-                "&lt;p&gt;The source code is available &lt;a href=\"https://github.com/Frechmatz/cl-readme\"&gt;here&lt;/a&gt;.&lt;/p&gt;")
+                (heading (:name "cl-html-readme"))
+                ,(cl-html-readme:read-file "make-readme/introduction.html")
+                "&lt;p&gt;The source code is available &lt;a href=\"https://github.com/Frechmatz/cl-html-readme\"&gt;here&lt;/a&gt;.&lt;/p&gt;")
       (semantic (:name "nav")
                 (heading (:name "Table of contents")
                          (toc)))
       (semantic (:name "section")
                 (heading (:name "Installation" :toc t)
-                         ,(cl-readme:read-file "make-readme/installation.html"))
+                         ,(cl-html-readme:read-file "make-readme/installation.html"))
                 (heading (:name "Example" :toc t)
                          ,(make-code-string "make-readme/make-readme.lisp"))
                 (heading (:name "API":toc t)
-                         ,(make-variable-string index "cl-readme" "*home-directory*")
-                         ,(make-variable-string index "cl-readme" "*tab-width*")
-                         ,(make-function-string index "cl-readme" "make-path")
-                         ,(make-function-string index "cl-readme" "read-file")))
+                         ,(make-variable-string index "cl-html-readme" "*home-directory*")
+                         ,(make-variable-string index "cl-html-readme" "*tab-width*")
+                         ,(make-function-string index "cl-html-readme" "make-path")
+                         ,(make-function-string index "cl-html-readme" "read-file")))
       (semantic (:name "footer")
                 "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(now) "&lt;/small&gt;&lt;/p&gt;")
       "&lt;/body&gt;&lt;/html&gt;"))
@@ -87,14 +87,14 @@ git clone https://github.com/Frechmatz/cl-readme.git
 ;;
 
 (defun make-readme ()
-  (let ((index (docparser:parse :cl-readme)))
-    (let ((cl-readme:*home-directory* (asdf:system-source-directory :cl-readme-make-readme)))
-      (with-open-file (fh (cl-readme:make-path "docs/index.html")
+  (let ((index (docparser:parse :cl-html-readme)))
+    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme-make-readme)))
+      (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
                           :direction :output
                           :if-exists :supersede
                           :if-does-not-exist :create
                           :external-format :utf-8)
-        (cl-readme:doc-to-html fh (get-readme index)))))
+        (cl-html-readme:doc-to-html fh (get-readme index)))))
     "DONE")
 
 ;;(make-readme)</code></pre></p><h1 id="API-3"  >API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>make-path</b>&nbsp;(path)<p>Creates a path relative to *home-directory*. The function has the following arguments:
@@ -105,4 +105,4 @@ git clone https://github.com/Frechmatz/cl-readme.git
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p></section><footer  ><hr/><p><small>Generated 2020-10-02  20:22:52</small></p></footer></body></html>
+   </ul></p></section><footer  ><hr/><p><small>Generated 2020-10-02  21:29:50</small></p></footer></body></html>

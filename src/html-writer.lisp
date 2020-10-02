@@ -1,4 +1,4 @@
-(in-package :cl-readme)
+(in-package :cl-html-readme)
 
 ;;
 ;; Rewriting
@@ -7,80 +7,80 @@
 ;; TODO Take care of already set :id property
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation tree."
-  (let ((counter 0) (tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
+  (let ((counter 0) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
     (labels ((set-id (properties)
 	       (let ((l (copy-list properties)))
 		 (setf counter (+ 1 counter))
 		 (setf (getf l :id) (format nil "~a-~a" (getf l :name) counter))
 		 l)))
-      (cl-readme-dsl:walk-tree
+      (cl-html-readme-dsl:walk-tree
        doc
        :open-element
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (if (getf element-properties :toc)
-	     (cl-readme-dsl:open-element tree-builder element-symbol (set-id element-properties))
-	     (cl-readme-dsl:open-element tree-builder element-symbol element-properties))
+	     (cl-html-readme-dsl:open-element tree-builder element-symbol (set-id element-properties))
+	     (cl-html-readme-dsl:open-element tree-builder element-symbol element-properties))
 	 nil)
        :close-element
-       (lambda(context) (declare (ignore context)) (cl-readme-dsl:close-element tree-builder))
+       (lambda(context) (declare (ignore context)) (cl-html-readme-dsl:close-element tree-builder))
        :text
-       (lambda(str) (cl-readme-dsl:add-text tree-builder str)))
-      (cl-readme-dsl:get-tree tree-builder))))
+       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
+      (cl-html-readme-dsl:get-tree tree-builder))))
 
 (defun set-toc (doc)
   "Replace toc element with toc-root"
-  (let ((tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
-    (cl-readme-dsl:walk-tree
+  (let ((tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
+    (cl-html-readme-dsl:walk-tree
      doc
      :open-element
      (lambda(element-symbol element-properties content)
        (declare (ignore content))
-       (if (cl-readme-dsl:toc-p element-symbol)
+       (if (cl-html-readme-dsl:toc-p element-symbol)
 	   (progn
-	     (cl-readme-dsl:extract-toc doc tree-builder)
+	     (cl-html-readme-dsl:extract-toc doc tree-builder)
 	     :ignore-close-element)
 	   (progn
-	     (cl-readme-dsl:open-element tree-builder element-symbol element-properties)
+	     (cl-html-readme-dsl:open-element tree-builder element-symbol element-properties)
 	     t)))
        :close-element
        (lambda(context)
 	 (if (not (eq context :ignore-close-element))
-	     (cl-readme-dsl:close-element tree-builder)))
+	     (cl-html-readme-dsl:close-element tree-builder)))
        :text
-       (lambda(str) (cl-readme-dsl:add-text tree-builder str)))
-    (cl-readme-dsl:get-tree tree-builder)))
+       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
+    (cl-html-readme-dsl:get-tree tree-builder)))
 
 (defun set-heading-indentation-levels (doc)
   "Set indentation levels of heading elements."
-  (let ((level 0) (tree-builder (make-instance 'cl-readme-dsl:tree-builder)))
+  (let ((level 0) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
     (labels ((set-indentation-level (properties)
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :level) level)
 		 l)))
-      (cl-readme-dsl:walk-tree
+      (cl-html-readme-dsl:walk-tree
        doc
        :open-element
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
-	 (if (cl-readme-dsl:heading-p element-symbol)
+	 (if (cl-html-readme-dsl:heading-p element-symbol)
 	     (progn
-	       (cl-readme-dsl:open-element
+	       (cl-html-readme-dsl:open-element
 		tree-builder element-symbol
 		(set-indentation-level element-properties))
 	       (setf level (+ 1 level))
 	       :decrement-level)
 	     (progn
-	       (cl-readme-dsl:open-element tree-builder element-symbol element-properties)
+	       (cl-html-readme-dsl:open-element tree-builder element-symbol element-properties)
 	       nil)))
        :close-element
        (lambda(context)
 	 (if (eq context :decrement-level)
 	     (setf level (+ -1 level)))
-	 (cl-readme-dsl:close-element tree-builder))
+	 (cl-html-readme-dsl:close-element tree-builder))
        :text
-       (lambda(str) (cl-readme-dsl:add-text tree-builder str)))
-      (cl-readme-dsl:get-tree tree-builder))))
+       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
+      (cl-html-readme-dsl:get-tree tree-builder))))
 
 ;;
 ;; HTML generation
@@ -108,13 +108,13 @@
 	       (if (<= level 5)
 		   (format nil "h~a" (+ 1 level))
 		   (format nil "h6")))))
-    (cl-readme-dsl:walk-tree
+    (cl-html-readme-dsl:walk-tree
      doc
      :open-element
      (lambda(element-symbol element-properties content)
        (declare (ignore content))
        (cond
-	 ((cl-readme-dsl:heading-p element-symbol)
+	 ((cl-html-readme-dsl:heading-p element-symbol)
 	  ;; <h{level} id={id} class={class} style={style}> {name} </h{level}>
 	  (format
 	   output-stream
@@ -126,7 +126,7 @@
 	   (getf element-properties :name)
 	   (format-heading element-properties))
 	  nil)
-	 ((cl-readme-dsl:semantic-p element-symbol)
+	 ((cl-html-readme-dsl:semantic-p element-symbol)
 	  ;; <{name} class={class} style={style}>...</{name}>
 	  (format
 	   output-stream
@@ -135,7 +135,7 @@
 	   (format-class element-properties)
 	   (format-style element-properties))
 	  (format nil "</~a>" (getf element-properties :name)))
-	 ((cl-readme-dsl:toc-root-p element-symbol)
+	 ((cl-html-readme-dsl:toc-root-p element-symbol)
 	  ;; <ul class={class} style={style}>...</ul>
 	  (format
 	   output-stream
@@ -143,7 +143,7 @@
 	   (format-toc-class element-properties)
 	   (format-toc-style element-properties))
 	  "</ul>")
-	 ((cl-readme-dsl:toc-item-p element-symbol)
+	 ((cl-html-readme-dsl:toc-item-p element-symbol)
 	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> </li>
 	  (format
 	   output-stream
@@ -153,7 +153,7 @@
 	   (getf element-properties :id)
 	   (getf element-properties :name))
 	  nil)
-	 ((cl-readme-dsl:toc-container-p element-symbol)
+	 ((cl-html-readme-dsl:toc-container-p element-symbol)
 	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> <ul>...</ul> </li>
 	  (format
 	   output-stream

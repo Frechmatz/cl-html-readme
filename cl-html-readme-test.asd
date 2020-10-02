@@ -1,13 +1,13 @@
-(defsystem :cl-readme-make-readme
+(defsystem :cl-html-readme-test
   :serial t
   :version "0.0.1"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
-  :homepage "https://github.com/Frechmatz/cl-readme"
+  :homepage "https://github.com/Frechmatz/cl-html-readme"
   :description "Readme generation utilities"
   :long-description "Readme generation utilities"
-  :depends-on (:docparser)
+  :depends-on (:lisp-unit)
   :components ((:module "src"
 			:serial t
 			:components ((:file "packages")
@@ -15,8 +15,10 @@
 				     (:file "variables")
 				     (:file "html-writer")
 				     (:file "readme-util")))
-	       (:module "make-readme"
+	       (:module "test"
 			:serial t
 			:components ((:file "packages")
-				     (:file "make-readme")))))
+				     (:file "walk-tree-test")
+				     (:file "tree-builder-test")
+				     (:file "extract-toc-test")))))
 

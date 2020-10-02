@@ -1,4 +1,4 @@
-(in-package :cl-readme)
+(in-package :cl-html-readme)
 
 (defparameter *home-directory* nil
   "Home directory of the project for which documentation is to be generated.")

@@ -1,2 +1,2 @@
-(defpackage :cl-readme-make-readme
-  (:use :cl :cl-readme))
+(defpackage :cl-html-readme-make-readme
+  (:use :cl :cl-html-readme))
