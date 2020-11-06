@@ -89,19 +89,23 @@
 (defun serialize (output-stream doc)
   (labels ((format-class (properties)
 	     (if (getf properties :class)
-		 (format nil " class=\"~a\" " (getf properties :class))
+		 (format nil " class=\"~a\"" (getf properties :class))
 		 ""))
 	   (format-style (properties)
 	     (if (getf properties :style)
-		 (format nil " style=\"~a\" " (getf properties :style))
+		 (format nil " style=\"~a\"" (getf properties :style))
 		 ""))
 	   (format-toc-class (properties)
 	     (if (getf properties :toc-class)
-		 (format nil " class=\"~a\" " (getf properties :toc-class))
+		 (format nil " class=\"~a\"" (getf properties :toc-class))
 		 ""))
 	   (format-toc-style (properties)
 	     (if (getf properties :toc-style)
-		 (format nil " style=\"~a\" " (getf properties :toc-style))
+		 (format nil " style=\"~a\"" (getf properties :toc-style))
+		 ""))
+	   (format-id (properties)
+	     (if (getf properties :id)
+		 (format nil " id=\"~a\"" (getf properties :id))
 		 ""))
 	   (format-heading (properties)
 	     (let ((level (getf properties :level)))
@@ -118,9 +122,9 @@
 	  ;; <h{level} id={id} class={class} style={style}> {name} </h{level}>
 	  (format
 	   output-stream
-	   "<~a id=\"~a\" ~a ~a>~a</~a>"
+	   "<~a~a~a~a>~a</~a>"
 	   (format-heading element-properties)
-	   (getf element-properties :id)
+	   (format-id element-properties)
 	   (format-class element-properties)
 	   (format-style element-properties)
 	   (getf element-properties :name)
@@ -130,7 +134,7 @@
 	  ;; <{name} class={class} style={style}>...</{name}>
 	  (format
 	   output-stream
-	   "<~a ~a ~a>"
+	   "<~a~a~a>"
 	   (getf element-properties :name)
 	   (format-class element-properties)
 	   (format-style element-properties))
@@ -139,7 +143,7 @@
 	  ;; <ul class={class} style={style}>...</ul>
 	  (format
 	   output-stream
-	   "<ul ~a ~a>"
+	   "<ul~a~a>"
 	   (format-toc-class element-properties)
 	   (format-toc-style element-properties))
 	  "</ul>")
@@ -147,7 +151,7 @@
 	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> </li>
 	  (format
 	   output-stream
-	   "<li ~a ~a> <a href=\"#~a\">~a</a></li>"
+	   "<li~a~a> <a href=\"#~a\">~a</a></li>"
 	   (format-toc-class element-properties)
 	   (format-toc-style element-properties)
 	   (getf element-properties :id)
@@ -157,7 +161,7 @@
 	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> <ul>...</ul> </li>
 	  (format
 	   output-stream
-	   "<li ~a ~a><a href=\"#~a\">~a</a><ul>"
+	   "<li~a~a><a href=\"#~a\">~a</a><ul>"
 	   (format-toc-class element-properties)
 	   (format-toc-style element-properties)
 	   (getf element-properties :id)
