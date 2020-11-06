@@ -151,7 +151,7 @@
 	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> </li>
 	  (format
 	   output-stream
-	   "<li~a~a> <a href=\"#~a\">~a</a></li>"
+	   "<li~a~a><a href=\"#~a\">~a</a></li>"
 	   (format-toc-class element-properties)
 	   (format-toc-style element-properties)
 	   (getf element-properties :id)
