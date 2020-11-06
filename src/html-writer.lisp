@@ -1,10 +1,9 @@
 (in-package :cl-html-readme)
 
 ;;
-;; Rewriting
+;; Transformation functions
 ;;
 
-;; TODO Take care of already set :id property
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation tree."
   (let ((counter 0) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
@@ -29,7 +28,7 @@
       (cl-html-readme-dsl:get-tree tree-builder))))
 
 (defun set-toc (doc)
-  "Replace toc element with toc-root"
+  "Replace toc element with toc-root. Returns a new documentation tree."
   (let ((tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
     (cl-html-readme-dsl:walk-tree
      doc
@@ -52,7 +51,7 @@
     (cl-html-readme-dsl:get-tree tree-builder)))
 
 (defun set-heading-indentation-levels (doc)
-  "Set indentation levels of heading elements."
+  "Set indentation levels of heading elements. Returns a new documentation tree."
   (let ((level 0) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
     (labels ((set-indentation-level (properties)
 	       (let ((l (copy-list properties)))
