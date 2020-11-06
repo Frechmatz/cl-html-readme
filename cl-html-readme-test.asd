@@ -9,16 +9,18 @@
   :long-description "Readme generation utilities"
   :depends-on (:lisp-unit)
   :components ((:module "src"
-			:serial t
-			:components ((:file "packages")
-				     (:file "dsl")
-				     (:file "variables")
-				     (:file "html-writer")
-				     (:file "readme-util")))
+		:serial t
+		:components ((:file "packages")
+			     (:file "dsl")
+			     (:file "variables")
+			     (:file "html-writer")
+			     (:file "readme-util")))
 	       (:module "test"
-			:serial t
-			:components ((:file "packages")
-				     (:file "walk-tree-test")
-				     (:file "tree-builder-test")
-				     (:file "extract-toc-test")))))
+		:serial t
+		:components ((:file "packages")
+			     (:file "util")
+			     (:file "walk-tree-test")
+			     (:file "tree-builder-test")
+			     (:file "extract-toc-test")
+			     (:file "html-writer-test")))))
 
