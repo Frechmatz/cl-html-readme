@@ -6,11 +6,17 @@
 
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation tree."
-  (let ((counter 0) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
-    (labels ((set-id (properties)
+  (let ((id-store nil) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
+    (labels ((make-id (name &key (counter 0))
+	       (let ((id (if (eq 0 counter) name (format nil "~a-~a" name counter))))
+		 (if (find id id-store :test #'string=)
+		     (make-id name :counter (+ 1 counter))
+		     (progn
+		       (push id id-store)
+		       id))))
+	     (set-id (properties)
 	       (let ((l (copy-list properties)))
-		 (setf counter (+ 1 counter))
-		 (setf (getf l :id) (format nil "~a-~a" (getf l :name) counter))
+		 (setf (getf l :id) (make-id (getf l :name)))
 		 l)))
       (cl-html-readme-dsl:walk-tree
        doc
