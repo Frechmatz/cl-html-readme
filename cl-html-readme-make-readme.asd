@@ -9,14 +9,14 @@
   :long-description "Readme generation utilities"
   :depends-on (:docparser)
   :components ((:module "src"
-			:serial t
-			:components ((:file "packages")
-				     (:file "dsl")
-				     (:file "variables")
-				     (:file "html-writer")
-				     (:file "readme-util")))
+		:serial t
+		:components ((:file "packages")
+			     (:file "dsl")
+			     (:file "variables")
+			     (:file "html-writer")
+			     (:file "readme-util")))
 	       (:module "make-readme"
-			:serial t
-			:components ((:file "packages")
-				     (:file "make-readme")))))
+		:serial t
+		:components ((:file "packages")
+			     (:file "make-readme")))))
 

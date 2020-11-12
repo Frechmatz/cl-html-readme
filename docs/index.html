@@ -1,4 +1,4 @@
-<html><body><header  ><h1 id="NIL"  >cl-html-readme</h1>A Documentation Generator for Common Lisp projects. The key concepts are as follows:
+<html><body><header><h1>cl-html-readme</h1>A Documentation Generator for Common Lisp projects. The key concepts are as follows:
 <ul>
     <li>The generated documentation consists of HTML files.</li>
     <li>Docstrings are using HTML as markup language.</li>
@@ -7,10 +7,109 @@
     <li>Generation of HTML headings, a Table Of Contents and HTML semantic elements via a DSL.</li>
     <li>No wrapping of the <a href="http://www.lispworks.com/documentation/lw50/CLHS/Body/f_docume.htm">documentation</a> function.</li>
     <li>Keeping predefined HTML markup at a minimum.</li>
-</ul><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav  ><h1 id="NIL"  >Table of contents</h1><ul  ><li  > <a href="#Installation-1">Installation</a></li><li  > <a href="#Example-2">Example</a></li><li  > <a href="#API-3">API</a></li></ul></nav><section  ><h1 id="Installation-1"  >Installation</h1><pre><code>
+</ul><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Example: Heading elements and Table of Contents">Example: Heading elements and Table of Contents</a></li><li><a href="#Example: Semantic elements">Example: Semantic elements</a></li><li><a href="#Example: Classes and Styling">Example: Classes and Styling</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Complete Readme-Generation example">Complete Readme-Generation example</a></li></ul></nav><section><h1 id="Installation">Installation</h1><pre><code>
 cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-html-readme.git
-</code></pre><h1 id="Example-2"  >Example</h1><p><pre><code>(in-package :cl-html-readme-make-readme)
+</code></pre><h1 id="DSL">DSL</h1><p>TODO Introduction.</p><h2 id="Example: Heading elements and Table of Contents">Example: Heading elements and Table of Contents</h2><h3>DSL</h3><p><pre><code>((heading (:name "Example"))
+ (heading (:name "Table of contents")
+          (toc))
+ (heading (:name "Chapter 1" :toc t)) "Lorem ipsum"
+ (heading (:name "Chapter 2" :toc t)) "Lorem ipsum")))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;h1&gt;Example
+&lt;/h1&gt;
+&lt;h1&gt;Table of contents
+&lt;/h1&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;a href="#Chapter 1"&gt;Chapter 1
+    &lt;/a&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;a href="#Chapter 2"&gt;Chapter 2
+    &lt;/a&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="Chapter 1"&gt;Chapter 1
+&lt;/h1&gt;Lorem ipsum
+&lt;h1 id="Chapter 2"&gt;Chapter 2
+&lt;/h1&gt;Lorem ipsum</code></pre></p><h2 id="Example: Semantic elements">Example: Semantic elements</h2><h3>DSL</h3><p><pre><code>((semantic (:name "header")
+           (heading (:name "Example")))
+ (semantic (:name "nav")
+           (heading (:name "Table of contents")
+                    (toc)))
+ (semantic (:name "section")
+           (heading (:name "Chapter 1" :toc t))
+           "Lorem ipsum"
+           (heading (:name "Chapter 2" :toc t))
+           "Lorem ipsum")
+ (semantic (:name "footer") "Lorem ipsum"))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;header&gt;
+  &lt;h1&gt;Example
+  &lt;/h1&gt;
+&lt;/header&gt;
+&lt;nav&gt;
+  &lt;h1&gt;Table of contents
+  &lt;/h1&gt;
+  &lt;ul&gt;
+    &lt;li&gt;
+      &lt;a href="#Chapter 1"&gt;Chapter 1
+      &lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li&gt;
+      &lt;a href="#Chapter 2"&gt;Chapter 2
+      &lt;/a&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+&lt;section&gt;
+  &lt;h1 id="Chapter 1"&gt;Chapter 1
+  &lt;/h1&gt;Lorem ipsum
+  &lt;h1 id="Chapter 2"&gt;Chapter 2
+  &lt;/h1&gt;Lorem ipsum
+&lt;/section&gt;
+&lt;footer&gt;Lorem ipsum
+&lt;/footer&gt;</code></pre></p><h2 id="Example: Classes and Styling">Example: Classes and Styling</h2><p>Work in progress...</p><h3>DSL</h3><p><pre><code>((semantic (:name "header" :class "semantic-header-class" :style "semantic-header-style" )
+           (heading (:name "Example" :class "example-class" :style "example-style")))
+ (semantic (:name "nav")
+           (heading (:name "Table of contents")
+                    (toc)))
+ (semantic (:name "section")
+           (heading (:name "Chapter 1" :toc t :class "chapter-1-class" :style "chapter-1-style" :toc-class "chapter-1-toc-class" :toc-style "chapter-1-toc-style"))
+           "Lorem ipsum"
+           (heading (:name "Chapter 2" :toc t))
+           "Lorem ipsum")
+ (semantic (:name "footer") "Lorem ipsum"))))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;header class="semantic-header-class" style="semantic-header-style"&gt;
+  &lt;h1 class="example-class" style="example-style"&gt;Example
+  &lt;/h1&gt;
+&lt;/header&gt;
+&lt;nav&gt;
+  &lt;h1&gt;Table of contents
+  &lt;/h1&gt;
+  &lt;ul&gt;
+    &lt;li class="chapter-1-toc-class" style="chapter-1-toc-style"&gt;
+      &lt;a href="#Chapter 1"&gt;Chapter 1
+      &lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li&gt;
+      &lt;a href="#Chapter 2"&gt;Chapter 2
+      &lt;/a&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;
+&lt;section&gt;
+  &lt;h1 id="Chapter 1" class="chapter-1-class" style="chapter-1-style"&gt;Chapter 1
+  &lt;/h1&gt;Lorem ipsum
+  &lt;h1 id="Chapter 2"&gt;Chapter 2
+  &lt;/h1&gt;Lorem ipsum
+&lt;/section&gt;
+&lt;footer&gt;Lorem ipsum
+&lt;/footer&gt;</code></pre></p><h1 id="API">API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>make-path</b>&nbsp;(path)<p>Creates a path relative to *home-directory*. The function has the following arguments:
+   <ul>
+      <li>path The path, e.g. examples/example-1.lisp.</li>
+   </ul></p><b>read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following arguments:
+   <ul>
+      <li>path Path of the file relative to *home-directory*.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+      <li>:escape If t then special characters are replaced with HTML character entities.</li>
+   </ul></p><h1 id="Complete Readme-Generation example">Complete Readme-Generation example</h1><p>TODO Introduction. The example uses the docparser library for extraction of docstrings.</p><p><pre><code>(in-package :cl-html-readme-make-readme)
 
 ;;
 ;; Helper functions
@@ -71,13 +170,32 @@ git clone https://github.com/Frechmatz/cl-html-readme.git
       (semantic (:name "section")
                 (heading (:name "Installation" :toc t)
                          ,(cl-html-readme:read-file "make-readme/installation.html"))
-                (heading (:name "Example" :toc t)
-                         ,(make-code-string "make-readme/make-readme.lisp"))
+                (heading (:name "DSL" :toc t)
+                         "&lt;p&gt;TODO Introduction.&lt;/p&gt;"
+                         (heading (:name "Example: Heading elements and Table of Contents" :toc t)
+                                  (heading (:name "DSL")
+                                           ,(make-code-string "make-readme/dsl-example-plain.dsl"))
+                                  (heading (:name "Generated HTML")
+                                           ,(make-code-string "make-readme/dsl-example-plain.html")))
+                         (heading (:name "Example: Semantic elements" :toc t)
+                                  (heading (:name "DSL")
+                                           ,(make-code-string "make-readme/dsl-example-semantic.dsl"))
+                                  (heading (:name "Generated HTML")
+                                           ,(make-code-string "make-readme/dsl-example-semantic.html")))
+                         (heading (:name "Example: Classes and Styling" :toc t)
+                                  "&lt;p&gt;Work in progress...&lt;/p&gt;"
+                                  (heading (:name "DSL")
+                                           ,(make-code-string "make-readme/dsl-example-styling.dsl"))
+                                  (heading (:name "Generated HTML")
+                                           ,(make-code-string "make-readme/dsl-example-styling.html"))))
                 (heading (:name "API":toc t)
                          ,(make-variable-string index "cl-html-readme" "*home-directory*")
                          ,(make-variable-string index "cl-html-readme" "*tab-width*")
                          ,(make-function-string index "cl-html-readme" "make-path")
-                         ,(make-function-string index "cl-html-readme" "read-file")))
+                         ,(make-function-string index "cl-html-readme" "read-file"))
+                (heading (:name "Complete Readme-Generation example" :toc t)
+                         "&lt;p&gt;TODO Introduction. The example uses the docparser library for extraction of docstrings.&lt;/p&gt;"
+                         ,(make-code-string "make-readme/make-readme.lisp")))
       (semantic (:name "footer")
                 "&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated " ,(now) "&lt;/small&gt;&lt;/p&gt;")
       "&lt;/body&gt;&lt;/html&gt;"))
@@ -97,12 +215,4 @@ git clone https://github.com/Frechmatz/cl-html-readme.git
         (cl-html-readme:doc-to-html fh (get-readme index)))))
     "DONE")
 
-;;(make-readme)</code></pre></p><h1 id="API-3"  >API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>make-path</b>&nbsp;(path)<p>Creates a path relative to *home-directory*. The function has the following arguments:
-   <ul>
-      <li>path The path, e.g. examples/example-1.lisp.</li>
-   </ul></p><b>read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following arguments:
-   <ul>
-      <li>path Path of the file relative to *home-directory*.</li>
-      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
-      <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p></section><footer  ><hr/><p><small>Generated 2020-10-02  21:29:50</small></p></footer></body></html>
+;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-12  23:45:40</small></p></footer></body></html>
