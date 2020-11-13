@@ -1,7 +1,7 @@
 (in-package :cl-html-readme-make-readme)
 
 ;;
-;; Helper functions
+;; Helper functions for HTML formatting and accessing metadata
 ;;
 
 (defun get-node (index package-name symbol-name)
@@ -60,7 +60,12 @@
 		(heading (:name "Installation" :toc t)
 			 ,(cl-html-readme:read-file "make-readme/installation.html"))
 		(heading (:name "DSL" :toc t)
-			 "<p>TODO Introduction.</p>"
+			 "<p>The DSL (Domain Specific Language) of cl-html-readme shall make it easy
+to define an automatically generated HTML skeleton consisting of semantic elements, heading elements and
+a table of contents. Beside these predefined elements the actual \"content\" consists of plain strings.
+This library does not know anything about documentation strings and does not try in any way
+to wrap the <a href=\"http://www.lispworks.com/documentation/lw50/CLHS/Body/f_docume.htm\">documentation</a> function of Common Lisp.
+</p><p>The following examples shall demonstrate the concept.</p>"
 			 (heading (:name "Example: Heading elements and Table of Contents" :toc t)
 				  (heading (:name "DSL")
 					   ,(make-code-string "make-readme/dsl-example-plain.dsl"))
@@ -71,19 +76,22 @@
 					   ,(make-code-string "make-readme/dsl-example-semantic.dsl"))
 				  (heading (:name "Generated HTML")
 					   ,(make-code-string "make-readme/dsl-example-semantic.html")))
-			 (heading (:name "Example: Classes and Styling" :toc t)
-				  "<p>Work in progress...</p>"
+			 (heading (:name "Example: HTML Classes and Styles" :toc t)
 				  (heading (:name "DSL")
 					   ,(make-code-string "make-readme/dsl-example-styling.dsl"))
 				  (heading (:name "Generated HTML")
 					   ,(make-code-string "make-readme/dsl-example-styling.html"))))
 		(heading (:name "API":toc t)
+			 ,(make-function-string index "cl-html-readme" "doc-to-html")
 			 ,(make-variable-string index "cl-html-readme" "*home-directory*")
 			 ,(make-variable-string index "cl-html-readme" "*tab-width*")
 			 ,(make-function-string index "cl-html-readme" "make-path")
 			 ,(make-function-string index "cl-html-readme" "read-file"))
-		(heading (:name "Complete Readme-Generation example" :toc t)
-			 "<p>TODO Introduction. The example uses the docparser library for extraction of docstrings.</p>"
+		(heading (:name "Example: Readme Generation" :toc t)
+			 "<p>This library has not been created for the fun of it, but to gain full control of documentation generation 
+in a easy way. Be it styling via CSS, embedded JavaScript, inclusion of source code files or markup used by documentation strings.</p>
+<p>The following example shows how the documentation of cl-html-readme is generated. 
+It uses the <a href=\"https://github.com/eudoxia0/docparser\">docparser</a> library to retrieve metadata such as documentation strings.</p>"
 			 ,(make-code-string "make-readme/make-readme.lisp")))
       (semantic (:name "footer")
 		"<hr/><p><small>Generated " ,(now) "</small></p>")
