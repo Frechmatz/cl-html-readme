@@ -92,26 +92,13 @@
 ;;
 
 (defun serialize (output-stream doc)
-  (labels ((format-class (properties)
-	     (if (getf properties :class)
-		 (format nil " class=\"~a\"" (getf properties :class))
-		 ""))
-	   (format-style (properties)
-	     (if (getf properties :style)
-		 (format nil " style=\"~a\"" (getf properties :style))
-		 ""))
-	   (format-toc-class (properties)
-	     (if (getf properties :toc-class)
-		 (format nil " class=\"~a\"" (getf properties :toc-class))
-		 ""))
-	   (format-toc-style (properties)
-	     (if (getf properties :toc-style)
-		 (format nil " style=\"~a\"" (getf properties :toc-style))
-		 ""))
+  (labels ((format-class (class)
+	     (if class (format nil " class=\"~a\"" class) ""))
+	   (format-style (style)
+	     (if style (format nil " style=\"~a\"" style) ""))
 	   (format-id (properties)
 	     (if (getf properties :id)
-		 (format nil " id=\"~a\"" (getf properties :id))
-		 ""))
+		 (format nil " id=\"~a\"" (getf properties :id)) ""))
 	   (format-heading (properties)
 	     (let ((level (getf properties :level)))
 	       (if (<= level 5)
@@ -130,8 +117,8 @@
 	   "<~a~a~a~a>~a</~a>"
 	   (format-heading element-properties)
 	   (format-id element-properties)
-	   (format-class element-properties)
-	   (format-style element-properties)
+	   (format-class (getf element-properties :class))
+	   (format-style (getf element-properties :style))
 	   (getf element-properties :name)
 	   (format-heading element-properties))
 	  nil)
@@ -141,36 +128,40 @@
 	   output-stream
 	   "<~a~a~a>"
 	   (getf element-properties :name)
-	   (format-class element-properties)
-	   (format-style element-properties))
+	   (format-class (getf element-properties :class))
+	   (format-style (getf element-properties :style)))
 	  (format nil "</~a>" (getf element-properties :name)))
 	 ((cl-html-readme-dsl:toc-root-p element-symbol)
 	  ;; <ul class={class} style={style}>...</ul>
 	  (format
 	   output-stream
 	   "<ul~a~a>"
-	   (format-toc-class element-properties)
-	   (format-toc-style element-properties))
+	   (format-class (getf element-properties :class))
+	   (format-style (getf element-properties :style)))
 	  "</ul>")
 	 ((cl-html-readme-dsl:toc-item-p element-symbol)
 	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> </li>
 	  (format
 	   output-stream
 	   "<li~a~a><a href=\"#~a\">~a</a></li>"
-	   (format-toc-class element-properties)
-	   (format-toc-style element-properties)
+	   (format-class (getf element-properties :class))
+	   (format-style (getf element-properties :style))
 	   (getf element-properties :id)
 	   (getf element-properties :name))
 	  nil)
 	 ((cl-html-readme-dsl:toc-container-p element-symbol)
-	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> <ul>...</ul> </li>
+	  ;; <li class={item-class} style={item-style}> <a href=#{id}> {name} </a>
+	  ;; <ul class={class} style={style}>...</ul>
+	  ;; </li>
 	  (format
 	   output-stream
-	   "<li~a~a><a href=\"#~a\">~a</a><ul>"
-	   (format-toc-class element-properties)
-	   (format-toc-style element-properties)
+	   "<li~a~a><a href=\"#~a\">~a</a><ul~a~a>"
+	   (format-class (getf element-properties :class))
+	   (format-style (getf element-properties :style))
 	   (getf element-properties :id)
-	   (getf element-properties :name))
+	   (getf element-properties :name)
+	   (format-class (getf element-properties :container-class))
+	   (format-style (getf element-properties :container-style)))
 	  "</ul></li>")
 	 (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
      :close-element
@@ -186,10 +177,14 @@
 ;; API
 ;;
 
-(defun doc-to-html (output-stream doc)
-  "Convert documentation to HTML"
-  (setf doc (set-heading-ids doc))
-  (setf doc (set-toc doc))
-  (setf doc (set-heading-indentation-levels doc))
-  (serialize output-stream doc)
+(defun doc-to-html (output-stream documentation)
+  "Serializes a documentation object to HTML. The function has the following parameters:
+   <ul>
+       <li>output-stream A stream into which the resulting HTML is written.</li>
+       <li>documentation A list following the syntax of the DSL.</li>
+   </ul>"
+  (setf documentation (set-heading-ids documentation))
+  (setf documentation (set-toc documentation))
+  (setf documentation (set-heading-indentation-levels documentation))
+  (serialize output-stream documentation)
   nil)

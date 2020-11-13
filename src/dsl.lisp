@@ -7,23 +7,49 @@
 ;;
 ;; DSL definition:
 ;;
-;; <documentation>       ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
+;; <documentation> ::=
+;;   ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
 ;;
-;; <semantic>            ::= (semantic (<semantic-properties>) { <string> | <heading> | <toc> | <toc-root> })
-;; <heading>             ::= (heading (<heading-properties>) { <string> | <heading> | <toc> | <toc-root> })
-;; <toc>                 ::= (toc ()) ;; High level representation of <toc-root> element.
-;; <toc-root>            ::= (toc-root () { <toc-item> | <toc-container> })
-;; <toc-item>            ::= (toc-item (<toc-properties>))
-;; <toc-container>       ::= (toc-container (<toc-properties>) { <toc-item> | <toc-container> })
+;; <semantic> ::=
+;;   (semantic (<semantic-properties>) { <string> | <heading> | <toc> | <toc-root> })
 ;;
-;; <semantic-properties> ::= :name <string> [<styling>]
-;; <heading-properties>  ::= :name <string> [:id <string>] [:toc t | nil] [<styling>] [<toc-styling>]
-;; <toc-properties>      ::= :name <string> :id <string> <styling>
+;; <heading> ::=
+;;   (heading (<heading-properties>) { <string> | <heading> | <toc> | <toc-root> })
 ;;
-;; <styling>             ::= [:class <string>] [:style <string>]
-;; <toc-styling>         ::= [:toc-class <string>] [:toc-style <string>]
+;; <toc> ::=
+;;   (toc (<toc-properties>)) ;; High level representation of <toc-root> element.
 ;;
-;; <string>              ::= A string literal
+;; <toc-root> ::=
+;;   (toc-root () { <toc-item> | <toc-container> })
+;;
+;; <toc-item> ::=
+;;   (toc-item (<toc-item-properties>))
+;;
+;; <toc-container> ::=
+;;   (toc-container (<toc-container-properties>) { <toc-item> | <toc-container> })
+;;
+;; <semantic-properties> ::=
+;;   :name <string> [:class <string>] [:style <string>]
+;;
+;; <heading-properties> ::=
+;;   :name <string> [:id <string>] [:toc t | nil]
+;;   [:class <string>] [:style <string>]
+;;
+;; <toc-properties> ::=
+;;   [:root-class <string>] [:root-style <string>]
+;;   [:container-class <string>] [:container-style <string>]
+;;   [:item-class <string>] [:item-style <string>]
+;;
+;; <toc-item-properties> ::=
+;;   :name <string> :id <string>
+;;   [:class <string>] [:style <string>]
+;;
+;; <toc-container-properties> ::=
+;;   :name <string> :id <string>
+;;   [:class <string>] [:style <string>]
+;;   [:container-class <string>] [:container-style <string>]
+;;
+;; <string> ::= A string literal
 ;;
 
 
@@ -215,7 +241,20 @@
 
 (defun extract-toc (doc tree-builder)
   "Extracts toc and pushes toc-root, toc-container, toc-item elements into the builder."
-  (flet ((has-toc-elements (doc)
+  (flet ((get-toc-properties ()
+	   "Lookup toc element and return its properties."
+	   (let ((toc-properties nil))
+	     (cl-html-readme-dsl:walk-tree
+	      doc
+	      :open-element
+	      (lambda(element-symbol element-properties content)
+		(declare (ignore content))
+		(if (toc-p element-symbol)
+		    (setf toc-properties element-properties)))
+	      :close-element (lambda(context) (declare (ignore context)) nil)
+	      :text (lambda(str) (declare (ignore str)) nil))
+	     toc-properties))
+	 (has-toc-elements (doc)
 	   "Recursive descent to check if doc contains toc relevant elements"
 	   (let ((found nil))
 	     (cl-html-readme-dsl:walk-tree
@@ -234,7 +273,7 @@
 	   (setf properties (copy-list properties))
 	   (setf (getf properties :toc) nil)
 	   properties))
-    (let ((toc-root-pending t))
+    (let ((toc-root-pending t) (toc-properties (get-toc-properties)))
       (cl-html-readme-dsl:walk-tree
        doc
        :open-element
@@ -244,20 +283,37 @@
 	     (progn
 	       (if toc-root-pending
 		   (progn
-		     (cl-html-readme-dsl:open-element tree-builder 'toc-root nil)
+		     (cl-html-readme-dsl:open-element
+		      tree-builder
+		      'toc-root
+		      (list
+		       :class (getf toc-properties :root-class)
+		       :style (getf toc-properties :root-style)))
 		     (setf toc-root-pending nil)))
 	       (if (has-toc-elements content)
 		   (progn
 		     (cl-html-readme-dsl:open-element
 		      tree-builder
 		      'toc-container
-		      (remove-toc-property element-properties))
-		     t)
+		      (concatenate
+		       'list
+		       (list
+			:class (getf toc-properties :item-class)
+			:style (getf toc-properties :item-style)
+			:container-class (getf toc-properties :container-class)
+			:container-style (getf toc-properties :container-style))
+		       (remove-toc-property element-properties)))
+		      t)
 		   (progn
 		     (cl-html-readme-dsl:open-element
 		      tree-builder
 		      'toc-item
-		      (remove-toc-property element-properties))
+		      (concatenate
+		       'list
+		       (list
+			:class (getf toc-properties :item-class)
+			:style (getf toc-properties :item-style))
+		       (remove-toc-property element-properties)))
 		     t)))
 	     (progn
 	       nil)))
