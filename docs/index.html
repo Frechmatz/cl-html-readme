@@ -12,10 +12,7 @@ cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-html-readme.git
 </code></pre><h1 id="DSL">DSL</h1><p>The DSL (Domain Specific Language) of cl-html-readme shall make it easy
 to define an automatically generated HTML skeleton consisting of semantic elements, heading elements and
-a table of contents. Beside these predefined elements the actual "content" consists of plain strings.
-This library does not know anything about documentation strings and does not try in any way
-to wrap the <a href="http://www.lispworks.com/documentation/lw50/CLHS/Body/f_docume.htm">documentation</a> function of Common Lisp.
-</p><p>The following examples shall demonstrate the concept.</p><h2 id="Example: Heading elements and Table of Contents">Example: Heading elements and Table of Contents</h2><h3>DSL</h3><p><pre><code>((heading (:name "Example"))
+a table of contents. Beside these predefined elements the actual "content" consists of plain strings.</p><p>The following examples shall demonstrate the concept.</p><h2 id="Example: Heading elements and Table of Contents">Example: Heading elements and Table of Contents</h2><h3>DSL</h3><p><pre><code>((heading (:name "Example"))
  (heading (:name "Table of contents")
           (toc))
  (heading (:name "Chapter 1" :toc t)) "Lorem ipsum"
@@ -134,7 +131,7 @@ to wrap the <a href="http://www.lispworks.com/documentation/lw50/CLHS/Body/f_doc
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul></p><h1 id="Example: Readme Generation">Example: Readme Generation</h1><p>This library has not been created for the fun of it, but to gain full control of documentation generation 
-in a easy way. Be it styling via CSS, embedded JavaScript, inclusion of source code files or markup used by documentation strings.</p>
+in a easy way.</p>
 <p>The following example shows how the documentation of cl-html-readme is generated. 
 It uses the <a href="https://github.com/eudoxia0/docparser">docparser</a> library to retrieve metadata such as documentation strings.</p><p><pre><code>(in-package :cl-html-readme-make-readme)
 
@@ -200,10 +197,7 @@ It uses the <a href="https://github.com/eudoxia0/docparser">docparser</a> librar
                 (heading (:name "DSL" :toc t)
                          "&lt;p&gt;The DSL (Domain Specific Language) of cl-html-readme shall make it easy
 to define an automatically generated HTML skeleton consisting of semantic elements, heading elements and
-a table of contents. Beside these predefined elements the actual \"content\" consists of plain strings.
-This library does not know anything about documentation strings and does not try in any way
-to wrap the &lt;a href=\"http://www.lispworks.com/documentation/lw50/CLHS/Body/f_docume.htm\"&gt;documentation&lt;/a&gt; function of Common Lisp.
-&lt;/p&gt;&lt;p&gt;The following examples shall demonstrate the concept.&lt;/p&gt;"
+a table of contents. Beside these predefined elements the actual \"content\" consists of plain strings.&lt;/p&gt;&lt;p&gt;The following examples shall demonstrate the concept.&lt;/p&gt;"
                          (heading (:name "Example: Heading elements and Table of Contents" :toc t)
                                   (heading (:name "DSL")
                                            ,(make-code-string "make-readme/dsl-example-plain.dsl"))
@@ -227,7 +221,7 @@ to wrap the &lt;a href=\"http://www.lispworks.com/documentation/lw50/CLHS/Body/f
                          ,(make-function-string index "cl-html-readme" "read-file"))
                 (heading (:name "Example: Readme Generation" :toc t)
                          "&lt;p&gt;This library has not been created for the fun of it, but to gain full control of documentation generation 
-in a easy way. Be it styling via CSS, embedded JavaScript, inclusion of source code files or markup used by documentation strings.&lt;/p&gt;
+in a easy way.&lt;/p&gt;
 &lt;p&gt;The following example shows how the documentation of cl-html-readme is generated. 
 It uses the &lt;a href=\"https://github.com/eudoxia0/docparser\"&gt;docparser&lt;/a&gt; library to retrieve metadata such as documentation strings.&lt;/p&gt;"
                          ,(make-code-string "make-readme/make-readme.lisp")))
@@ -250,4 +244,4 @@ It uses the &lt;a href=\"https://github.com/eudoxia0/docparser\"&gt;docparser&lt
         (cl-html-readme:doc-to-html fh (get-readme index)))))
     "DONE")
 
-;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-13  23:21:24</small></p></footer></body></html>
+;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-14  01:25:41</small></p></footer></body></html>
