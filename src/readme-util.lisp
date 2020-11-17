@@ -1,7 +1,7 @@
 (in-package :cl-html-readme)
 
 (defun make-path (path)
-  "Creates a path relative to *home-directory*. The function has the following arguments:
+  "Creates a path relative to *home-directory*. The function has the following parameters:
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
    </ul>"
@@ -44,7 +44,7 @@
 	(get-output-stream-string string-stream)))))
 
 (defun read-file (path &key (replace-tabs nil) (escape nil))
-  "Reads a text file and returns it as a string. The function has the following arguments:
+  "Reads a text file and returns it as a string. The function has the following parameters:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
