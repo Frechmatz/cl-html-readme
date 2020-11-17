@@ -1,10 +1,13 @@
 (in-package :cl-html-readme-make-readme)
 
 ;;
-;; Helper functions for HTML formatting and accessing metadata
+;; Helper functions
 ;;
 
-(defun get-node (index package-name symbol-name)
+(defun create-index (system)
+  (docparser:parse system))
+
+(defun get-index-node (index package-name symbol-name)
   (aref (docparser:query
 	 index
 	 :package-name (string-upcase package-name)
@@ -12,7 +15,8 @@
 	0))
   
 (defun make-function-string (index package-name symbol-name)
-  (let* ((node (get-node index package-name symbol-name))
+  "Returns HTML representation of a function"
+  (let* ((node (get-index-node index package-name symbol-name))
 	 (lambda-list (docparser:operator-lambda-list node)))
     (concatenate
      'string
@@ -21,13 +25,15 @@
      "<p>" (docparser:node-docstring node) "</p>")))
 
 (defun make-variable-string (index package-name symbol-name)
-  (let ((node (get-node index package-name symbol-name)))
+  "Returns HTML representation of a variable"
+  (let ((node (get-index-node index package-name symbol-name)))
     (concatenate
      'string
      "<b>" (string-downcase symbol-name) "</b>"
      "<p>" (docparser:node-docstring node) "</p>")))
   
 (defun make-code-string (path)
+  "Returns HTML representation of a source code file"
   (concatenate
    'string
    "<p><pre><code>"
@@ -85,10 +91,8 @@ a table of contents. Beside these predefined elements the actual \"content\" con
 			 ,(make-function-string index "cl-html-readme" "make-path")
 			 ,(make-function-string index "cl-html-readme" "read-file"))
 		(heading (:name "Example: Readme Generation" :toc t)
-			 "<p>This library has not been created for the fun of it, but to gain full control of documentation generation 
-in a easy way.</p>
-<p>The following example shows how the documentation of cl-html-readme is generated. 
-It uses the <a href=\"https://github.com/eudoxia0/docparser\">docparser</a> library to retrieve metadata such as documentation strings.</p>"
+			 "<p>This library was not just built for the fun of it, but for easy generation of documentation using HTML as markup language. The following example shows how the documentation of cl-html-readme is generated. 
+For extraction of metadata such as docstrings the <a href=\"https://github.com/eudoxia0/docparser\">docparser</a> library is being used.</p>"
 			 ,(make-code-string "make-readme/make-readme.lisp")))
       (semantic (:name "footer")
 		"<hr/><p><small>Generated " ,(now) "</small></p>")
@@ -99,7 +103,7 @@ It uses the <a href=\"https://github.com/eudoxia0/docparser\">docparser</a> libr
 ;;
 
 (defun make-readme ()
-  (let ((index (docparser:parse :cl-html-readme)))
+  (let ((index (create-index :cl-html-readme)))
     (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme-make-readme)))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output
