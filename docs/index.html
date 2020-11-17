@@ -14,7 +14,7 @@
 cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-html-readme.git
 </code></pre><h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
-automatically generated HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual \"content\" consists of plain strings
+HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
 that can appear (almost) everywhere.
 <p>The following HTML snippets have been formatted with <code>sgml-pretty-print</code>. The library
   itself does not support pretty-printing</p><h2 id="Heading elements and Table of Contents">Heading elements and Table of Contents</h2><h3>DSL</h3><p><pre><code>((heading (:name "Example"))
@@ -123,11 +123,11 @@ that can appear (almost) everywhere.
   &lt;/h1&gt;Lorem ipsum
 &lt;/section&gt;
 &lt;footer&gt;Lorem ipsum
-&lt;/footer&gt;</code></pre></p><h1 id="API">API</h1><b>doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
+&lt;/footer&gt;</code></pre></p><h1 id="API">API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream A stream into which the resulting HTML is written.</li>
        <li>documentation A list following the syntax of the DSL.</li>
-   </ul></p><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>make-path</b>&nbsp;(path)<p>Creates a path relative to *home-directory*. The function has the following parameters:
+   </ul></p><b>make-path</b>&nbsp;(path)<p>Creates a path relative to *home-directory*. The function has the following parameters:
    <ul>
       <li>path The path, e.g. examples/example-1.lisp.</li>
    </ul></p><b>read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
@@ -224,9 +224,9 @@ that can appear (almost) everywhere.
                                   (heading (:name "Generated HTML")
                                            ,(make-code-string "make-readme/dsl-example-styling.html"))))
                 (heading (:name "API":toc t)
-                         ,(make-function-string index "cl-html-readme" "doc-to-html")
                          ,(make-variable-string index "cl-html-readme" "*home-directory*")
                          ,(make-variable-string index "cl-html-readme" "*tab-width*")
+                         ,(make-function-string index "cl-html-readme" "doc-to-html")
                          ,(make-function-string index "cl-html-readme" "make-path")
                          ,(make-function-string index "cl-html-readme" "read-file"))
                 (heading (:name "Documentation example" :toc t)
@@ -252,4 +252,4 @@ that can appear (almost) everywhere.
         (cl-html-readme:doc-to-html fh (get-readme index)))))
     "DONE")
 
-;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-17  23:34:53</small></p></footer></body></html>
+;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-17  23:45:03</small></p></footer></body></html>
