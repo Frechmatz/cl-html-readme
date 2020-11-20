@@ -47,6 +47,8 @@ as Pathname.</li>
 	       (append-string "&gt;"))
 	      ((and escape (eql ch #\&))
 	       (append-string "&amp;"))
+	      ((and escape (eql ch #\"))
+	       (append-string "&quot;"))
 	      (t (append-char ch)))))
 	(get-output-stream-string string-stream)))))
 
