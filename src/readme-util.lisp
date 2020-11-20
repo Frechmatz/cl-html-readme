@@ -1,9 +1,16 @@
 (in-package :cl-html-readme)
 
+(defparameter *home-directory* nil
+  "Home directory of the project for which documentation is to be generated.")
+
+(defparameter *tab-width* 8
+  "Width of a tab. Used, when tabs are to be replaced with space characters.")
+
 (defun make-path (path)
   "Creates a path relative to *home-directory*. The function has the following parameters:
    <ul>
-      <li>path The path, e.g. examples/example-1.lisp.</li>
+      <li>path The path, e.g. examples/example-1.lisp. A path can be represented as String or
+as Pathname.</li>
    </ul>"
   (if (not *home-directory*)
       (error "Variable *HOME-DIRECTORY* not set"))

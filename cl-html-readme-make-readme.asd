@@ -12,9 +12,8 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "dsl")
-			     (:file "variables")
-			     (:file "html-writer")
-			     (:file "readme-util")))
+			     (:file "readme-util")
+			     (:file "html-writer")))
 	       (:module "make-readme"
 		:serial t
 		:components ((:file "packages")
