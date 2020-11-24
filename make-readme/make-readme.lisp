@@ -54,7 +54,9 @@
 ;;
 
 (defun get-readme (index)
-    `("<html><body>"
+  `("<html>"
+    "<head><link href=\"cl-html-readme.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
+    "<body>"
       (semantic (:name "header")
 		(heading (:name "cl-html-readme"))
 		,(cl-html-readme:read-file "make-readme/introduction.html")
