@@ -17,10 +17,7 @@
 	<li>Easily embed source code files as well as text/html files via helper
 	  functions provided by the API.</li>
     </ul>
-</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li><li><a href="#Semantic elements">Semantic elements</a></li><li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Full example">Full example</a></li></ul></nav><section><h1 id="Installation">Installation</h1><pre><code>
-cd ~/quicklisp/local-projects
-git clone https://github.com/Frechmatz/cl-html-readme.git
-</code></pre><h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
+</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li><li><a href="#Semantic elements">Semantic elements</a></li><li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Full example">Full example</a></li></ul></nav><section><h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p><h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
 that can appear (almost) everywhere.
 <p>The following HTML snippets have been formatted with <code>sgml-pretty-print</code>. The library
@@ -264,4 +261,4 @@ as Pathname.</li>
         (cl-html-readme:doc-to-html fh (get-readme index)))))
     &quot;DONE&quot;)
 
-;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-26  20:02:14</small></p></footer></body></html>
+;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-26  20:33:45</small></p></footer></body></html>
