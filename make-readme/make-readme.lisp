@@ -4,7 +4,7 @@
 ;; Helper functions
 ;;
 
-(defun create-index (system)
+(defun make-index (system)
   (docparser:parse system))
 
 (defun get-index-node (index package-name symbol-name)
@@ -84,7 +84,7 @@
 					   ,(make-code-string "make-readme/dsl-example-styling.dsl"))
 				  (heading (:name "Generated HTML")
 					   ,(make-code-string "make-readme/dsl-example-styling.html"))))
-		(heading (:name "API":toc t)
+		(heading (:name "API" :toc t)
 			 ,(make-variable-string index "cl-html-readme" "*home-directory*")
 			 ,(make-variable-string index "cl-html-readme" "*tab-width*")
 			 ,(make-function-string index "cl-html-readme" "doc-to-html")
@@ -103,7 +103,7 @@
 ;;
 
 (defun make-readme ()
-  (let ((index (create-index :cl-html-readme)))
+  (let ((index (make-index :cl-html-readme)))
     (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme-make-readme)))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output

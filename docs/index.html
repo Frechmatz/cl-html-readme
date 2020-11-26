@@ -155,7 +155,7 @@ as Pathname.</li>
 ;; Helper functions
 ;;
 
-(defun create-index (system)
+(defun make-index (system)
   (docparser:parse system))
 
 (defun get-index-node (index package-name symbol-name)
@@ -235,7 +235,7 @@ as Pathname.</li>
                                            ,(make-code-string &quot;make-readme/dsl-example-styling.dsl&quot;))
                                   (heading (:name &quot;Generated HTML&quot;)
                                            ,(make-code-string &quot;make-readme/dsl-example-styling.html&quot;))))
-                (heading (:name &quot;API&quot;:toc t)
+                (heading (:name &quot;API&quot; :toc t)
                          ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*home-directory*&quot;)
                          ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*tab-width*&quot;)
                          ,(make-function-string index &quot;cl-html-readme&quot; &quot;doc-to-html&quot;)
@@ -254,7 +254,7 @@ as Pathname.</li>
 ;;
 
 (defun make-readme ()
-  (let ((index (create-index :cl-html-readme)))
+  (let ((index (make-index :cl-html-readme)))
     (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme-make-readme)))
       (with-open-file (fh (cl-html-readme:make-path &quot;docs/index.html&quot;)
                           :direction :output
@@ -264,4 +264,4 @@ as Pathname.</li>
         (cl-html-readme:doc-to-html fh (get-readme index)))))
     &quot;DONE&quot;)
 
-;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-26  19:33:45</small></p></footer></body></html>
+;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-26  20:02:14</small></p></footer></body></html>
