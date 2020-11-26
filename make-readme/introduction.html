@@ -2,11 +2,11 @@ Generate HTML documentation for Common Lisp projects.
 <p>The goal of this library is to support in handling of basic stuff like Table Of Contents,
   embedded source code or heading indentation levels. Giving documentation
   a personal touch like styling via CSS or using JavaScript shall be straight forward.</p>
-<p>This library comes to its full potential, when Lisp documentation strings are
-  using HTML as markup language. However, extraction of such metadata is not in the
-  scope of cl-html-readme. It is up to the documentation generation code of the specific
-  project to provide it as well as to render it to HTML.
+<p>The library comes to its full potential, when Lisp documentation strings are
+  using HTML as markup language. 
 </p>
+<p>The library doesn't provide functionality to retrieve documentation strings or any
+  other metadata.</p>
 <p>The general idea is to declare an HTML skeleton using the DSL of cl-html-readme and
   to provide the actual documentation and any arbitrary markup as plain HTML strings embedded
   into this skeleton.</p>

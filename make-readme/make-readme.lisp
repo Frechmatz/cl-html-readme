@@ -90,7 +90,7 @@
 			 ,(make-function-string index "cl-html-readme" "doc-to-html")
 			 ,(make-function-string index "cl-html-readme" "make-path")
 			 ,(make-function-string index "cl-html-readme" "read-file"))
-		(heading (:name "Documentation example" :toc t)
+		(heading (:name "Full example" :toc t)
 			 ,(cl-html-readme:read-file "make-readme/example-introduction.html")
 			 (heading (:name "make-readme.lisp")
 				  ,(make-code-string "make-readme/make-readme.lisp"))))

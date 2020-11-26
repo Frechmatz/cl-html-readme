@@ -2,11 +2,11 @@
 <p>The goal of this library is to support in handling of basic stuff like Table Of Contents,
   embedded source code or heading indentation levels. Giving documentation
   a personal touch like styling via CSS or using JavaScript shall be straight forward.</p>
-<p>This library comes to its full potential, when Lisp documentation strings are
-  using HTML as markup language. However, extraction of such metadata is not in the
-  scope of cl-html-readme. It is up to the documentation generation code of the specific
-  project to provide it as well as to render it to HTML.
+<p>The library comes to its full potential, when Lisp documentation strings are
+  using HTML as markup language. 
 </p>
+<p>The library doesn't provide functionality to retrieve documentation strings or any
+  other metadata.</p>
 <p>The general idea is to declare an HTML skeleton using the DSL of cl-html-readme and
   to provide the actual documentation and any arbitrary markup as plain HTML strings embedded
   into this skeleton.</p>
@@ -17,7 +17,7 @@
 	<li>Easily embed source code files as well as text/html files via helper
 	  functions provided by the API.</li>
     </ul>
-</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li><li><a href="#Semantic elements">Semantic elements</a></li><li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Documentation example">Documentation example</a></li></ul></nav><section><h1 id="Installation">Installation</h1><pre><code>
+</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li><li><a href="#Semantic elements">Semantic elements</a></li><li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Full example">Full example</a></li></ul></nav><section><h1 id="Installation">Installation</h1><pre><code>
 cd ~/quicklisp/local-projects
 git clone https://github.com/Frechmatz/cl-html-readme.git
 </code></pre><h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
@@ -143,10 +143,12 @@ as Pathname.</li>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p><h1 id="Documentation example">Documentation example</h1>The following example shows how the readme of cl-html-readme is generated.
+   </ul></p><h1 id="Full example">Full example</h1>The following example shows how the documentation of cl-html-readme is generated.
 <ul>
     <li>Documentation strings of cl-html-readme are using HTML as markup.</li>
-    <li>For extraction of documentation strings and function lambda-lists the <a href=\"https://github.com/eudoxia0/docparser\">docparser</a> library is used.</li>
+    <li>Uses the <a href="https://github.com/eudoxia0/docparser">docparser</a>
+      library to retrieve documentation strings (and more).</li>
+    <li>The resulting HTML is written to docs/index.html (and hosted on github.io).</li>
 </ul><h2>make-readme.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-readme)
 
 ;;
@@ -239,7 +241,7 @@ as Pathname.</li>
                          ,(make-function-string index &quot;cl-html-readme&quot; &quot;doc-to-html&quot;)
                          ,(make-function-string index &quot;cl-html-readme&quot; &quot;make-path&quot;)
                          ,(make-function-string index &quot;cl-html-readme&quot; &quot;read-file&quot;))
-                (heading (:name &quot;Documentation example&quot; :toc t)
+                (heading (:name &quot;Full example&quot; :toc t)
                          ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
                          (heading (:name &quot;make-readme.lisp&quot;)
                                   ,(make-code-string &quot;make-readme/make-readme.lisp&quot;))))
@@ -262,4 +264,4 @@ as Pathname.</li>
         (cl-html-readme:doc-to-html fh (get-readme index)))))
     &quot;DONE&quot;)
 
-;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-24  21:35:04</small></p></footer></body></html>
+;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-26  19:33:45</small></p></footer></body></html>
