@@ -3,10 +3,8 @@
   embedded source code or heading indentation levels. Giving documentation
   a personal touch like styling via CSS or using JavaScript shall be straight forward.</p>
 <p>The library comes to its full potential, when Lisp documentation strings are
-  using HTML as markup language. 
-</p>
-<p>The library doesn't provide functionality to retrieve documentation strings or any
-  other metadata.</p>
+  using HTML as markup language. However, it doesn't provide any functionality to extract
+  documentation from systems or packages.</p>
 <p>The general idea is to declare an HTML skeleton using the DSL of cl-html-readme and
   to provide the actual documentation and any arbitrary markup as plain HTML strings embedded
   into this skeleton.</p>
@@ -23,7 +21,7 @@ that can appear (almost) everywhere.
 <p>The following HTML snippets have been formatted with <code>sgml-pretty-print</code>. The library
   itself does not support pretty-printing</p><h2 id="Heading elements and Table of Contents">Heading elements and Table of Contents</h2><h3>DSL</h3><p><pre><code>((heading (:name &quot;Example&quot;))
  (heading (:name &quot;Table of contents&quot;)
-          (toc))
+      (toc))
  (heading (:name &quot;Chapter 1&quot; :toc t)) &quot;Lorem ipsum&quot;
  (heading (:name &quot;Chapter 2&quot; :toc t)) &quot;Lorem ipsum&quot;)))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;h1&gt;Example
 &lt;/h1&gt;
@@ -43,15 +41,15 @@ that can appear (almost) everywhere.
 &lt;/h1&gt;Lorem ipsum
 &lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2
 &lt;/h1&gt;Lorem ipsum</code></pre></p><h2 id="Semantic elements">Semantic elements</h2><h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot;)
-           (heading (:name &quot;Example&quot;)))
+       (heading (:name &quot;Example&quot;)))
  (semantic (:name &quot;nav&quot;)
-           (heading (:name &quot;Table of contents&quot;)
-                    (toc)))
+       (heading (:name &quot;Table of contents&quot;)
+            (toc)))
  (semantic (:name &quot;section&quot;)
-           (heading (:name &quot;Chapter 1&quot; :toc t))
-           &quot;Lorem ipsum&quot;
-           (heading (:name &quot;Chapter 2&quot; :toc t))
-           &quot;Lorem ipsum&quot;)
+       (heading (:name &quot;Chapter 1&quot; :toc t))
+       &quot;Lorem ipsum&quot;
+       (heading (:name &quot;Chapter 2&quot; :toc t))
+       &quot;Lorem ipsum&quot;)
  (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;header&gt;
   &lt;h1&gt;Example
   &lt;/h1&gt;
@@ -78,22 +76,22 @@ that can appear (almost) everywhere.
 &lt;/section&gt;
 &lt;footer&gt;Lorem ipsum
 &lt;/footer&gt;</code></pre></p><h2 id="Classes and Styles">Classes and Styles</h2><h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot; :class &quot;semantic-class&quot; :style &quot;semantic-style&quot; )
-           (heading (:name &quot;Example&quot; :class &quot;heading-class&quot; :style &quot;heading-style&quot;)))
+       (heading (:name &quot;Example&quot; :class &quot;heading-class&quot; :style &quot;heading-style&quot;)))
  (semantic (:name &quot;nav&quot;)
-           (heading (:name &quot;Table of contents&quot;)
-                    (toc (:root-class &quot;toc-root-class&quot;
-                          :root-style &quot;toc-root-style&quot;
-                          :container-class &quot;toc-container-class&quot;
-                          :container-style &quot;toc-container-style&quot;
-                          :item-class &quot;toc-item-class&quot;
-                          :item-style &quot;toc-item-style&quot;))))
+       (heading (:name &quot;Table of contents&quot;)
+            (toc (:root-class &quot;toc-root-class&quot;
+              :root-style &quot;toc-root-style&quot;
+              :container-class &quot;toc-container-class&quot;
+              :container-style &quot;toc-container-style&quot;
+              :item-class &quot;toc-item-class&quot;
+              :item-style &quot;toc-item-style&quot;))))
  (semantic (:name &quot;section&quot;)
-           (heading (:name &quot;Chapter 1&quot; :toc t)
-                    &quot;Lorem ipsum&quot;
-                    (heading (:name &quot;Chapter 1.1&quot; :toc t)
-                             &quot;Lorem ipsum&quot;))
-           (heading (:name &quot;Chapter 2&quot; :toc t))
-           &quot;Lorem ipsum&quot;)
+       (heading (:name &quot;Chapter 1&quot; :toc t)
+            &quot;Lorem ipsum&quot;
+            (heading (:name &quot;Chapter 1.1&quot; :toc t)
+                 &quot;Lorem ipsum&quot;))
+       (heading (:name &quot;Chapter 2&quot; :toc t))
+       &quot;Lorem ipsum&quot;)
  (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;header class=&quot;semantic-class&quot; style=&quot;semantic-style&quot;&gt;
   &lt;h1 class=&quot;heading-class&quot; style=&quot;heading-style&quot;&gt;Example
   &lt;/h1&gt;
@@ -106,10 +104,10 @@ that can appear (almost) everywhere.
       &lt;a href=&quot;#Chapter 1&quot;&gt;Chapter 1
       &lt;/a&gt;
       &lt;ul class=&quot;toc-container-class&quot; style=&quot;toc-container-style&quot;&gt;
-        &lt;li class=&quot;toc-item-class&quot; style=&quot;toc-item-style&quot;&gt;
-          &lt;a href=&quot;#Chapter 1.1&quot;&gt;Chapter 1.1
-          &lt;/a&gt;
-        &lt;/li&gt;
+    &lt;li class=&quot;toc-item-class&quot; style=&quot;toc-item-style&quot;&gt;
+      &lt;a href=&quot;#Chapter 1.1&quot;&gt;Chapter 1.1
+      &lt;/a&gt;
+    &lt;/li&gt;
       &lt;/ul&gt;
     &lt;/li&gt;
     &lt;li class=&quot;toc-item-class&quot; style=&quot;toc-item-style&quot;&gt;
@@ -131,21 +129,20 @@ that can appear (almost) everywhere.
    <ul>
        <li>output-stream A stream into which the resulting HTML is written.</li>
        <li>documentation A list following the syntax of the DSL.</li>
-   </ul></p><b>make-path</b>&nbsp;(path)<p>Creates a path relative to *home-directory*. The function has the following parameters:
+   </ul></p><b>make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
    <ul>
-      <li>path The path, e.g. examples/example-1.lisp. A path can be represented as String or
-as Pathname.</li>
+      <li>path A path relative to *home-directory*, e.g. examples/example-1.lisp. A path can be represented as String or as Pathname.</li>
    </ul></p><b>read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p><h1 id="Full example">Full example</h1>The following example shows how the documentation of cl-html-readme is generated.
+   </ul></p><h1 id="Full example">Full example</h1>The following example shows how the documentation of this library is generated.
 <ul>
     <li>Documentation strings of cl-html-readme are using HTML as markup.</li>
     <li>Uses the <a href="https://github.com/eudoxia0/docparser">docparser</a>
       library to retrieve documentation strings (and more).</li>
-    <li>The resulting HTML is written to docs/index.html (and hosted on github.io).</li>
+    <li>The resulting HTML is written to docs/index.html.</li>
 </ul><h2>make-readme.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-readme)
 
 ;;
@@ -157,15 +154,15 @@ as Pathname.</li>
 
 (defun get-index-node (index package-name symbol-name)
   (aref (docparser:query
-         index
-         :package-name (string-upcase package-name)
-         :symbol-name (string-upcase symbol-name))
-        0))
+     index
+     :package-name (string-upcase package-name)
+     :symbol-name (string-upcase symbol-name))
+    0))
   
 (defun make-function-string (index package-name symbol-name)
   &quot;Returns HTML representation of a function&quot;
   (let* ((node (get-index-node index package-name symbol-name))
-         (lambda-list (docparser:operator-lambda-list node)))
+     (lambda-list (docparser:operator-lambda-list node)))
     (concatenate
      'string
      &quot;&lt;b&gt;&quot; (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
@@ -205,46 +202,46 @@ as Pathname.</li>
   `(&quot;&lt;html&gt;&quot;
     &quot;&lt;head&gt;&lt;link href=\&quot;cl-html-readme.css\&quot; rel=\&quot;stylesheet\&quot; type=\&quot;text/css\&quot;/&gt;&lt;/head&gt;&quot;
     &quot;&lt;body&gt;&quot;
-      (semantic (:name &quot;header&quot;)
-                (heading (:name &quot;cl-html-readme&quot;))
-                ,(cl-html-readme:read-file &quot;make-readme/introduction.html&quot;)
-                &quot;&lt;p&gt;The source code is available &lt;a href=\&quot;https://github.com/Frechmatz/cl-html-readme\&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;&quot;)
-      (semantic (:name &quot;nav&quot;)
-                (heading (:name &quot;Table of contents&quot;)
-                         (toc)))
-      (semantic (:name &quot;section&quot;)
-                (heading (:name &quot;Installation&quot; :toc t)
-                         ,(cl-html-readme:read-file &quot;make-readme/installation.html&quot;))
-                (heading (:name &quot;DSL&quot; :toc t)
-                         ,(cl-html-readme:read-file &quot;make-readme/dsl-introduction.html&quot;)
-                         (heading (:name &quot;Heading elements and Table of Contents&quot; :toc t)
-                                  (heading (:name &quot;DSL&quot;)
-                                           ,(make-code-string &quot;make-readme/dsl-example-plain.dsl&quot;))
-                                  (heading (:name &quot;Generated HTML&quot;)
-                                           ,(make-code-string &quot;make-readme/dsl-example-plain.html&quot;)))
-                         (heading (:name &quot;Semantic elements&quot; :toc t)
-                                  (heading (:name &quot;DSL&quot;)
-                                           ,(make-code-string &quot;make-readme/dsl-example-semantic.dsl&quot;))
-                                  (heading (:name &quot;Generated HTML&quot;)
-                                           ,(make-code-string &quot;make-readme/dsl-example-semantic.html&quot;)))
-                         (heading (:name &quot;Classes and Styles&quot; :toc t)
-                                  (heading (:name &quot;DSL&quot;)
-                                           ,(make-code-string &quot;make-readme/dsl-example-styling.dsl&quot;))
-                                  (heading (:name &quot;Generated HTML&quot;)
-                                           ,(make-code-string &quot;make-readme/dsl-example-styling.html&quot;))))
-                (heading (:name &quot;API&quot; :toc t)
-                         ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*home-directory*&quot;)
-                         ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*tab-width*&quot;)
-                         ,(make-function-string index &quot;cl-html-readme&quot; &quot;doc-to-html&quot;)
-                         ,(make-function-string index &quot;cl-html-readme&quot; &quot;make-path&quot;)
-                         ,(make-function-string index &quot;cl-html-readme&quot; &quot;read-file&quot;))
-                (heading (:name &quot;Full example&quot; :toc t)
-                         ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
-                         (heading (:name &quot;make-readme.lisp&quot;)
-                                  ,(make-code-string &quot;make-readme/make-readme.lisp&quot;))))
-      (semantic (:name &quot;footer&quot;)
-                &quot;&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated &quot; ,(now) &quot;&lt;/small&gt;&lt;/p&gt;&quot;)
-      &quot;&lt;/body&gt;&lt;/html&gt;&quot;))
+    (semantic (:name &quot;header&quot;)
+          (heading (:name &quot;cl-html-readme&quot;))
+          ,(cl-html-readme:read-file &quot;make-readme/introduction.html&quot;)
+          &quot;&lt;p&gt;The source code is available &lt;a href=\&quot;https://github.com/Frechmatz/cl-html-readme\&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;&quot;)
+    (semantic (:name &quot;nav&quot;)
+          (heading (:name &quot;Table of contents&quot;)
+               (toc)))
+    (semantic (:name &quot;section&quot;)
+          (heading (:name &quot;Installation&quot; :toc t)
+               ,(cl-html-readme:read-file &quot;make-readme/installation.html&quot;))
+          (heading (:name &quot;DSL&quot; :toc t)
+               ,(cl-html-readme:read-file &quot;make-readme/dsl-introduction.html&quot;)
+               (heading (:name &quot;Heading elements and Table of Contents&quot; :toc t)
+                (heading (:name &quot;DSL&quot;)
+                     ,(make-code-string &quot;make-readme/dsl-example-plain.dsl&quot;))
+                (heading (:name &quot;Generated HTML&quot;)
+                     ,(make-code-string &quot;make-readme/dsl-example-plain.html&quot;)))
+               (heading (:name &quot;Semantic elements&quot; :toc t)
+                (heading (:name &quot;DSL&quot;)
+                     ,(make-code-string &quot;make-readme/dsl-example-semantic.dsl&quot;))
+                (heading (:name &quot;Generated HTML&quot;)
+                     ,(make-code-string &quot;make-readme/dsl-example-semantic.html&quot;)))
+               (heading (:name &quot;Classes and Styles&quot; :toc t)
+                (heading (:name &quot;DSL&quot;)
+                     ,(make-code-string &quot;make-readme/dsl-example-styling.dsl&quot;))
+                (heading (:name &quot;Generated HTML&quot;)
+                     ,(make-code-string &quot;make-readme/dsl-example-styling.html&quot;))))
+          (heading (:name &quot;API&quot; :toc t)
+               ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*home-directory*&quot;)
+               ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*tab-width*&quot;)
+               ,(make-function-string index &quot;cl-html-readme&quot; &quot;doc-to-html&quot;)
+               ,(make-function-string index &quot;cl-html-readme&quot; &quot;make-path&quot;)
+               ,(make-function-string index &quot;cl-html-readme&quot; &quot;read-file&quot;))
+          (heading (:name &quot;Full example&quot; :toc t)
+               ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
+               (heading (:name &quot;make-readme.lisp&quot;)
+                ,(make-code-string &quot;make-readme/make-readme.lisp&quot;))))
+    (semantic (:name &quot;footer&quot;)
+          &quot;&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated &quot; ,(now) &quot;&lt;/small&gt;&lt;/p&gt;&quot;)
+    &quot;&lt;/body&gt;&lt;/html&gt;&quot;))
 
 ;;
 ;; Generate readme
@@ -252,13 +249,15 @@ as Pathname.</li>
 
 (defun make-readme ()
   (let ((index (make-index :cl-html-readme)))
-    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme-make-readme)))
+    (let ((cl-html-readme:*home-directory*
+        (asdf:system-source-directory :cl-html-readme-make-readme))
+      (cl-html-readme:*tab-width* 4))
       (with-open-file (fh (cl-html-readme:make-path &quot;docs/index.html&quot;)
-                          :direction :output
-                          :if-exists :supersede
-                          :if-does-not-exist :create
-                          :external-format :utf-8)
-        (cl-html-readme:doc-to-html fh (get-readme index)))))
+              :direction :output
+              :if-exists :supersede
+              :if-does-not-exist :create
+              :external-format :utf-8)
+    (cl-html-readme:doc-to-html fh (get-readme index)))))
     &quot;DONE&quot;)
 
-;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-11-26  20:33:45</small></p></footer></body></html>
+;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-12-21  19:52:50</small></p></footer></body></html>
