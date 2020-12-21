@@ -1,7 +1,4 @@
-/* CSS of cl-html-readme */
-
-/*
-h1 {
-  color: red;
+pre {
+  white-space: pre-wrap;
+  word-break: keep-all
 }
-*/
