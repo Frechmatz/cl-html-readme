@@ -92,7 +92,7 @@
 		       ,(make-function-string index "cl-html-readme" "read-file"))
 	      (heading (:name "Full example" :toc t)
 		       ,(cl-html-readme:read-file "make-readme/example-introduction.html")
-		       (heading (:name "make-readme.lisp")
+		       (heading (:name "make-doc.lisp")
 				,(make-code-string "make-readme/make-doc.lisp")))
 	      (heading (:name "Run tests" :toc t)
 		       "<pre><code>(asdf:test-system :cl-html-readme)</code></pre>")

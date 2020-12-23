@@ -143,7 +143,7 @@ that can appear (almost) everywhere.
     <li>Uses the <a href="https://github.com/eudoxia0/docparser">docparser</a>
       library to retrieve documentation strings (and more).</li>
     <li>The resulting HTML is written to docs/index.html.</li>
-</ul><h2>make-readme.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-doc)
+</ul><h2>make-doc.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-doc)
 
 ;;
 ;; Helper functions
@@ -237,7 +237,7 @@ that can appear (almost) everywhere.
                ,(make-function-string index &quot;cl-html-readme&quot; &quot;read-file&quot;))
           (heading (:name &quot;Full example&quot; :toc t)
                ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
-               (heading (:name &quot;make-readme.lisp&quot;)
+               (heading (:name &quot;make-doc.lisp&quot;)
                 ,(make-code-string &quot;make-readme/make-doc.lisp&quot;)))
           (heading (:name &quot;Run tests&quot; :toc t)
                &quot;&lt;pre&gt;&lt;code&gt;(asdf:test-system :cl-html-readme)&lt;/code&gt;&lt;/pre&gt;&quot;)
@@ -265,4 +265,4 @@ that can appear (almost) everywhere.
     &quot;DONE&quot;)
 
 ;;(make-doc)</code></pre></p><h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre><h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
-(cl-html-readme-make-doc::make-doc)</code></pre></p></section><footer><hr/><p><small>Generated 2020-12-23  17:51:04</small></p></footer></body></html>
+(cl-html-readme-make-doc::make-doc)</code></pre></p></section><footer><hr/><p><small>Generated 2020-12-23  17:55:06</small></p></footer></body></html>
