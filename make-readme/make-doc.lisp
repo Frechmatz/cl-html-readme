@@ -1,4 +1,4 @@
-(in-package :cl-html-readme-make-readme)
+(in-package :cl-html-readme-make-doc)
 
 ;;
 ;; Helper functions
@@ -93,7 +93,11 @@
 	      (heading (:name "Full example" :toc t)
 		       ,(cl-html-readme:read-file "make-readme/example-introduction.html")
 		       (heading (:name "make-readme.lisp")
-				,(make-code-string "make-readme/make-readme.lisp"))))
+				,(make-code-string "make-readme/make-doc.lisp")))
+	      (heading (:name "Run tests" :toc t)
+		       "<pre><code>(asdf:test-system :cl-html-readme)</code></pre>")
+	      (heading (:name "Generate documentation" :toc t)
+		       ,(make-code-string "make-readme/generate-doc.lisp")))
     (semantic (:name "footer")
 	      "<hr/><p><small>Generated " ,(now) "</small></p>")
     "</body></html>"))
@@ -102,10 +106,10 @@
 ;; Generate readme
 ;;
 
-(defun make-readme ()
+(defun make-doc ()
   (let ((index (make-index :cl-html-readme)))
     (let ((cl-html-readme:*home-directory*
-	    (asdf:system-source-directory :cl-html-readme-make-readme))
+	    (asdf:system-source-directory :cl-html-readme))
 	  (cl-html-readme:*tab-width* 4))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output
@@ -115,5 +119,5 @@
 	(cl-html-readme:doc-to-html fh (get-readme index)))))
     "DONE")
 
-;;(make-readme)
+;;(make-doc)
 

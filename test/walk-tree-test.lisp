@@ -126,7 +126,7 @@
 		doc
 		:open-element
 		(lambda(element properties content)
-		  (declare (ignore element))
+		  (declare (ignore element properties))
 		  (push content recorded)
 		  nil) 
 		:close-element

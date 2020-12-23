@@ -15,7 +15,7 @@
 	<li>Easily embed source code files as well as text/html files via helper
 	  functions provided by the API.</li>
     </ul>
-</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li><li><a href="#Semantic elements">Semantic elements</a></li><li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Full example">Full example</a></li></ul></nav><section><h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p><h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
+</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li><li><a href="#Semantic elements">Semantic elements</a></li><li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Full example">Full example</a></li><li><a href="#Run tests">Run tests</a></li><li><a href="#Generate documentation">Generate documentation</a></li></ul></nav><section><h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p><h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
 that can appear (almost) everywhere.
 <p>The following HTML snippets have been formatted with <code>sgml-pretty-print</code>. The library
@@ -143,7 +143,7 @@ that can appear (almost) everywhere.
     <li>Uses the <a href="https://github.com/eudoxia0/docparser">docparser</a>
       library to retrieve documentation strings (and more).</li>
     <li>The resulting HTML is written to docs/index.html.</li>
-</ul><h2>make-readme.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-readme)
+</ul><h2>make-readme.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-doc)
 
 ;;
 ;; Helper functions
@@ -238,7 +238,11 @@ that can appear (almost) everywhere.
           (heading (:name &quot;Full example&quot; :toc t)
                ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
                (heading (:name &quot;make-readme.lisp&quot;)
-                ,(make-code-string &quot;make-readme/make-readme.lisp&quot;))))
+                ,(make-code-string &quot;make-readme/make-doc.lisp&quot;)))
+          (heading (:name &quot;Run tests&quot; :toc t)
+               &quot;&lt;pre&gt;&lt;code&gt;(asdf:test-system :cl-html-readme)&lt;/code&gt;&lt;/pre&gt;&quot;)
+          (heading (:name &quot;Generate documentation&quot; :toc t)
+               ,(make-code-string &quot;make-readme/generate-doc.lisp&quot;)))
     (semantic (:name &quot;footer&quot;)
           &quot;&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated &quot; ,(now) &quot;&lt;/small&gt;&lt;/p&gt;&quot;)
     &quot;&lt;/body&gt;&lt;/html&gt;&quot;))
@@ -247,10 +251,10 @@ that can appear (almost) everywhere.
 ;; Generate readme
 ;;
 
-(defun make-readme ()
+(defun make-doc ()
   (let ((index (make-index :cl-html-readme)))
     (let ((cl-html-readme:*home-directory*
-        (asdf:system-source-directory :cl-html-readme-make-readme))
+        (asdf:system-source-directory :cl-html-readme))
       (cl-html-readme:*tab-width* 4))
       (with-open-file (fh (cl-html-readme:make-path &quot;docs/index.html&quot;)
               :direction :output
@@ -260,4 +264,5 @@ that can appear (almost) everywhere.
     (cl-html-readme:doc-to-html fh (get-readme index)))))
     &quot;DONE&quot;)
 
-;;(make-readme)</code></pre></p></section><footer><hr/><p><small>Generated 2020-12-21  19:52:50</small></p></footer></body></html>
+;;(make-doc)</code></pre></p><h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre><h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
+(cl-html-readme-make-doc::make-doc)</code></pre></p></section><footer><hr/><p><small>Generated 2020-12-23  17:51:04</small></p></footer></body></html>
