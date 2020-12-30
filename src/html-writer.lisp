@@ -92,7 +92,9 @@
 ;;
 
 (defun serialize (output-stream doc)
-  (labels ((format-class (class)
+  (labels ((newline ()
+	     (princ #\Newline output-stream))
+	   (format-class (class)
 	     (if class (format nil " class=\"~a\"" class) ""))
 	   (format-style (style)
 	     (if style (format nil " style=\"~a\"" style) ""))
@@ -112,6 +114,7 @@
        (cond
 	 ((cl-html-readme-dsl:heading-p element-symbol)
 	  ;; <h{level} id={id} class={class} style={style}> {name} </h{level}>
+	  (newline)
 	  (format
 	   output-stream
 	   "<~a~a~a~a>~a</~a>"
@@ -123,6 +126,7 @@
 	   (format-heading element-properties))
 	  nil)
 	 ((cl-html-readme-dsl:semantic-p element-symbol)
+	  (newline)
 	  ;; <{name} class={class} style={style}>...</{name}>
 	  (format
 	   output-stream
@@ -132,6 +136,7 @@
 	   (format-style (getf element-properties :style)))
 	  (format nil "</~a>" (getf element-properties :name)))
 	 ((cl-html-readme-dsl:toc-root-p element-symbol)
+	  (newline)
 	  ;; <ul class={class} style={style}>...</ul>
 	  (format
 	   output-stream
@@ -141,6 +146,7 @@
 	  "</ul>")
 	 ((cl-html-readme-dsl:toc-item-p element-symbol)
 	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> </li>
+	  (newline)
 	  (format
 	   output-stream
 	   "<li~a~a><a href=\"#~a\">~a</a></li>"
@@ -153,6 +159,7 @@
 	  ;; <li class={item-class} style={item-style}> <a href=#{id}> {name} </a>
 	  ;; <ul class={class} style={style}>...</ul>
 	  ;; </li>
+	  (newline)
 	  (format
 	   output-stream
 	   "<li~a~a><a href=\"#~a\">~a</a><ul~a~a>"
