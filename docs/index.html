@@ -1,4 +1,6 @@
-<html><head><link href="cl-html-readme.css" rel="stylesheet" type="text/css"/></head><body><header><h1>cl-html-readme</h1>Generate HTML documentation for Common Lisp projects.
+<html><head><link href="cl-html-readme.css" rel="stylesheet" type="text/css"/></head><body>
+<header>
+<h1>cl-html-readme</h1>Generate HTML documentation for Common Lisp projects.
 <p>The goal of this library is to support in handling of basic stuff like Table Of Contents,
   embedded source code or heading indentation levels. Giving documentation
   a personal touch like styling via CSS or using JavaScript shall be straight forward.</p>
@@ -15,15 +17,33 @@
 	<li>Easily embed source code files as well as text/html files via helper
 	  functions provided by the API.</li>
     </ul>
-</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header><nav><h1>Table of contents</h1><ul><li><a href="#Installation">Installation</a></li><li><a href="#DSL">DSL</a><ul><li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li><li><a href="#Semantic elements">Semantic elements</a></li><li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li><li><a href="#API">API</a></li><li><a href="#Full example">Full example</a></li><li><a href="#Run tests">Run tests</a></li><li><a href="#Generate documentation">Generate documentation</a></li></ul></nav><section><h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p><h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
+</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header>
+<nav>
+<h1>Table of contents</h1>
+<ul>
+<li><a href="#Installation">Installation</a></li>
+<li><a href="#DSL">DSL</a><ul>
+<li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li>
+<li><a href="#Semantic elements">Semantic elements</a></li>
+<li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li>
+<li><a href="#API">API</a></li>
+<li><a href="#Full example">Full example</a></li>
+<li><a href="#Run tests">Run tests</a></li>
+<li><a href="#Generate documentation">Generate documentation</a></li></ul></nav>
+<section>
+<h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p>
+<h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
 that can appear (almost) everywhere.
 <p>The following HTML snippets have been formatted with <code>sgml-pretty-print</code>. The library
-  itself does not support pretty-printing</p><h2 id="Heading elements and Table of Contents">Heading elements and Table of Contents</h2><h3>DSL</h3><p><pre><code>((heading (:name &quot;Example&quot;))
+  itself does not support pretty-printing</p>
+<h2 id="Heading elements and Table of Contents">Heading elements and Table of Contents</h2>
+<h3>DSL</h3><p><pre><code>((heading (:name &quot;Example&quot;))
  (heading (:name &quot;Table of contents&quot;)
       (toc))
  (heading (:name &quot;Chapter 1&quot; :toc t)) &quot;Lorem ipsum&quot;
- (heading (:name &quot;Chapter 2&quot; :toc t)) &quot;Lorem ipsum&quot;)))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;h1&gt;Example
+ (heading (:name &quot;Chapter 2&quot; :toc t)) &quot;Lorem ipsum&quot;)))</code></pre></p>
+<h3>Generated HTML</h3><p><pre><code>&lt;h1&gt;Example
 &lt;/h1&gt;
 &lt;h1&gt;Table of contents
 &lt;/h1&gt;
@@ -40,7 +60,9 @@ that can appear (almost) everywhere.
 &lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1
 &lt;/h1&gt;Lorem ipsum
 &lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2
-&lt;/h1&gt;Lorem ipsum</code></pre></p><h2 id="Semantic elements">Semantic elements</h2><h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot;)
+&lt;/h1&gt;Lorem ipsum</code></pre></p>
+<h2 id="Semantic elements">Semantic elements</h2>
+<h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot;)
        (heading (:name &quot;Example&quot;)))
  (semantic (:name &quot;nav&quot;)
        (heading (:name &quot;Table of contents&quot;)
@@ -50,7 +72,8 @@ that can appear (almost) everywhere.
        &quot;Lorem ipsum&quot;
        (heading (:name &quot;Chapter 2&quot; :toc t))
        &quot;Lorem ipsum&quot;)
- (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;header&gt;
+ (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p>
+<h3>Generated HTML</h3><p><pre><code>&lt;header&gt;
   &lt;h1&gt;Example
   &lt;/h1&gt;
 &lt;/header&gt;
@@ -75,7 +98,9 @@ that can appear (almost) everywhere.
   &lt;/h1&gt;Lorem ipsum
 &lt;/section&gt;
 &lt;footer&gt;Lorem ipsum
-&lt;/footer&gt;</code></pre></p><h2 id="Classes and Styles">Classes and Styles</h2><h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot; :class &quot;semantic-class&quot; :style &quot;semantic-style&quot; )
+&lt;/footer&gt;</code></pre></p>
+<h2 id="Classes and Styles">Classes and Styles</h2>
+<h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot; :class &quot;semantic-class&quot; :style &quot;semantic-style&quot; )
        (heading (:name &quot;Example&quot; :class &quot;heading-class&quot; :style &quot;heading-style&quot;)))
  (semantic (:name &quot;nav&quot;)
        (heading (:name &quot;Table of contents&quot;)
@@ -92,7 +117,8 @@ that can appear (almost) everywhere.
                  &quot;Lorem ipsum&quot;))
        (heading (:name &quot;Chapter 2&quot; :toc t))
        &quot;Lorem ipsum&quot;)
- (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p><h3>Generated HTML</h3><p><pre><code>&lt;header class=&quot;semantic-class&quot; style=&quot;semantic-style&quot;&gt;
+ (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p>
+<h3>Generated HTML</h3><p><pre><code>&lt;header class=&quot;semantic-class&quot; style=&quot;semantic-style&quot;&gt;
   &lt;h1 class=&quot;heading-class&quot; style=&quot;heading-style&quot;&gt;Example
   &lt;/h1&gt;
 &lt;/header&gt;
@@ -125,7 +151,8 @@ that can appear (almost) everywhere.
   &lt;/h1&gt;Lorem ipsum
 &lt;/section&gt;
 &lt;footer&gt;Lorem ipsum
-&lt;/footer&gt;</code></pre></p><h1 id="API">API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
+&lt;/footer&gt;</code></pre></p>
+<h1 id="API">API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream A stream into which the resulting HTML is written.</li>
        <li>documentation A list following the syntax of the DSL.</li>
@@ -137,13 +164,15 @@ that can appear (almost) everywhere.
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p><h1 id="Full example">Full example</h1>The following example shows how the documentation of this library is generated.
+   </ul></p>
+<h1 id="Full example">Full example</h1>The following example shows how the documentation of this library is generated.
 <ul>
     <li>Documentation strings of cl-html-readme are using HTML as markup.</li>
     <li>Uses the <a href="https://github.com/eudoxia0/docparser">docparser</a>
       library to retrieve documentation strings (and more).</li>
     <li>The resulting HTML is written to docs/index.html.</li>
-</ul><h2>make-doc.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-doc)
+</ul>
+<h2>make-doc.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-doc)
 
 ;;
 ;; Helper functions
@@ -264,5 +293,8 @@ that can appear (almost) everywhere.
     (cl-html-readme:doc-to-html fh (get-readme index)))))
     &quot;DONE&quot;)
 
-;;(make-doc)</code></pre></p><h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre><h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
-(cl-html-readme-make-doc::make-doc)</code></pre></p></section><footer><hr/><p><small>Generated 2020-12-23  17:55:06</small></p></footer></body></html>
+;;(make-doc)</code></pre></p>
+<h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
+<h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
+(cl-html-readme-make-doc::make-doc)</code></pre></p></section>
+<footer><hr/><p><small>Generated 2020-12-30  18:51:00</small></p></footer></body></html>
