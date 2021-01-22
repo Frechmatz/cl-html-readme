@@ -96,8 +96,8 @@
 ;; DSL-Tree Walker
 ;;
 
-(define-condition dsl-syntax-error (error)
-  ((message :initarg :message :reader dsl-syntax-error-message)))
+(define-condition dsl-syntax-error (simple-error)())
+
 
 ;; TODO: Validation of tree
 (defun walk-tree (documentation &key open-element close-element text)
@@ -120,7 +120,8 @@
 		   (if (not (stringp l))
 		       (error
 			'dsl-syntax-error
-			:message (format nil "Not a string: ~a" l)))
+			:format-control "Not a string: ~a"
+			:format-arguments (list l)))
 		   (funcall text l))
 		 (progn
 		   (let* ((element-symbol (first l))
@@ -129,7 +130,8 @@
 		     (if (not dsl-element)
 			 (error
 			  'dsl-syntax-error
-			  :message (format nil "Not a DSL element: ~a " element-symbol)))
+			  :format-control "Not a DSL element: ~a "
+			  :format-arguments (list element-symbol)))
 		     (validate-properties dsl-element element-properties)
 		     (let* ((content (rest (rest l)))
 			    (context (funcall
