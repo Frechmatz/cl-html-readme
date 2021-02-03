@@ -65,6 +65,16 @@
 	      (heading (:name "Table of contents")
 		       (toc)))
     (semantic (:name "section")
+	      (heading (:name "Change-Log" :toc t)
+		       (heading (:name "Version 1.0.0")
+				"<p><b>This version is the current quicklisp release.</b></p>"
+				"<p>The first release of cl-html-readme.</p>")
+		       (heading (:name "Version 1.0.1")
+				(heading (:name "Changes")
+					 "<ul>"
+					 "<li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li>"
+					 "<li>Removed a couple of too fragile tests.</li>"
+					 "</ul>")))
 	      (heading (:name "Installation" :toc t)
 		       ,(cl-html-readme:read-file "make-readme/installation.html"))
 	      (heading (:name "DSL" :toc t)

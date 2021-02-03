@@ -21,6 +21,7 @@
 <nav>
 <h1>Table of contents</h1>
 <ul>
+<li><a href="#Change-Log">Change-Log</a></li>
 <li><a href="#Installation">Installation</a></li>
 <li><a href="#DSL">DSL</a><ul>
 <li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li>
@@ -31,6 +32,10 @@
 <li><a href="#Run tests">Run tests</a></li>
 <li><a href="#Generate documentation">Generate documentation</a></li></ul></nav>
 <section>
+<h1 id="Change-Log">Change-Log</h1>
+<h2>Version 1.0.0</h2><p><b>This version is the current quicklisp release.</b></p><p>The first release of cl-html-readme.</p>
+<h2>Version 1.0.1</h2>
+<h3>Changes</h3><ul><li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li><li>Removed a couple of too fragile tests.</li></ul>
 <h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p>
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
@@ -239,6 +244,16 @@ that can appear (almost) everywhere.
           (heading (:name &quot;Table of contents&quot;)
                (toc)))
     (semantic (:name &quot;section&quot;)
+          (heading (:name &quot;Change-Log&quot; :toc t)
+               (heading (:name &quot;Version 1.0.0&quot;)
+                &quot;&lt;p&gt;&lt;b&gt;This version is the current quicklisp release.&lt;/b&gt;&lt;/p&gt;&quot;
+                &quot;&lt;p&gt;The first release of cl-html-readme.&lt;/p&gt;&quot;)
+               (heading (:name &quot;Version 1.0.1&quot;)
+                (heading (:name &quot;Changes&quot;)
+                     &quot;&lt;ul&gt;&quot;
+                     &quot;&lt;li&gt;HTML serialization inserts linebreaks for better readability and diff friendliness.&lt;/li&gt;&quot;
+                     &quot;&lt;li&gt;Removed a couple of too fragile tests.&lt;/li&gt;&quot;
+                     &quot;&lt;/ul&gt;&quot;)))
           (heading (:name &quot;Installation&quot; :toc t)
                ,(cl-html-readme:read-file &quot;make-readme/installation.html&quot;))
           (heading (:name &quot;DSL&quot; :toc t)
@@ -297,4 +312,4 @@ that can appear (almost) everywhere.
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2020-12-30  18:51:00</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2021-02-03  22:24:59</small></p></footer></body></html>
