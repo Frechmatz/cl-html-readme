@@ -67,9 +67,9 @@
     (semantic (:name "section")
 	      (heading (:name "Change-Log" :toc t)
 		       (heading (:name "Version 1.0.0")
-				"<p><b>This version is the current quicklisp release.</b></p>"
 				"<p>The first release of cl-html-readme.</p>")
 		       (heading (:name "Version 1.0.1")
+				"<p><b>This version is the current quicklisp release.</b></p>"
 				(heading (:name "Changes")
 					 "<ul>"
 					 "<li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li>"
