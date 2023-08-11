@@ -331,3 +331,32 @@
 	  (cl-html-readme-dsl:close-element tree-builder))))
   nil)
 
+(defun extract-toc-headings (doc)
+  "Returns a documentation object representing the toc heading tree"
+  (flet ((is-toc-heading (element-symbol element-properties)
+	   (and (heading-p element-symbol) (getf element-properties :toc))))
+    (let ((tree-builder (make-instance 'tree-builder)))
+      (walk-tree
+       doc
+       :open-element
+       (lambda(element-symbol element-properties content)
+	 (declare (ignore content))
+	 (if (is-toc-heading element-symbol element-properties)
+	     (progn
+	       (open-element
+		tree-builder
+		element-symbol
+		element-properties)
+	       t)
+	     nil))
+       :close-element
+       (lambda(context)
+	 (if context
+	     (close-element tree-builder)))
+       :text
+       (lambda(str)
+	 (declare (ignore str))
+	 nil))
+      (get-tree tree-builder))))
+
+
