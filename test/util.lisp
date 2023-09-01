@@ -1,5 +1,14 @@
 (in-package :cl-html-readme-test)
 
+(defun get-property-list-keys (plist)
+  "Get the keys of a property list"
+  (let ((keys nil) (push-key t))
+    (dolist (item plist)
+      (if push-key
+	  (push item keys))
+      (setf push-key (not push-key)))
+    keys))
+
 (defun doc-to-string (doc &key (string-enclosure-character "'"))
   "Deterministic stringification of an object following the syntax of the DSL.
    Uses the DSL tree walker, which is supposed to have been tested."
@@ -20,16 +29,9 @@
 	    (format nil "NIL"))
 	   (t
 	    (format nil "t"))))
-       (get-plist-keys (plist)
-	 (let ((keys nil) (push-key t))
-	   (dolist (item plist)
-	     (if push-key
-		 (push item keys))
-	     (setf push-key (not push-key)))
-	   keys))
        (get-plist-keys-sorted (plist)
 	 (sort
-	  (get-plist-keys plist)
+	  (get-property-list-keys plist)
 	  (lambda (a b)
 	    (string-lessp
 	     (format-item a)
@@ -71,9 +73,9 @@
 
 
 ;;
-;; Test cases
+;; Tests
 ;;
-
+#|
 (defun dsl-to-string-examples ()
   (let ((examples
 	  (list
@@ -102,7 +104,5 @@
       (format t "~%Output: >>~a<<" (doc-to-string (getf example :doc))))
     (format t "~%DONE~%")))
 
-    
 ;;(dsl-to-string-examples)
-
-  
+|#

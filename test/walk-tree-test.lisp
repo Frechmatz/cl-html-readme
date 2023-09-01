@@ -1,91 +1,161 @@
 (in-package :cl-html-readme-test)
 
-(define-test walk-tree-test-1 ()
-  (let ((doc '("STR-1" "STR-2" "STR-3")))
-    (let ((stringified (doc-to-string '("STR-1" "STR-2" "STR-3"))))
-      (assert-equal "('STR-1' 'STR-2' 'STR-3')" stringified))))
-
-(define-test walk-tree-test-2 ()
-  (let ((doc '("STR-1" (heading (:name "HEADING-1-NAME")) "STR-2" "STR-3")))
-    (let ((stringified (doc-to-string doc)))
-      (assert-equal
-       "('STR-1' (heading (:name 'HEADING-1-NAME')) 'STR-2' 'STR-3')"
-       stringified))))
-
-(define-test walk-tree-test-3-syntax-error ()
-  (let ((doc '("STR-1" nil))
-	(catched-error nil))
-    (handler-case
-	(cl-html-readme-dsl:walk-tree
-	 doc
-	 :open-element
-	 (lambda(element properties content)
-	   (declare (ignore element properties content))
-	   nil) 
-	 :close-element
-	 (lambda(context)
-	   (declare (ignore context))
-	   nil)
-	 :text
-	 (lambda(str)
-	   (declare (ignore str))
-	   nil))
-      (error (err)
-	(setf catched-error err)))
-    (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:dsl-syntax-error))))
-
-(define-test walk-tree-test-4-syntax-error ()
-  (let ((doc '("STR-1" (mausi (:name "A")) "STR-2"))
-	(catched-error nil))
-    (handler-case
-	(cl-html-readme-dsl:walk-tree
-	 doc
-	 :open-element
-	 (lambda(element properties content)
-	   (declare (ignore element properties content))
-	   nil) 
-	 :close-element
-	 (lambda(context)
-	   (declare (ignore context))
-	   nil)
-	 :text
-	 (lambda(str)
-	   (declare (ignore str))
-	   nil))
-      (error (err)
-	(setf catched-error err)))
-    (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:dsl-syntax-error))))
-
-(define-test walk-tree-test-5-close-element-context ()
-  (let ((doc '("STR-1" (heading (:name "HEADING-1-NAME")) "STR-2"))
-	(recorded nil))
+(defun record-tree-walk (doc)
+  (let ((recording nil))
     (cl-html-readme-dsl:walk-tree
      doc
      :open-element
      (lambda(element properties content)
-       (declare (ignore element content))
-       (push "HEADING" recorded)
-       (push (getf properties :name) recorded)
-       "CLOSE-CONTEXT") 
+       (push
+	(list
+	 :action :open-element
+	 :form (string-downcase (symbol-name element))
+	 :form-properties properties
+	 :content content)
+	recording)
+       (getf properties :cl-html-unit-test-open-element-return-context))
      :close-element
      (lambda(context)
-       (push context recorded)
-       nil)
+       (push
+	(list
+	 :action :close-element
+	 :context context)
+	recording))
      :text
      (lambda(str)
-       (push str recorded)))
-    (setf recorded (reverse recorded))
-    (assert-equal "STR-1" (first recorded))
-    (assert-equal "HEADING" (second recorded))
-    (assert-equal "HEADING-1-NAME" (third recorded))
-    (assert-equal "CLOSE-CONTEXT" (fourth recorded))
-    (assert-equal "STR-2" (fifth recorded))))
+       (push
+	(list
+	 :action :text
+	 :text str)
+	recording)))
+    (reverse recording)))
 
-(define-test walk-tree-test-6 ()
-  (let ((doc '("STR-0" (heading (:name "HEADING-1-NAME") "STR-1.1" "STR-1.2"))))
-    (let ((stringified (doc-to-string doc)))
-      (assert-equal
-       "('STR-0' (heading (:name 'HEADING-1-NAME') 'STR-1.1' 'STR-1.2'))"
-       stringified))))
+(defun assert-recording (recording expected-recording)
+  "Records invocations of walk-tree"
+  (assert-equal (length expected-recording) (length recording))
+  (dotimes (i (length recording))
+    (let ((recorded-entry (nth i recording))
+	  (expected-entry (nth i expected-recording)))
+      (let ((action (getf expected-entry :action)))
+	(assert-equal action (getf recorded-entry :action))
+	(cond
+	  ((eq action :text)
+	   (assert-equal (getf expected-entry :text) (getf recorded-entry :text)))
+	  ((eq action :open-element)
+	   (assert-equal (getf expected-entry :form) (getf recorded-entry :form))
+	   (let ((recorded-properties (getf recorded-entry :form-properties))
+		 (expected-properties (getf expected-entry :form-properties)))
+	     (assert-equal (length expected-properties) (length recorded-properties))
+	     (let ((keys (get-property-list-keys expected-properties)))
+	       (dolist (key keys)
+		 (assert-equal
+		  (getf expected-properties key)
+		  (getf recorded-properties key))))))
+	  ((eq action :close-element)
+	   (assert-equal (getf expected-entry :context) (getf recorded-entry :context)))
+	  (t
+	   (error
+	    'simple-error
+	    :format-control "Unsupported action: ~a"
+	    :format-arguments (list action))))))))
+
+(define-test walk-tree-test-1 ()
+  (let ((doc '("TEXT-1" "TEXT-2" "TEXT-3")))
+    (let ((recording (record-tree-walk doc)))
+      (assert-recording
+       recording
+       (list
+	(list :action :text :text "TEXT-1")
+	(list :action :text :text "TEXT-2")
+	(list :action :text :text "TEXT-3"))))))
+
+(define-test walk-tree-test-2 ()
+  (let ((doc '("TEXT-1" (heading (:name "H1" :id 1)) "TEXT-2" "TEXT-3")))
+    (let ((recording (record-tree-walk doc)))
+      (assert-recording
+       recording
+       (list
+	(list :action :text :text "TEXT-1")
+	(list :action :open-element :form "heading" :form-properties (list :id 1 :name "H1"))
+	(list :action :close-element :context nil)
+	(list :action :text :text "TEXT-2")
+	(list :action :text :text "TEXT-3"))))))
+
+(define-test walk-tree-test-3 ()
+  (let ((doc '((heading (:name "H1") (heading (:name "H1.1"))))))
+    (let ((recording (record-tree-walk doc)))
+      (assert-recording
+       recording
+       (list
+	(list :action :open-element
+	      :form "heading"
+	      :form-properties (list :name "H1"))
+	(list :action :open-element
+	      :form "heading"
+	      :form-properties (list :name "H1.1"))
+	(list :action :close-element :context nil)
+	(list :action :close-element :context nil))))))
+
+(define-test walk-tree-test-4 ()
+  (let ((doc
+	  '((heading
+	     (:name "H1"
+	      :cl-html-unit-test-open-element-return-context "H1-CLOSE")))))
+    (let ((recording (record-tree-walk doc)))
+      (assert-recording
+       recording
+       (list
+	(list :action :open-element
+	      :form "heading"
+	      :form-properties
+	      (list
+	       :name "H1"
+	       :cl-html-unit-test-open-element-return-context "H1-CLOSE"))
+	(list :action :close-element :context "H1-CLOSE"))))))
+
+(define-test walk-tree-test-syntax-error-1 ()
+  (let ((doc '("TEXT-1" nil))
+	(catched-error nil))
+    (handler-case
+	(cl-html-readme-dsl:walk-tree
+	 doc
+	 :open-element
+	 (lambda(element properties content)
+	   (declare (ignore element properties content))
+	   nil) 
+	 :close-element
+	 (lambda(context)
+	   (declare (ignore context))
+	   nil)
+	 :text
+	 (lambda(str)
+	   (declare (ignore str))
+	   nil))
+      (error (err)
+	(setf catched-error err)))
+    (assert-true catched-error)
+    (assert-true (typep catched-error 'cl-html-readme-dsl:dsl-syntax-error))))
+
+(define-test walk-tree-test-syntax-error-2 ()
+  (let ((doc '("TEXT-1" (some-undefined-form (:name "form")) "TEXT-2"))
+	(catched-error nil))
+    (handler-case
+	(cl-html-readme-dsl:walk-tree
+	 doc
+	 :open-element
+	 (lambda(element properties content)
+	   (declare (ignore element properties content))
+	   nil) 
+	 :close-element
+	 (lambda(context)
+	   (declare (ignore context))
+	   nil)
+	 :text
+	 (lambda(str)
+	   (declare (ignore str))
+	   nil))
+      (error (err)
+	(setf catched-error err)))
+    (assert-true catched-error)
+    (assert-true (typep catched-error 'cl-html-readme-dsl:dsl-syntax-error))))
+
