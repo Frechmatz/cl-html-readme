@@ -2,14 +2,14 @@
 
 (define-test walk-tree-test-1 ()
   (let ((doc '("STR-1" "STR-2" "STR-3")))
-    (let ((stringified (dsl-to-string '("STR-1" "STR-2" "STR-3"))))
-      (assert-equal "\"STR-1\"\"STR-2\"\"STR-3\"" stringified))))
+    (let ((stringified (doc-to-string '("STR-1" "STR-2" "STR-3"))))
+      (assert-equal "('STR-1' 'STR-2' 'STR-3')" stringified))))
 
 (define-test walk-tree-test-2 ()
   (let ((doc '("STR-1" (heading (:name "HEADING-1-NAME")) "STR-2" "STR-3")))
-    (let ((stringified (dsl-to-string doc)))
+    (let ((stringified (doc-to-string doc)))
       (assert-equal
-       "\"STR-1\" (heading (:name \"HEADING-1-NAME\"))\"STR-2\"\"STR-3\""
+       "('STR-1' (heading (:name 'HEADING-1-NAME')) 'STR-2' 'STR-3')"
        stringified))))
 
 (define-test walk-tree-test-3-syntax-error ()
@@ -85,7 +85,7 @@
 
 (define-test walk-tree-test-6 ()
   (let ((doc '("STR-0" (heading (:name "HEADING-1-NAME") "STR-1.1" "STR-1.2"))))
-    (let ((stringified (dsl-to-string doc)))
+    (let ((stringified (doc-to-string doc)))
       (assert-equal
-       "\"STR-0\" (heading (:name \"HEADING-1-NAME\")\"STR-1.1\"\"STR-1.2\")"
+       "('STR-0' (heading (:name 'HEADING-1-NAME') 'STR-1.1' 'STR-1.2'))"
        stringified))))

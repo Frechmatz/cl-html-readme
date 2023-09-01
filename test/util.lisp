@@ -1,20 +1,19 @@
 (in-package :cl-html-readme-test)
 
-(defun dsl-to-string (doc)
-  "Deterministic stringification of an object following the syntax of the documentation DSL.
-   Uses the DSL tree walker, which is supposed to be tested.
-   In no means a generic list serializer."
+(defun doc-to-string (doc &key (string-enclosure-character "'"))
+  "Deterministic stringification of an object following the syntax of the DSL.
+   Uses the DSL tree walker, which is supposed to have been tested."
   (labels
       ((format-item (item)
 	 (cond
+	   ((listp item)
+	    (error "Document stringification: List not supported"))
 	   ((keywordp item)
 	    (format nil ":~a" (string-downcase (symbol-name item))))
 	   ((stringp item)
-	    (format nil "\"~a\"" item))
+	    (format nil "~a~a~a" string-enclosure-character item string-enclosure-character))
 	   ((numberp item)
 	    (format nil "~a" item))
-	   ((listp item)
-	    (error "DSL-Stringification: List not supported"))
 	   ((symbolp item)
 	    (format nil "~a" (string-downcase (symbol-name item))))
 	   ((not item)
@@ -36,90 +35,71 @@
 	     (format-item a)
 	     (format-item b))))))
     (let ((buffer (make-string-output-stream)))
-      (cl-html-readme-dsl:walk-tree
-       doc
-       :open-element
-       (lambda(element-symbol element-properties content)
-	 (declare (ignore content))
-	 (format buffer " (~a (" (format-item element-symbol))
-	 (let ((first-keyword t))
-	   (dolist (key (get-plist-keys-sorted element-properties))
-	     (if (not first-keyword)
-		 (format buffer " "))
-	     (setf first-keyword nil)
-	     (format buffer "~a" (format-item key))
-	     (format buffer " ~a" (format-item (getf element-properties key)))))
-	 (format buffer ")"))
-       :close-element
-       (lambda(context)
-	 (declare (ignore context))
-	 (format buffer ")"))
-       :text
-       (lambda(str)
-	 (format buffer "~a" (format-item str))))
-      (get-output-stream-string buffer))))
-
+      (labels
+	  ((make-space-printer ()
+	     (let ((first-item t))
+	       (lambda ()
+		 (if (not first-item)
+		     (format buffer " "))
+		 (setf first-item nil))))
+	   (format-plist-content (plist)
+	     (let ((space (make-space-printer)))
+	       (dolist (key (get-plist-keys-sorted plist))
+		 (funcall space)
+		 (format buffer "~a" (format-item key))
+		 (funcall space)
+		 (format buffer "~a" (format-item (getf plist key)))))))
+	(let ((space (make-space-printer)))
+	    (cl-html-readme-dsl:walk-tree
+	     doc
+	     :open-element
+	     (lambda(element-symbol element-properties content)
+	       (declare (ignore content))
+	       (funcall space)
+	       (format buffer "(~a (" (format-item element-symbol))
+	       (format-plist-content element-properties)
+	       (format buffer ")"))
+	     :close-element
+	     (lambda(context)
+	       (declare (ignore context))
+	       (format buffer ")"))
+	     :text
+	     (lambda(str)
+	       (funcall space)
+	       (format buffer "~a" (format-item str))))
+	    (format nil "(~a)" (get-output-stream-string buffer)))))))
 
 
 ;;
-;; Test stuff
+;; Test cases
 ;;
 
 (defun dsl-to-string-examples ()
   (let ((examples
 	  (list
-	   ;; Not supported yet by tree-walker: plain string
-	   ;; (list
-	   ;;   :name "Plain string"
-	   ;;   :doc "Ollimaus")
-
 	   (list
-	    :name "A list containing a single string"
-	    :doc (list "Ollimaus"))
-
-	   ;; Not supported yet by tree-walker: Doc object is DSL special form
-	   ;; (list
-	   ;;  :name "A heading"
-	   ;;  :doc `(heading (:toc t :name "Heading 1")))
-	   
+	    :name "A string"
+	    :doc (list "Text"))
 	   (list
-	    :name "A string and then a DSL special form"
+	    :name "Two strings"
+	    :doc (list "Text 1" "Text 2"))
+	   (list
+	    :name "A string and a form"
 	    :doc `("Intro" (heading (:toc t :name "Heading 1"))))
-
 	   (list
-	    :name "A string and then a DSL special form (alphabetically sorted properties)"
-	    :doc `("Intro" (heading (:d "D" :a "A" :z "Z"))))
-
+	    :name "Form properties to be sorted alphabetically"
+	    :doc `((heading (:d "D" :a "A" :z "Z"))))
 	   (list
-	    :name "A string and then a DSL special form (property type handling)"
+	    :name "Form property values types to be recognized"
 	    :doc `("Intro" (heading (:string "D" :number 123456 :keyword :a-keyword :boolean t))))
-	   
-	   ;; Not supported yet by tree-walker: Doc object is DSL special form
-	   ;; (list
-	   ;;  :name "A heading with embedded content"
-	   ;;  :doc `(heading (:toc t :name "Heading 1") "CONTENT"))
-
-	   ;; Not supported yet by tree-walker: Doc object is DSL special form
-	   ;; (list
-	   ;;  :name "A heading with follow-up content"
-	   ;;  :doc `((heading (:toc t :name "Heading 1")) "CONTENT"))
-
-	   ;; Not supported yet by tree-walker: Doc object is DSL special form
-	   ;; (list
-	   ;;  :name "Nested headings"
-	   ;;  :doc `((heading (:toc t :name "Heading 1")
-	   ;; 		    (heading (:name "Heading 1.1)") "CONTENT"))))
-
-	   ;; Not supported yet by tree-walker: Doc object is DSL special form
-	   ;; (list
-	   ;;  :name "A heading with id XXXXX"
-	   ;;  :doc `(heading (:toc t :id "XXXXX")))
-
+	   (list
+	    :name "Nested forms"
+	    :doc `((heading (:name "H1") (heading (:name "H1.1")))))
 	   )))
     (format t "~%~%Stringifying examples")
     (dolist (example examples)
       (format t "~%~%Formatting example: ~a" (getf example :name))
-      (format t "~%Output:~a" (dsl-to-string (getf example :doc))))
+      (format t "~%Output: >>~a<<" (doc-to-string (getf example :doc))))
     (format t "~%DONE~%")))
 
     
