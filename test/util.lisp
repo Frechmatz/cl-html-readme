@@ -14,9 +14,8 @@
    Uses the DSL tree walker, which is supposed to have been tested."
   (labels
       ((format-item (item)
+	 "Format an item. Formats a list as nil when it is empty and t when it is not empty"
 	 (cond
-	   ((listp item)
-	    (error "doc-to-string: List not supported here"))
 	   ((keywordp item)
 	    (format nil ":~a" (string-downcase (symbol-name item))))
 	   ((stringp item)
@@ -26,7 +25,7 @@
 	   ((symbolp item)
 	    (format nil "~a" (string-downcase (symbol-name item))))
 	   ((not item)
-	    (format nil "NIL"))
+	    (format nil "nil"))
 	   (t
 	    (format nil "t"))))
        (get-plist-keys-sorted (plist)
@@ -50,32 +49,43 @@
 		 (funcall print-space)
 		 (format buffer "~a" (format-item key))
 		 (funcall print-space)
-		 (format buffer "~a" (format-item (getf plist key)))))))
-	(let ((print-space (make-space-printer)))
-	    (cl-html-readme-dsl:walk-tree
-	     doc
-	     :open-element
-	     (lambda(element-symbol element-properties content)
-	       (declare (ignore content))
-	       (funcall print-space)
-	       (format buffer "(~a (" (format-item element-symbol))
-	       (print-plist-content element-properties)
-	       (format buffer ")"))
-	     :close-element
-	     (lambda(context)
-	       (declare (ignore context))
-	       (format buffer ")"))
-	     :text
-	     (lambda(str)
-	       (funcall print-space)
-	       (format buffer "~a" (format-item str))))
-	    (format nil "(~a)" (get-output-stream-string buffer)))))))
+		 (format buffer "~a" (format-item (getf plist key))))))
+	   (print-doc-content ()
+	     (let ((print-space (make-space-printer)))
+	       (cl-html-readme-dsl:walk-tree
+		doc
+		:open-element
+		(lambda(element-symbol element-properties content)
+		  (declare (ignore content))
+		  (funcall print-space)
+		  (format buffer "(~a (" (format-item element-symbol))
+		  (print-plist-content element-properties)
+		  (format buffer ")"))
+		:close-element
+		(lambda(context)
+		  (declare (ignore context))
+		  (format buffer ")"))
+		:text
+		(lambda(str)
+		  (funcall print-space)
+		  (format buffer "~a" (format-item str)))))))
+	(handler-case
+	    (progn
+	      (print-doc-content)
+	      (format nil "(~a)" (get-output-stream-string buffer)))
+	  (error (err)
+	    (progn
+	      (format t "~%Error while stringifying doc object:~%~a~%Doc:~%~a~%" err doc)
+	      (error err))))))))
 
 
 #|
 (defun dsl-to-string-examples ()
   (let ((examples
 	  (list
+	   ;;(list
+	   ;; :name "Buggy"
+	   ;; :doc '(heading ()))
 	   (list
 	    :name "A string"
 	    :doc (list "Text"))
