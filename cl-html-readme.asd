@@ -36,6 +36,7 @@
 		:components ((:file "packages")
 			     (:file "util")
 			     (:file "walk-tree-test")
+			     (:file "doc-to-string-test")
 			     (:file "tree-builder-test")
 			     (:file "extract-toc-test"))))
   :perform (test-op (o c) (symbol-call :lisp-unit '#:run-tests :all :cl-html-readme-test)))
