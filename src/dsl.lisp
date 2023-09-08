@@ -20,7 +20,7 @@
 ;;   (toc (<toc-properties>)) ;; High level representation of <toc-root> element.
 ;;
 ;; <toc-root> ::=
-;;   (toc-root () { <toc-item> | <toc-container> })
+;;   (toc-root (<toc-root-properties>) { <toc-item> | <toc-container> })
 ;;
 ;; <toc-item> ::=
 ;;   (toc-item (<toc-item-properties>))
@@ -48,6 +48,9 @@
 ;;   :name <string> :id <string>
 ;;   [:class <string>] [:style <string>]
 ;;   [:container-class <string>] [:container-style <string>]
+;;
+;; <toc-root-properties> ::=
+;;   [:class <string>] [:style <string>]
 ;;
 ;; <string> ::= A string literal
 ;;
