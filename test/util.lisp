@@ -16,7 +16,7 @@
       ((format-item (item)
 	 (cond
 	   ((listp item)
-	    (error "Document stringification: List not supported"))
+	    (error "doc-to-string: List not supported here"))
 	   ((keywordp item)
 	    (format nil ":~a" (string-downcase (symbol-name item))))
 	   ((stringp item)
@@ -39,27 +39,27 @@
     (let ((buffer (make-string-output-stream)))
       (labels
 	  ((make-space-printer ()
-	     (let ((first-item t))
+	     (let ((first-space t))
 	       (lambda ()
-		 (if (not first-item)
+		 (if (not first-space)
 		     (format buffer " "))
-		 (setf first-item nil))))
-	   (format-plist-content (plist)
-	     (let ((space (make-space-printer)))
+		 (setf first-space nil))))
+	   (print-plist-content (plist)
+	     (let ((print-space (make-space-printer)))
 	       (dolist (key (get-plist-keys-sorted plist))
-		 (funcall space)
+		 (funcall print-space)
 		 (format buffer "~a" (format-item key))
-		 (funcall space)
+		 (funcall print-space)
 		 (format buffer "~a" (format-item (getf plist key)))))))
-	(let ((space (make-space-printer)))
+	(let ((print-space (make-space-printer)))
 	    (cl-html-readme-dsl:walk-tree
 	     doc
 	     :open-element
 	     (lambda(element-symbol element-properties content)
 	       (declare (ignore content))
-	       (funcall space)
+	       (funcall print-space)
 	       (format buffer "(~a (" (format-item element-symbol))
-	       (format-plist-content element-properties)
+	       (print-plist-content element-properties)
 	       (format buffer ")"))
 	     :close-element
 	     (lambda(context)
@@ -67,14 +67,11 @@
 	       (format buffer ")"))
 	     :text
 	     (lambda(str)
-	       (funcall space)
+	       (funcall print-space)
 	       (format buffer "~a" (format-item str))))
 	    (format nil "(~a)" (get-output-stream-string buffer)))))))
 
 
-;;
-;; Tests
-;;
 #|
 (defun dsl-to-string-examples ()
   (let ((examples

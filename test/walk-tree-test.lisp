@@ -1,6 +1,7 @@
 (in-package :cl-html-readme-test)
 
 (defun record-tree-walk (doc)
+  "Records handler invocations of the tree-walker and returns the recording."
   (let ((recording nil))
     (cl-html-readme-dsl:walk-tree
      doc
@@ -31,7 +32,7 @@
     (reverse recording)))
 
 (defun assert-recording (recording expected-recording)
-  "Records invocations of walk-tree"
+  "Compare two recordings"
   (assert-equal (length expected-recording) (length recording))
   (dotimes (i (length recording))
     (let ((recorded-entry (nth i recording))
