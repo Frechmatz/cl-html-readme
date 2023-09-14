@@ -69,7 +69,8 @@
 	     (let ((tree-builder (make-instance 'cl-html-readme-dsl:tree-builder))
 		   (doc '((heading (:name "H1" :toc t))
 			  (heading (:name "H2" :toc t))
-			  (heading (:name "H3" :toc t)))))
+			  (heading (:name "H3" :toc t))
+			  (toc))))
 	       (cl-html-readme-dsl:extract-toc doc tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
@@ -87,7 +88,8 @@
 			  (heading (:name "H2" :toc t)
 			   (heading (:name "H2.1" :toc t))
 			   (heading (:name "H2.2" :toc t)))
-			  (heading (:name "H3" :toc t)))))
+			  (heading (:name "H3" :toc t))
+			  (toc))))
 	       (cl-html-readme-dsl:extract-toc doc tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
@@ -116,7 +118,8 @@
 				     "XXXX"
 				     (heading (:name "H2.2" :toc t))))
 			   "XXXX"
-			   (heading (:name "H3" :toc t))))))
+			   (heading (:name "H3" :toc t)))
+			  (toc))))
 	       (cl-html-readme-dsl:extract-toc doc tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
@@ -135,7 +138,8 @@
 	     (let ((tree-builder (make-instance 'cl-html-readme-dsl:tree-builder))
 		   (doc '((heading (:name "H1"))
 			  (heading (:name "H2"))
-			  (heading (:name "H3")))))
+			  (heading (:name "H3"))
+			  (toc))))
 	       (cl-html-readme-dsl:extract-toc doc tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc '()))
