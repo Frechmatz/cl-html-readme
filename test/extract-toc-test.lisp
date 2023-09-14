@@ -1,5 +1,70 @@
 (in-package :cl-html-readme-test)
 
+;;
+;; extract-toc-headings
+;;
+
+(define-test test-extract-toc-headings-1 ()
+  (let ((doc '((heading (:name "H1" :toc t :extra "1"))
+	       (heading (:name "H2" :toc t :extra "2"))
+	       (heading (:name "H3" :toc t)))))
+    (let ((toc (cl-html-readme-dsl::extract-toc-headings doc))
+	  (expected-toc
+	    '((heading (:name "H1" :extra "1" :toc t))
+	      (heading (:name "H2" :extra "2" :toc t))
+	      (heading (:name "H3" :toc t)))))
+      (let ((toc-str (doc-to-string toc))
+	    (expected-toc-str (doc-to-string expected-toc)))
+	(assert-equal expected-toc-str toc-str)))))
+
+(define-test test-extract-toc-headings-2 ()
+  (let ((doc '((heading (:name "H1" :toc t))
+	       (heading (:name "H2"))
+	       (heading (:name "H3" :toc t)))))
+    (let ((toc (cl-html-readme-dsl::extract-toc-headings doc))
+	  (expected-toc
+	    '((heading (:name "H1" :toc t))
+	      (heading (:name "H3" :toc t)))))
+      (let ((toc-str (doc-to-string toc))
+	    (expected-toc-str (doc-to-string expected-toc)))
+	(assert-equal expected-toc-str toc-str)))))
+
+(define-test test-extract-toc-headings-3 ()
+  (let ((doc '((heading (:name "H1" :toc t)
+		(heading (:name "H1.1" :toc t))
+		(heading (:name "H1.2" :toc t)))
+	       (heading (:name "H2" :toc t))
+	       (heading (:name "H3" :toc t)
+		(heading (:name "H3.1" :toc t))
+		(heading (:name "H3.2" :toc t))))))
+	       (let ((toc (cl-html-readme-dsl::extract-toc-headings doc))
+		      (expected-toc
+			'((heading (:name "H1" :toc t)
+			   (heading (:name "H1.1" :toc t))
+			   (heading (:name "H1.2" :toc t)))
+			  (heading (:name "H2" :toc t))
+			  (heading (:name "H3" :toc t)
+			   (heading (:name "H3.1" :toc t))
+			   (heading (:name "H3.2" :toc t))))))
+		 (let ((toc-str (doc-to-string toc))
+		       (expected-toc-str (doc-to-string expected-toc)))
+		 (assert-equal expected-toc-str toc-str)))))
+
+(define-test test-extract-toc-headings-4 ()
+  (let ((doc '((heading (:name "H1" :toc t)
+		(heading (:name "H1.1" :toc t))))))
+	       (let ((toc (cl-html-readme-dsl::extract-toc-headings doc))
+		      (expected-toc
+			'((heading (:name "H1" :toc t)
+			   (heading (:name "H1.1" :toc t))))))
+		 (let ((toc-str (doc-to-string toc))
+		       (expected-toc-str (doc-to-string expected-toc)))
+		 (assert-equal expected-toc-str toc-str)))))
+
+;;
+;; extract-toc
+;;
+
 (define-test test-extract-toc-1 ()
 	     (let ((tree-builder (make-instance 'cl-html-readme-dsl:tree-builder))
 		   (doc '((heading (:name "H1" :toc t))
