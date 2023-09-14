@@ -1,9 +1,5 @@
 (in-package :cl-html-readme-test)
 
-;;
-;; Tests of the doc stringifier
-;;
-
 (define-test test-doc-to-string-1 ()
   (let ((doc '((heading (:name "H1" :toc t))
 	       (heading (:name "H2" :toc t))
