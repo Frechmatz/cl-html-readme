@@ -51,7 +51,10 @@
 	       (dolist (key keys)
 		 (assert-equal
 		  (getf expected-properties key)
-		  (getf recorded-properties key))))))
+		  (getf recorded-properties key)))))
+	   (let ((compare-content-fn (getf expected-entry :compare-content)))
+	     (let ((test (funcall compare-content-fn (getf recorded-entry :content))))
+	       (assert-true test))))
 	  ((eq action :close-element)
 	   (assert-equal (getf expected-entry :context) (getf recorded-entry :context)))
 	  (t
@@ -77,7 +80,10 @@
        recording
        (list
 	(list :action :text :text "TEXT-1")
-	(list :action :open-element :form "heading" :form-properties (list :id 1 :name "H1"))
+	(list :action :open-element
+	      :form "heading"
+	      :form-properties (list :id 1 :name "H1")
+	      :compare-content (lambda(content) (declare (ignore content)) t))
 	(list :action :close-element :context nil)
 	(list :action :text :text "TEXT-2")
 	(list :action :text :text "TEXT-3"))))))
@@ -90,10 +96,12 @@
        (list
 	(list :action :open-element
 	      :form "heading"
-	      :form-properties (list :name "H1"))
+	      :form-properties (list :name "H1")
+	      :compare-content (lambda(content) (declare (ignore content)) t))
 	(list :action :open-element
 	      :form "heading"
-	      :form-properties (list :name "H1.1"))
+	      :form-properties (list :name "H1.1")
+	      :compare-content (lambda(content) (declare (ignore content)) t))
 	(list :action :close-element :context nil)
 	(list :action :close-element :context nil))))))
 
@@ -111,8 +119,64 @@
 	      :form-properties
 	      (list
 	       :name "H1"
-	       :cl-html-unit-test-open-element-return-context "H1-CLOSE"))
+	       :cl-html-unit-test-open-element-return-context "H1-CLOSE")
+	      :compare-content (lambda(content) (declare (ignore content)) t))
 	(list :action :close-element :context "H1-CLOSE"))))))
+
+(define-test walk-tree-test-content-1 ()
+  (let ((doc '("TEXT-1" (heading (:name "H1") "TEXT-2" "TEXT-3"))))
+    (let ((recording (record-tree-walk doc)))
+      (assert-recording
+       recording
+       (list
+	(list :action :text :text "TEXT-1")
+	(list :action :open-element
+	      :form "heading"
+	      :form-properties (list :name "H1")
+	      :compare-content (lambda(content)
+				 (format t "~%Content:~a~%" content)
+				 (and
+				  (= 2 (length content))
+				  (string= "TEXT-2" (first content))
+				  (string= "TEXT-3" (second content)))))
+	(list :action :text :text "TEXT-2")
+	(list :action :text :text "TEXT-3")
+	(list :action :close-element :context nil))))))
+
+(define-test walk-tree-test-content-2 ()
+  (let ((doc '("TEXT-1" (heading (:name "H1") "TEXT-2") "TEXT-3")))
+    (let ((recording (record-tree-walk doc)))
+      (assert-recording
+       recording
+       (list
+	(list :action :text :text "TEXT-1")
+	(list :action :open-element
+	      :form "heading"
+	      :form-properties (list :name "H1")
+	      :compare-content (lambda(content)
+				 (format t "~%Content:~a~%" content)
+				 (and
+				  (= 1 (length content))
+				  (string= "TEXT-2" (first content)))))
+	(list :action :text :text "TEXT-2")
+	(list :action :close-element :context nil)
+	(list :action :text :text "TEXT-3"))))))
+
+(define-test walk-tree-test-content-3 ()
+  (let ((doc '("TEXT-1" (heading (:name "H1")) "TEXT-2")))
+    (let ((recording (record-tree-walk doc)))
+      (assert-recording
+       recording
+       (list
+	(list :action :text :text "TEXT-1")
+	(list :action :open-element
+	      :form "heading"
+	      :form-properties (list :name "H1")
+	      :compare-content (lambda(content)
+				 (format t "~%Content:~a~%" content)
+				 (not content)))
+	(list :action :close-element :context nil)
+	(list :action :text :text "TEXT-2"))))))
 
 (define-test walk-tree-test-syntax-error-1 ()
   (let ((doc '("TEXT-1" nil))
