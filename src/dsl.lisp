@@ -244,96 +244,6 @@
 ;; TOC extraction
 ;;
 
-(defun extract-toc (doc tree-builder)
-  "Extracts toc and pushes toc-root, toc-container, toc-item elements into the builder."
-  (flet ((get-toc-properties ()
-	   "Lookup toc element and return its properties."
-	   (let ((toc-properties nil))
-	     (cl-html-readme-dsl:walk-tree
-	      doc
-	      :open-element
-	      (lambda(element-symbol element-properties content)
-		(declare (ignore content))
-		(if (toc-p element-symbol)
-		    (setf toc-properties element-properties)))
-	      :close-element (lambda(context) (declare (ignore context)) nil)
-	      :text (lambda(str) (declare (ignore str)) nil))
-	     toc-properties))
-	 (has-toc-elements (doc)
-	   "Recursive descent to check if doc contains toc relevant elements"
-	   (let ((found nil))
-	     (cl-html-readme-dsl:walk-tree
-	      doc
-	      :open-element
-	      (lambda(element-symbol element-properties content)
-		(declare (ignore element-symbol content))
-		(if (getf element-properties :toc)
-		    (setf found t)))
-	      :close-element
-	      (lambda(context) (declare (ignore context)) nil)
-	      :text
-	      (lambda(str) (declare (ignore str)) nil))
-	     found))
-	 (remove-toc-property (properties)
-	   (setf properties (copy-list properties))
-	   (setf (getf properties :toc) nil)
-	   properties))
-    (let ((toc-root-pending t) (toc-properties (get-toc-properties)))
-      (cl-html-readme-dsl:walk-tree
-       doc
-       :open-element
-       (lambda(element-symbol element-properties content)
-	 (declare (ignore element-symbol))
-	 (if (getf element-properties :toc)
-	     (progn
-	       (if toc-root-pending
-		   (progn
-		     (cl-html-readme-dsl:open-element
-		      tree-builder
-		      'toc-root
-		      (list
-		       :class (getf toc-properties :root-class)
-		       :style (getf toc-properties :root-style)))
-		     (setf toc-root-pending nil)))
-	       (if (has-toc-elements content)
-		   (progn
-		     (cl-html-readme-dsl:open-element
-		      tree-builder
-		      'toc-container
-		      (concatenate
-		       'list
-		       (list
-			:class (getf toc-properties :item-class)
-			:style (getf toc-properties :item-style)
-			:container-class (getf toc-properties :container-class)
-			:container-style (getf toc-properties :container-style))
-		       (remove-toc-property element-properties)))
-		      t)
-		   (progn
-		     (cl-html-readme-dsl:open-element
-		      tree-builder
-		      'toc-item
-		      (concatenate
-		       'list
-		       (list
-			:class (getf toc-properties :item-class)
-			:style (getf toc-properties :item-style))
-		       (remove-toc-property element-properties)))
-		     t)))
-	     (progn
-	       nil)))
-       :close-element
-       (lambda(context)
-	 (if context
-	     (cl-html-readme-dsl:close-element tree-builder)))
-       :text
-       (lambda(str)
-	 (declare (ignore str))
-	 nil))
-      (if (not toc-root-pending)
-	  (cl-html-readme-dsl:close-element tree-builder))))
-  nil)
-
 (defun extract-toc-headings (doc)
   "Returns a documentation object representing the toc heading tree"
   (flet ((is-toc-heading (element-symbol element-properties)
@@ -362,4 +272,69 @@
 	 nil))
       (get-tree tree-builder))))
 
-
+;; TODO Pass toc-properties instead of looking them up once more
+(defun extract-toc (doc tree-builder)
+  "Extracts toc and pushes toc-root, toc-container, toc-item elements into the builder."
+  (flet ((remove-toc-property (properties)
+	   (setf properties (copy-list properties))
+	   (setf (getf properties :toc) nil)
+	   properties))
+    (cl-html-readme-dsl:walk-tree
+     doc
+     :text (lambda(str) (declare (ignore str)) nil)
+     :close-element (lambda(context) (declare (ignore context)) nil)
+     :open-element
+     (lambda(element-symbol toc-properties content)
+       (declare (ignore content))
+       (if (toc-p element-symbol)
+	   ;; toc form found. Read toc relevant headings and render them.
+	   (let ((toc-headings (extract-toc-headings doc)))
+	     (if toc-headings
+		 (progn
+		   ;; Render toc-root
+		   (cl-html-readme-dsl:open-element
+		    tree-builder
+		    'toc-root
+		    (list
+		     :class (getf toc-properties :root-class)
+		     :style (getf toc-properties :root-style)))
+		   ;; Render toc content
+		   (cl-html-readme-dsl:walk-tree
+		    toc-headings
+		    :text (lambda(str) (declare (ignore str)) nil)
+		    :open-element
+		    (lambda(element-symbol element-properties content)
+		      (declare (ignore element-symbol))
+		      (if (not content)
+			  (progn
+			    ;; Heading does not have sub-hedings. Render a plain toc-item.
+			    (cl-html-readme-dsl:open-element
+			     tree-builder
+			     'toc-item
+			     (concatenate
+			      'list
+			      (list
+			       :class (getf toc-properties :item-class)
+			       :style (getf toc-properties :item-style))
+			      (remove-toc-property element-properties)))
+			    nil)
+			  (progn
+			    ;; Heading has sub-headings. Render a toc-container.
+			    (cl-html-readme-dsl:open-element
+			     tree-builder
+			     'toc-container
+			     (concatenate
+			      'list
+			      (list
+			       :class (getf toc-properties :item-class)
+			       :style (getf toc-properties :item-style)
+			       :container-class (getf toc-properties :container-class)
+			       :container-style (getf toc-properties :container-style))
+			      (remove-toc-property element-properties)))
+			    nil)))
+		    :close-element
+		    (lambda(context)
+		      (declare (ignore context))
+		      (cl-html-readme-dsl:close-element tree-builder)))
+		   ;; Close toc-root
+		   (cl-html-readme-dsl:close-element tree-builder)))))))))
