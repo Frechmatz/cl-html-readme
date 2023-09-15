@@ -233,10 +233,10 @@
       tree)))
 
 ;;
-;; TOC extraction
+;; TOC
 ;;
 
-(defun extract-toc-headings (doc)
+(defun get-toc-headings (doc)
   "Returns a documentation object representing the toc heading tree"
   (flet ((is-toc-heading (element-symbol element-properties)
 	   (and (heading-p element-symbol) (getf element-properties :toc))))
@@ -264,14 +264,14 @@
 	 nil))
       (get-tree tree-builder))))
 
-(defun extract-toc (doc toc-properties tree-builder)
+(defun write-toc (doc toc-properties tree-builder)
   "Extracts toc and writes toc-root, toc-container, toc-item elements into the builder.
   - toc-properties: The properties of the corresponding toc-form"
   (flet ((remove-toc-property (properties)
 	   (setf properties (copy-list properties))
 	   (setf (getf properties :toc) nil)
 	   properties))
-    (let ((toc-headings (extract-toc-headings doc)))
+    (let ((toc-headings (get-toc-headings doc)))
       (if toc-headings
 	  (progn
 	    ;; Render toc-root

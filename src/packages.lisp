@@ -25,5 +25,5 @@
    :close-element
    :add-text
    :get-tree
-   :extract-toc))
+   :write-toc))
 
