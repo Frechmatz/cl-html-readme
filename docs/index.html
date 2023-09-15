@@ -25,8 +25,7 @@
 <li><a href="#Installation">Installation</a></li>
 <li><a href="#DSL">DSL</a><ul>
 <li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li>
-<li><a href="#Semantic elements">Semantic elements</a></li>
-<li><a href="#Classes and Styles">Classes and Styles</a></li></ul></li>
+<li><a href="#Semantic elements">Semantic elements</a></li></ul></li>
 <li><a href="#API">API</a></li>
 <li><a href="#Full example">Full example</a></li>
 <li><a href="#Run tests">Run tests</a></li>
@@ -36,6 +35,9 @@
 <h2>Version 1.0.0</h2><p>The first release of cl-html-readme.</p>
 <h2>Version 1.0.1</h2><p><b>This version is the current quicklisp release.</b></p>
 <h3>Changes</h3><ul><li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li><li>Removed a couple of too fragile tests.</li></ul>
+<h2>Version 2.0.0</h2>
+<h3>Breaking changes</h3><ul><li>Support of HTML styles and classes has been removed.</li></ul>
+<h3>Changes</h3><ul><li>New implementation of TOC generation.</li><li>Major rework of the test suite which was buggy and difficult to understand.</li></ul>
 <h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p>
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
@@ -99,59 +101,6 @@ that can appear (almost) everywhere.
 &lt;section&gt;
   &lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1
   &lt;/h1&gt;Lorem ipsum
-  &lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2
-  &lt;/h1&gt;Lorem ipsum
-&lt;/section&gt;
-&lt;footer&gt;Lorem ipsum
-&lt;/footer&gt;</code></pre></p>
-<h2 id="Classes and Styles">Classes and Styles</h2>
-<h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot; :class &quot;semantic-class&quot; :style &quot;semantic-style&quot; )
-       (heading (:name &quot;Example&quot; :class &quot;heading-class&quot; :style &quot;heading-style&quot;)))
- (semantic (:name &quot;nav&quot;)
-       (heading (:name &quot;Table of contents&quot;)
-            (toc (:root-class &quot;toc-root-class&quot;
-              :root-style &quot;toc-root-style&quot;
-              :container-class &quot;toc-container-class&quot;
-              :container-style &quot;toc-container-style&quot;
-              :item-class &quot;toc-item-class&quot;
-              :item-style &quot;toc-item-style&quot;))))
- (semantic (:name &quot;section&quot;)
-       (heading (:name &quot;Chapter 1&quot; :toc t)
-            &quot;Lorem ipsum&quot;
-            (heading (:name &quot;Chapter 1.1&quot; :toc t)
-                 &quot;Lorem ipsum&quot;))
-       (heading (:name &quot;Chapter 2&quot; :toc t))
-       &quot;Lorem ipsum&quot;)
- (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p>
-<h3>Generated HTML</h3><p><pre><code>&lt;header class=&quot;semantic-class&quot; style=&quot;semantic-style&quot;&gt;
-  &lt;h1 class=&quot;heading-class&quot; style=&quot;heading-style&quot;&gt;Example
-  &lt;/h1&gt;
-&lt;/header&gt;
-&lt;nav&gt;
-  &lt;h1&gt;Table of contents
-  &lt;/h1&gt;
-  &lt;ul class=&quot;toc-root-class&quot; style=&quot;toc-root-style&quot;&gt;
-    &lt;li class=&quot;toc-item-class&quot; style=&quot;toc-item-style&quot;&gt;
-      &lt;a href=&quot;#Chapter 1&quot;&gt;Chapter 1
-      &lt;/a&gt;
-      &lt;ul class=&quot;toc-container-class&quot; style=&quot;toc-container-style&quot;&gt;
-    &lt;li class=&quot;toc-item-class&quot; style=&quot;toc-item-style&quot;&gt;
-      &lt;a href=&quot;#Chapter 1.1&quot;&gt;Chapter 1.1
-      &lt;/a&gt;
-    &lt;/li&gt;
-      &lt;/ul&gt;
-    &lt;/li&gt;
-    &lt;li class=&quot;toc-item-class&quot; style=&quot;toc-item-style&quot;&gt;
-      &lt;a href=&quot;#Chapter 2&quot;&gt;Chapter 2
-      &lt;/a&gt;
-    &lt;/li&gt;
-  &lt;/ul&gt;
-&lt;/nav&gt;
-&lt;section&gt;
-  &lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1
-  &lt;/h1&gt;Lorem ipsum
-  &lt;h2 id=&quot;Chapter 1.1&quot;&gt;Chapter 1.1
-  &lt;/h2&gt;Lorem ipsum
   &lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2
   &lt;/h1&gt;Lorem ipsum
 &lt;/section&gt;
@@ -253,6 +202,15 @@ that can appear (almost) everywhere.
                      &quot;&lt;ul&gt;&quot;
                      &quot;&lt;li&gt;HTML serialization inserts linebreaks for better readability and diff friendliness.&lt;/li&gt;&quot;
                      &quot;&lt;li&gt;Removed a couple of too fragile tests.&lt;/li&gt;&quot;
+                     &quot;&lt;/ul&gt;&quot;))
+               (heading (:name &quot;Version 2.0.0&quot;)
+                (heading (:name &quot;Breaking changes&quot;)
+                     &quot;&lt;ul&gt;&quot;
+                     &quot;&lt;li&gt;Support of HTML styles and classes has been removed.&lt;/li&gt;&lt;/ul&gt;&quot;)
+                (heading (:name &quot;Changes&quot;)
+                     &quot;&lt;ul&gt;&quot;
+                     &quot;&lt;li&gt;New implementation of TOC generation.&lt;/li&gt;&quot;
+                     &quot;&lt;li&gt;Major rework of the test suite which was buggy and difficult to understand.&lt;/li&gt;&quot;
                      &quot;&lt;/ul&gt;&quot;)))
           (heading (:name &quot;Installation&quot; :toc t)
                ,(cl-html-readme:read-file &quot;make-readme/installation.html&quot;))
@@ -267,12 +225,7 @@ that can appear (almost) everywhere.
                 (heading (:name &quot;DSL&quot;)
                      ,(make-code-string &quot;make-readme/dsl-example-semantic.dsl&quot;))
                 (heading (:name &quot;Generated HTML&quot;)
-                     ,(make-code-string &quot;make-readme/dsl-example-semantic.html&quot;)))
-               (heading (:name &quot;Classes and Styles&quot; :toc t)
-                (heading (:name &quot;DSL&quot;)
-                     ,(make-code-string &quot;make-readme/dsl-example-styling.dsl&quot;))
-                (heading (:name &quot;Generated HTML&quot;)
-                     ,(make-code-string &quot;make-readme/dsl-example-styling.html&quot;))))
+                     ,(make-code-string &quot;make-readme/dsl-example-semantic.html&quot;))))
           (heading (:name &quot;API&quot; :toc t)
                ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*home-directory*&quot;)
                ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*tab-width*&quot;)
@@ -312,4 +265,4 @@ that can appear (almost) everywhere.
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2021-02-03  22:30:55</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-09-15  17:45:23</small></p></footer></body></html>

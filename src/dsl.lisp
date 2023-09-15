@@ -29,28 +29,20 @@
 ;;   (toc-container (<toc-container-properties>) { <toc-item> | <toc-container> })
 ;;
 ;; <semantic-properties> ::=
-;;   :name <string> [:class <string>] [:style <string>]
+;;   :name <string>
 ;;
 ;; <heading-properties> ::=
 ;;   :name <string> [:id <string>] [:toc t | nil]
-;;   [:class <string>] [:style <string>]
 ;;
-;; <toc-properties> ::=
-;;   [:root-class <string>] [:root-style <string>]
-;;   [:container-class <string>] [:container-style <string>]
-;;   [:item-class <string>] [:item-style <string>]
+;; <toc-properties> ::= No properties yet
 ;;
 ;; <toc-item-properties> ::=
 ;;   :name <string> :id <string>
-;;   [:class <string>] [:style <string>]
 ;;
 ;; <toc-container-properties> ::=
 ;;   :name <string> :id <string>
-;;   [:class <string>] [:style <string>]
-;;   [:container-class <string>] [:container-style <string>]
 ;;
-;; <toc-root-properties> ::=
-;;   [:class <string>] [:style <string>]
+;; <toc-root-properties> ::= No properties yet
 ;;
 ;; <string> ::= A string literal
 ;;
@@ -286,9 +278,7 @@
 	    (cl-html-readme-dsl:open-element
 	     tree-builder
 	     'toc-root
-	     (list
-	      :class (getf toc-properties :root-class)
-	      :style (getf toc-properties :root-style)))
+	     (list))
 	    ;; Render toc content
 	    (cl-html-readme-dsl:walk-tree
 	     toc-headings
@@ -302,26 +292,14 @@
 		     (cl-html-readme-dsl:open-element
 		      tree-builder
 		      'toc-item
-		      (concatenate
-		       'list
-		       (list
-			:class (getf toc-properties :item-class)
-			:style (getf toc-properties :item-style))
-		       (remove-toc-property element-properties)))
+		       (remove-toc-property element-properties))
 		     nil)
 		   (progn
 		     ;; Heading has sub-headings. Render a toc-container.
 		     (cl-html-readme-dsl:open-element
 		      tree-builder
 		      'toc-container
-		      (concatenate
-		       'list
-		       (list
-			:class (getf toc-properties :item-class)
-			:style (getf toc-properties :item-style)
-			:container-class (getf toc-properties :container-class)
-			:container-style (getf toc-properties :container-style))
-		       (remove-toc-property element-properties)))
+		       (remove-toc-property element-properties))
 		     nil)))
 	     :close-element
 	     (lambda(context)

@@ -74,6 +74,15 @@
 					 "<ul>"
 					 "<li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li>"
 					 "<li>Removed a couple of too fragile tests.</li>"
+					 "</ul>"))
+		       (heading (:name "Version 2.0.0")
+				(heading (:name "Breaking changes")
+					 "<ul>"
+					 "<li>Support of HTML styles and classes has been removed.</li></ul>")
+				(heading (:name "Changes")
+					 "<ul>"
+					 "<li>New implementation of TOC generation.</li>"
+					 "<li>Major rework of the test suite which was buggy and difficult to understand.</li>"
 					 "</ul>")))
 	      (heading (:name "Installation" :toc t)
 		       ,(cl-html-readme:read-file "make-readme/installation.html"))
@@ -88,12 +97,7 @@
 				(heading (:name "DSL")
 					 ,(make-code-string "make-readme/dsl-example-semantic.dsl"))
 				(heading (:name "Generated HTML")
-					 ,(make-code-string "make-readme/dsl-example-semantic.html")))
-		       (heading (:name "Classes and Styles" :toc t)
-				(heading (:name "DSL")
-					 ,(make-code-string "make-readme/dsl-example-styling.dsl"))
-				(heading (:name "Generated HTML")
-					 ,(make-code-string "make-readme/dsl-example-styling.html"))))
+					 ,(make-code-string "make-readme/dsl-example-semantic.html"))))
 	      (heading (:name "API" :toc t)
 		       ,(make-variable-string index "cl-html-readme" "*home-directory*")
 		       ,(make-variable-string index "cl-html-readme" "*tab-width*")

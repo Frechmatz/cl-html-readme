@@ -94,10 +94,6 @@
 (defun serialize (output-stream doc)
   (labels ((newline ()
 	     (princ #\Newline output-stream))
-	   (format-class (class)
-	     (if class (format nil " class=\"~a\"" class) ""))
-	   (format-style (style)
-	     (if style (format nil " style=\"~a\"" style) ""))
 	   (format-id (properties)
 	     (if (getf properties :id)
 		 (format nil " id=\"~a\"" (getf properties :id)) ""))
@@ -113,62 +109,50 @@
        (declare (ignore content))
        (cond
 	 ((cl-html-readme-dsl:heading-p element-symbol)
-	  ;; <h{level} id={id} class={class} style={style}> {name} </h{level}>
+	  ;; <h{level} id={id}> {name} </h{level}>
 	  (newline)
 	  (format
 	   output-stream
-	   "<~a~a~a~a>~a</~a>"
+	   "<~a~a>~a</~a>"
 	   (format-heading element-properties)
 	   (format-id element-properties)
-	   (format-class (getf element-properties :class))
-	   (format-style (getf element-properties :style))
 	   (getf element-properties :name)
 	   (format-heading element-properties))
 	  nil)
 	 ((cl-html-readme-dsl:semantic-p element-symbol)
 	  (newline)
-	  ;; <{name} class={class} style={style}>...</{name}>
+	  ;; <{name}>...</{name}>
 	  (format
 	   output-stream
-	   "<~a~a~a>"
-	   (getf element-properties :name)
-	   (format-class (getf element-properties :class))
-	   (format-style (getf element-properties :style)))
+	   "<~a>"
+	   (getf element-properties :name))
 	  (format nil "</~a>" (getf element-properties :name)))
 	 ((cl-html-readme-dsl:toc-root-p element-symbol)
 	  (newline)
-	  ;; <ul class={class} style={style}>...</ul>
+	  ;; <ul>...</ul>
 	  (format
 	   output-stream
-	   "<ul~a~a>"
-	   (format-class (getf element-properties :class))
-	   (format-style (getf element-properties :style)))
+	   "<ul>")
 	  "</ul>")
 	 ((cl-html-readme-dsl:toc-item-p element-symbol)
-	  ;; <li class={toc-class} style={toc-style}> <a href=#{id}> {name} </a> </li>
+	  ;; <li><a href=#{id}> {name} </a> </li>
 	  (newline)
 	  (format
 	   output-stream
-	   "<li~a~a><a href=\"#~a\">~a</a></li>"
-	   (format-class (getf element-properties :class))
-	   (format-style (getf element-properties :style))
+	   "<li><a href=\"#~a\">~a</a></li>"
 	   (getf element-properties :id)
 	   (getf element-properties :name))
 	  nil)
 	 ((cl-html-readme-dsl:toc-container-p element-symbol)
-	  ;; <li class={item-class} style={item-style}> <a href=#{id}> {name} </a>
-	  ;; <ul class={class} style={style}>...</ul>
+	  ;; <li> <a href=#{id}> {name} </a>
+	  ;; <ul>...</ul>
 	  ;; </li>
 	  (newline)
 	  (format
 	   output-stream
-	   "<li~a~a><a href=\"#~a\">~a</a><ul~a~a>"
-	   (format-class (getf element-properties :class))
-	   (format-style (getf element-properties :style))
+	   "<li><a href=\"#~a\">~a</a><ul>"
 	   (getf element-properties :id)
-	   (getf element-properties :name)
-	   (format-class (getf element-properties :container-class))
-	   (format-style (getf element-properties :container-style)))
+	   (getf element-properties :name))
 	  "</ul></li>")
 	 (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
      :close-element

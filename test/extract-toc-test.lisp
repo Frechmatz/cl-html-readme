@@ -73,10 +73,10 @@
 	       (cl-html-readme-dsl:extract-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
-			'((toc-root (:class nil :style nil)
-			   (toc-item (:class nil :name "H1" :style nil :toc nil))
-			   (toc-item (:class nil :name "H2" :style nil :toc nil))
-			   (toc-item (:class nil :name "H3" :style nil :toc nil))))))
+			'((toc-root ()
+			   (toc-item (:name "H1" :toc nil))
+			   (toc-item (:name "H2" :toc nil))
+			   (toc-item (:name "H3" :toc nil))))))
 		 (let ((toc-str (doc-to-string toc))
 		       (expected-toc-str (doc-to-string expected-toc)))
 		 (assert-equal expected-toc-str toc-str)))))
@@ -91,13 +91,12 @@
 	       (cl-html-readme-dsl:extract-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
-			'((toc-root (:class nil :style nil)
-			   (toc-item (:class nil :name "H1" :style nil :toc nil))
-			   (toc-container (:class nil :container-class nil :container-style nil
-					   :name "H2" :style nil :toc nil)
-			    (toc-item (:class nil :name "H2.1" :style nil :toc nil))
-			    (toc-item (:class nil :name "H2.2" :style nil :toc nil)))
-			   (toc-item (:class nil :name "H3" :style nil :toc nil))))))
+			'((toc-root ()
+			   (toc-item (:name "H1" :toc nil))
+			   (toc-container (:name "H2" :toc nil)
+			    (toc-item (:name "H2.1" :toc nil))
+			    (toc-item (:name "H2.2" :toc nil)))
+			   (toc-item (:name "H3" :toc nil))))))
 		 (let ((toc-str (doc-to-string toc))
 		       (expected-toc-str (doc-to-string expected-toc)))
 		 (assert-equal expected-toc-str toc-str)))))
@@ -120,13 +119,12 @@
 	       (cl-html-readme-dsl:extract-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
-			'((toc-root (:class nil :style nil)
-			   (toc-item (:class nil :name "H1" :style nil :toc nil))
-			   (toc-container (:class nil :container-class nil :container-style nil
-					   :name "H2" :style nil :toc nil)
-			    (toc-item (:class nil :name "H2.1" :style nil :toc nil))
-			    (toc-item (:class nil :name "H2.2" :style nil :toc nil)))
-			   (toc-item (:class nil :name "H3" :style nil :toc nil))))))
+			'((toc-root ()
+			   (toc-item (:name "H1" :toc nil))
+			   (toc-container (:name "H2" :toc nil)
+			    (toc-item (:name "H2.1" :toc nil))
+			    (toc-item (:name "H2.2" :toc nil)))
+			   (toc-item (:name "H3" :toc nil))))))
 		 (let ((toc-str (doc-to-string toc))
 		       (expected-toc-str (doc-to-string expected-toc)))
 		 (assert-equal expected-toc-str toc-str)))))
@@ -139,35 +137,6 @@
 	       (cl-html-readme-dsl:extract-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc '()))
-		 (let ((toc-str (doc-to-string toc))
-		       (expected-toc-str (doc-to-string expected-toc)))
-		 (assert-equal expected-toc-str toc-str)))))
-
-(define-test test-extract-toc-5 ()
-	     (let ((tree-builder (make-instance 'cl-html-readme-dsl:tree-builder))
-		   (doc '((heading (:name "H1" :toc t))
-			  (heading (:name "H2" :toc t)
-			   (heading (:name "H2.1" :toc t))))))
-	       (cl-html-readme-dsl:extract-toc
-		doc
-		(list
-		 :root-class "root-class"
-		 :root-style "root-style"
-		 :container-class "container-class"
-		 :container-style "container-style"
-		 :item-class "item-class"
-		 :item-style "item-style")
-		tree-builder)
-	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
-		      (expected-toc
-			'((toc-root (:class "root-class" :style "root-style")
-			   (toc-item (:class "item-class" :name "H1" :style "item-style" :toc nil))
-			   (toc-container
-			    (:class "item-class" :container-class "container-class"
-			     :container-style "container-style"
-			     :name "H2" :style "item-style" :toc nil)
-			    (toc-item
-			     (:class "item-class" :name "H2.1" :style "item-style" :toc nil)))))))
 		 (let ((toc-str (doc-to-string toc))
 		       (expected-toc-str (doc-to-string expected-toc)))
 		 (assert-equal expected-toc-str toc-str)))))
