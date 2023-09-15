@@ -1,16 +1,13 @@
 <html><head><link href="cl-html-readme.css" rel="stylesheet" type="text/css"/></head><body>
 <header>
-<h1>cl-html-readme</h1>Generate HTML documentation for Common Lisp projects.
-<p>The goal of this library is to support in handling of basic stuff like Table Of Contents,
-  embedded source code or heading indentation levels. Giving documentation
-  a personal touch like styling via CSS or using JavaScript shall be straight forward.</p>
-<p>The library comes to its full potential, when Lisp documentation strings are
-  using HTML as markup language. However, it doesn't provide any functionality to extract
-  documentation from systems or packages.</p>
-<p>The general idea is to declare an HTML skeleton using the DSL of cl-html-readme and
+<h1>cl-html-readme</h1>This library provides a means to generate documentation for Common-Lisp projects that are using HTML
+as markup language for their docstrings.
+<p>The goal of this library is to make it easy to generate a table of contents, to embed
+  source code or to structure a documentation with semantic elements. It shall not impose any styling. To accomplish this, the library provides a DSL as well as a couple of helper functions. The library does not cover to retrieve metadata, like the docstring of a function. An excellent library for such stuff is <a href="https://github.com/eudoxia0/docparser">docparser</a></p>
+<p>The general concept is to declare an HTML skeleton using the DSL of cl-html-readme and
   to provide the actual documentation and any arbitrary markup as plain HTML strings embedded
   into this skeleton.</p>
-<p>The key features of cl-html-readme are:
+<p>The key features of cl-html-readme are
     <ul>
 	<li>Generate HTML heading and semantic elements.</li>
 	<li>Generate a Table Of Contents. Provide full control of what should be listed in it.</li>
@@ -27,7 +24,7 @@
 <li><a href="#Heading elements and Table of Contents">Heading elements and Table of Contents</a></li>
 <li><a href="#Semantic elements">Semantic elements</a></li></ul></li>
 <li><a href="#API">API</a></li>
-<li><a href="#Full example">Full example</a></li>
+<li><a href="#Example">Example</a></li>
 <li><a href="#Run tests">Run tests</a></li>
 <li><a href="#Generate documentation">Generate documentation</a></li></ul></nav>
 <section>
@@ -36,14 +33,12 @@
 <h2>Version 1.0.1</h2><p><b>This version is the current quicklisp release.</b></p>
 <h3>Changes</h3><ul><li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li><li>Removed a couple of too fragile tests.</li></ul>
 <h2>Version 2.0.0</h2>
-<h3>Breaking changes</h3><ul><li>Support of HTML styles and classes has been removed.</li></ul>
-<h3>Changes</h3><ul><li>New implementation of TOC generation.</li><li>Major rework of the test suite which was buggy and difficult to understand.</li></ul>
+<h3>Breaking changes</h3><ul><li>Support of HTML style and class attributes has been removed.</li></ul>
+<h3>Changes</h3><ul><li>A more efficient implementation of the TOC generation algorithm.</li><li>A major rework of the test suite which was buggy and difficult to understand.</li></ul>
 <h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p>
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
 that can appear (almost) everywhere.
-<p>The following HTML snippets have been formatted with <code>sgml-pretty-print</code>. The library
-  itself does not support pretty-printing</p>
 <h2 id="Heading elements and Table of Contents">Heading elements and Table of Contents</h2>
 <h3>DSL</h3><p><pre><code>((heading (:name &quot;Example&quot;))
  (heading (:name &quot;Table of contents&quot;)
@@ -119,13 +114,12 @@ that can appear (almost) everywhere.
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul></p>
-<h1 id="Full example">Full example</h1>The following example shows how the documentation of this library is generated.
-<ul>
-    <li>Documentation strings of cl-html-readme are using HTML as markup.</li>
-    <li>Uses the <a href="https://github.com/eudoxia0/docparser">docparser</a>
-      library to retrieve documentation strings (and more).</li>
-    <li>The resulting HTML is written to docs/index.html.</li>
-</ul>
+<h1 id="Example">Example</h1>The following example shows how the documentation of this library is generated. It uses
+the <a href="https://github.com/eudoxia0/docparser">docparser</a> library.
+<p>
+One might ask, all these helper functions, why are they not part of the library? The reason is, that they are opinionated. Which library to use to retrieve metadata,
+how to render a function and so on. The actual code is simple, kind of copy/paste stuff. Additionally, providing such functionality would result in perhaps unwanted dependencies.
+</p>
 <h2>make-doc.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-doc)
 
 ;;
@@ -206,11 +200,11 @@ that can appear (almost) everywhere.
                (heading (:name &quot;Version 2.0.0&quot;)
                 (heading (:name &quot;Breaking changes&quot;)
                      &quot;&lt;ul&gt;&quot;
-                     &quot;&lt;li&gt;Support of HTML styles and classes has been removed.&lt;/li&gt;&lt;/ul&gt;&quot;)
+                     &quot;&lt;li&gt;Support of HTML style and class attributes has been removed.&lt;/li&gt;&lt;/ul&gt;&quot;)
                 (heading (:name &quot;Changes&quot;)
                      &quot;&lt;ul&gt;&quot;
-                     &quot;&lt;li&gt;New implementation of TOC generation.&lt;/li&gt;&quot;
-                     &quot;&lt;li&gt;Major rework of the test suite which was buggy and difficult to understand.&lt;/li&gt;&quot;
+                     &quot;&lt;li&gt;A more efficient implementation of the TOC generation algorithm.&lt;/li&gt;&quot;
+                     &quot;&lt;li&gt;A major rework of the test suite which was buggy and difficult to understand.&lt;/li&gt;&quot;
                      &quot;&lt;/ul&gt;&quot;)))
           (heading (:name &quot;Installation&quot; :toc t)
                ,(cl-html-readme:read-file &quot;make-readme/installation.html&quot;))
@@ -232,7 +226,7 @@ that can appear (almost) everywhere.
                ,(make-function-string index &quot;cl-html-readme&quot; &quot;doc-to-html&quot;)
                ,(make-function-string index &quot;cl-html-readme&quot; &quot;make-path&quot;)
                ,(make-function-string index &quot;cl-html-readme&quot; &quot;read-file&quot;))
-          (heading (:name &quot;Full example&quot; :toc t)
+          (heading (:name &quot;Example&quot; :toc t)
                ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
                (heading (:name &quot;make-doc.lisp&quot;)
                 ,(make-code-string &quot;make-readme/make-doc.lisp&quot;)))
@@ -265,4 +259,4 @@ that can appear (almost) everywhere.
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-09-15  17:45:23</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-09-15  21:58:58</small></p></footer></body></html>

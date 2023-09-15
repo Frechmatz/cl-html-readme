@@ -78,11 +78,11 @@
 		       (heading (:name "Version 2.0.0")
 				(heading (:name "Breaking changes")
 					 "<ul>"
-					 "<li>Support of HTML styles and classes has been removed.</li></ul>")
+					 "<li>Support of HTML style and class attributes has been removed.</li></ul>")
 				(heading (:name "Changes")
 					 "<ul>"
-					 "<li>New implementation of TOC generation.</li>"
-					 "<li>Major rework of the test suite which was buggy and difficult to understand.</li>"
+					 "<li>A more efficient implementation of the TOC generation algorithm.</li>"
+					 "<li>A major rework of the test suite which was buggy and difficult to understand.</li>"
 					 "</ul>")))
 	      (heading (:name "Installation" :toc t)
 		       ,(cl-html-readme:read-file "make-readme/installation.html"))
@@ -104,7 +104,7 @@
 		       ,(make-function-string index "cl-html-readme" "doc-to-html")
 		       ,(make-function-string index "cl-html-readme" "make-path")
 		       ,(make-function-string index "cl-html-readme" "read-file"))
-	      (heading (:name "Full example" :toc t)
+	      (heading (:name "Example" :toc t)
 		       ,(cl-html-readme:read-file "make-readme/example-introduction.html")
 		       (heading (:name "make-doc.lisp")
 				,(make-code-string "make-readme/make-doc.lisp")))
