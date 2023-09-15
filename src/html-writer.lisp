@@ -43,7 +43,7 @@
        (declare (ignore content))
        (if (cl-html-readme-dsl:toc-p element-symbol)
 	   (progn
-	     (cl-html-readme-dsl:extract-toc doc tree-builder)
+	     (cl-html-readme-dsl:extract-toc doc element-properties tree-builder)
 	     :ignore-close-element)
 	   (progn
 	     (cl-html-readme-dsl:open-element tree-builder element-symbol element-properties)
