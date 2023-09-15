@@ -307,7 +307,7 @@
 		      (declare (ignore element-symbol))
 		      (if (not content)
 			  (progn
-			    ;; Heading does not have sub-hedings. Render a plain toc-item.
+			    ;; Heading does not have sub-headings. Render a plain toc-item.
 			    (cl-html-readme-dsl:open-element
 			     tree-builder
 			     'toc-item
