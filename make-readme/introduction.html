@@ -1,16 +1,16 @@
-This library provides a means to generate documentation for Common-Lisp projects that are using HTML
+This library provides a means to generate documentation for Common Lisp projects that are using HTML
 as markup language for their docstrings.
-<p>The goal of this library is to make it easy to generate a table of contents, to embed
-  source code or to structure a documentation with semantic elements. It shall not impose any styling. To accomplish this, the library provides a DSL as well as a couple of helper functions. The library does not cover to retrieve metadata, like the docstring of a function. An excellent library for such stuff is <a href="https://github.com/eudoxia0/docparser">docparser</a></p>
+<p>The goal of this library is to make it easy to generate a table of contents or
+  to structure the documentation with semantic elements. It shall not impose any styling. To accomplish this, the library provides a DSL as well as a couple of helper functions.</p>
+<p>The library does not cover to retrieve any metadata, like for example object documentation strings. An excellent library for such purposes is <a href="https://github.com/eudoxia0/docparser">docparser</a></p>
 <p>The general concept is to declare an HTML skeleton using the DSL of cl-html-readme and
   to provide the actual documentation and any arbitrary markup as plain HTML strings embedded
-  into this skeleton.</p>
+  into it.</p>
 <p>The key features of cl-html-readme are
     <ul>
 	<li>Generate HTML heading and semantic elements.</li>
-	<li>Generate a Table Of Contents. Provide full control of what should be listed in it.</li>
-	<li>Easily embed source code files as well as text/html files via helper
-	  functions provided by the API.</li>
+	<li>Generate a Table of Contents. Provide full control of what should be part of it.</li>
+	<li>Easily embed source code files as well as HTML files.</li>
     </ul>
 </p>
 
