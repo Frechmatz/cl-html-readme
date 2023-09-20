@@ -49,12 +49,12 @@
 
 
 (defparameter *dsl-elements*
-  '((:name "SEMANTIC" :semantic-p t :mandatory-properties (:name))
-    (:name "HEADING" :heading-p t :mandatory-properties (:name))
-    (:name "TOC" :toc-p t :mandatory-properties ())
-    (:name "TOC-ROOT" :toc-root-p t :mandatory-properties ())
-    (:name "TOC-ITEM" :toc-item-p t :mandatory-properties (:name :id))
-    (:name "TOC-CONTAINER" :toc-container-p t :mandatory-properties (:name :id))))
+  '((:name "SEMANTIC" :mandatory-properties (:name))
+    (:name "HEADING" :mandatory-properties (:name))
+    (:name "TOC" :mandatory-properties ())
+    (:name "TOC-ROOT" :mandatory-properties ())
+    (:name "TOC-ITEM" :mandatory-properties (:name :id))
+    (:name "TOC-CONTAINER" :mandatory-properties (:name :id))))
 
 (defun get-dsl-element (element)
   (if (not (symbolp element))
@@ -63,22 +63,22 @@
 	(find-if (lambda(e) (string= name (getf e :name))) *dsl-elements*))))
 
 (defun semantic-p (element)
-  (getf (get-dsl-element element) :semantic-p))
+  (and (symbolp element) (string= "SEMANTIC" (symbol-name element))))
 
 (defun heading-p (element)
-  (getf (get-dsl-element element) :heading-p))
+  (and (symbolp element) (string= "HEADING" (symbol-name element))))
 
 (defun toc-p (element)
-  (getf (get-dsl-element element) :toc-p))
+  (and (symbolp element) (string= "TOC" (symbol-name element))))
 
 (defun toc-root-p (element)
-  (getf (get-dsl-element element) :toc-root-p))
+  (and (symbolp element) (string= "TOC-ROOT" (symbol-name element))))
 
 (defun toc-item-p (element)
-  (getf (get-dsl-element element) :toc-item-p))
+  (and (symbolp element) (string= "TOC-ITEM" (symbol-name element))))
 
 (defun toc-container-p (element)
-  (getf (get-dsl-element element) :toc-container-p))
+  (and (symbolp element) (string= "TOC-CONTAINER" (symbol-name element))))
 
 (defun toc-heading-p (properties)
   (getf properties :toc))
