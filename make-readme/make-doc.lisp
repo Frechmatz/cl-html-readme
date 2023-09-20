@@ -1,7 +1,7 @@
 (in-package :cl-html-readme-make-doc)
 
 ;;
-;; Helper functions
+;; Helper functions 
 ;;
 
 (defun make-index (system)
@@ -20,7 +20,8 @@
 	 (lambda-list (docparser:operator-lambda-list node)))
     (concatenate
      'string
-     "<b>" (string-downcase symbol-name) "</b>&nbsp;"
+     "<b>" package-name ":" (string-downcase symbol-name) "</b>&nbsp;"
+     (string-downcase symbol-name) "</b>&nbsp;"
      (string-downcase (format nil "~a" (if lambda-list lambda-list "()")))
      "<p>" (docparser:node-docstring node) "</p>")))
 
@@ -29,7 +30,8 @@
   (let ((node (get-index-node index package-name symbol-name)))
     (concatenate
      'string
-     "<b>" (string-downcase symbol-name) "</b>"
+     "<b>" package-name ":" (string-downcase symbol-name) "</b>&nbsp;"
+     (string-downcase symbol-name) "</b>"
      "<p>" (docparser:node-docstring node) "</p>")))
   
 (defun make-code-string (path)
@@ -122,9 +124,8 @@
 
 (defun make-doc ()
   (let ((index (make-index :cl-html-readme)))
-    (let ((cl-html-readme:*home-directory*
-	    (asdf:system-source-directory :cl-html-readme))
-	  (cl-html-readme:*tab-width* 4))
+    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme))
+	  (cl-html-readme:*tab-width* 2))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
 			  :direction :output
 			  :if-exists :supersede
