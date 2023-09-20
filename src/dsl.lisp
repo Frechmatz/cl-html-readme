@@ -267,6 +267,7 @@
 (defun write-toc (doc toc-properties tree-builder)
   "Extracts toc and writes toc-root, toc-container, toc-item elements into the builder.
   - toc-properties: The properties of the corresponding toc-form"
+  (declare (ignore toc-properties))
   (flet ((remove-toc-property (properties)
 	   (setf properties (copy-list properties))
 	   (setf (getf properties :toc) nil)
