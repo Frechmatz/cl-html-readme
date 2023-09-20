@@ -88,6 +88,30 @@
   nil)
 
 ;;
+;; Property list tooling
+;;
+
+(defun get-property-list-keys (plist)
+  "Get the keys of a property list"
+  (let ((keys nil) (push-key t))
+    (dolist (item plist)
+      (if push-key
+	  (push item keys))
+      (setf push-key (not push-key)))
+    keys))
+
+(defun filter-property-list-entries (plist &key key-blacklist)
+  "Filter entries of a property list"
+  (let ((keys (get-property-list-keys plist))
+	(result nil))
+    (dolist (key keys)
+      (if (not (find key key-blacklist))
+	  (progn
+	    (push (getf plist key) result)
+	    (push key result))))
+    result))
+
+;;
 ;; DSL-Tree Walker
 ;;
 
@@ -269,9 +293,7 @@
   - toc-properties: The properties of the corresponding toc-form"
   (declare (ignore toc-properties))
   (flet ((remove-toc-property (properties)
-	   (setf properties (copy-list properties))
-	   (setf (getf properties :toc) nil)
-	   properties))
+	   (filter-property-list-entries properties :key-blacklist (list :toc))))
     (let ((toc-headings (get-toc-headings doc)))
       (if toc-headings
 	  (progn
