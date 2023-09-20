@@ -1,18 +1,18 @@
 <html><head><link href="cl-html-readme.css" rel="stylesheet" type="text/css"/></head><body>
 <header>
-<h1>cl-html-readme</h1>This library provides a means to generate documentation for Common-Lisp projects that are using HTML
+<h1>cl-html-readme</h1>This library provides a means to generate documentation for Common Lisp projects that are using HTML
 as markup language for their docstrings.
-<p>The goal of this library is to make it easy to generate a table of contents, to embed
-  source code or to structure a documentation with semantic elements. It shall not impose any styling. To accomplish this, the library provides a DSL as well as a couple of helper functions. The library does not cover to retrieve metadata, like the docstring of a function. An excellent library for such stuff is <a href="https://github.com/eudoxia0/docparser">docparser</a></p>
+<p>The goal of this library is to make it easy to generate a table of contents or
+  to structure the documentation with semantic elements. It shall not impose any styling. To accomplish this, the library provides a DSL as well as a couple of helper functions.</p>
+<p>The library does not cover to retrieve any metadata, like for example object documentation strings. An excellent library for such purposes is <a href="https://github.com/eudoxia0/docparser">docparser</a></p>
 <p>The general concept is to declare an HTML skeleton using the DSL of cl-html-readme and
   to provide the actual documentation and any arbitrary markup as plain HTML strings embedded
-  into this skeleton.</p>
+  into it.</p>
 <p>The key features of cl-html-readme are
     <ul>
 	<li>Generate HTML heading and semantic elements.</li>
-	<li>Generate a Table Of Contents. Provide full control of what should be listed in it.</li>
-	<li>Easily embed source code files as well as text/html files via helper
-	  functions provided by the API.</li>
+	<li>Generate a Table of Contents. Provide full control of what should be part of it.</li>
+	<li>Easily embed source code files as well as HTML files.</li>
     </ul>
 </p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header>
 <nav>
@@ -42,7 +42,7 @@ that can appear (almost) everywhere.
 <h2 id="Heading elements and Table of Contents">Heading elements and Table of Contents</h2>
 <h3>DSL</h3><p><pre><code>((heading (:name &quot;Example&quot;))
  (heading (:name &quot;Table of contents&quot;)
-      (toc))
+    (toc))
  (heading (:name &quot;Chapter 1&quot; :toc t)) &quot;Lorem ipsum&quot;
  (heading (:name &quot;Chapter 2&quot; :toc t)) &quot;Lorem ipsum&quot;)))</code></pre></p>
 <h3>Generated HTML</h3><p><pre><code>&lt;h1&gt;Example
@@ -65,15 +65,15 @@ that can appear (almost) everywhere.
 &lt;/h1&gt;Lorem ipsum</code></pre></p>
 <h2 id="Semantic elements">Semantic elements</h2>
 <h3>DSL</h3><p><pre><code>((semantic (:name &quot;header&quot;)
-       (heading (:name &quot;Example&quot;)))
+     (heading (:name &quot;Example&quot;)))
  (semantic (:name &quot;nav&quot;)
-       (heading (:name &quot;Table of contents&quot;)
-            (toc)))
+     (heading (:name &quot;Table of contents&quot;)
+        (toc)))
  (semantic (:name &quot;section&quot;)
-       (heading (:name &quot;Chapter 1&quot; :toc t))
-       &quot;Lorem ipsum&quot;
-       (heading (:name &quot;Chapter 2&quot; :toc t))
-       &quot;Lorem ipsum&quot;)
+     (heading (:name &quot;Chapter 1&quot; :toc t))
+     &quot;Lorem ipsum&quot;
+     (heading (:name &quot;Chapter 2&quot; :toc t))
+     &quot;Lorem ipsum&quot;)
  (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))</code></pre></p>
 <h3>Generated HTML</h3><p><pre><code>&lt;header&gt;
   &lt;h1&gt;Example
@@ -101,29 +101,24 @@ that can appear (almost) everywhere.
 &lt;/section&gt;
 &lt;footer&gt;Lorem ipsum
 &lt;/footer&gt;</code></pre></p>
-<h1 id="API">API</h1><b>*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
+<h1 id="API">API</h1><b>cl-html-readme:*home-directory*</b>&nbsp;*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>cl-html-readme:*tab-width*</b>&nbsp;*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>cl-html-readme:doc-to-html</b>&nbsp;doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream A stream into which the resulting HTML is written.</li>
        <li>documentation A list following the syntax of the DSL.</li>
-   </ul></p><b>make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
+   </ul></p><b>cl-html-readme:make-path</b>&nbsp;make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
    <ul>
       <li>path A path relative to *home-directory*, e.g. examples/example-1.lisp. A path can be represented as String or as Pathname.</li>
-   </ul></p><b>read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
+   </ul></p><b>cl-html-readme:read-file</b>&nbsp;read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul></p>
-<h1 id="Example">Example</h1>The following example shows how the documentation of this library is generated. It uses
-the <a href="https://github.com/eudoxia0/docparser">docparser</a> library.
-<p>
-One might ask, all these helper functions, why are they not part of the library? The reason is, that they are opinionated. Which library to use to retrieve metadata,
-how to render a function and so on. The actual code is simple, kind of copy/paste stuff. Additionally, providing such functionality would result in perhaps unwanted dependencies.
-</p>
+<h1 id="Example">Example</h1>The following example shows how the documentation of cl-html-readme is generated.
 <h2>make-doc.lisp</h2><p><pre><code>(in-package :cl-html-readme-make-doc)
 
 ;;
-;; Helper functions
+;; Helper functions 
 ;;
 
 (defun make-index (system)
@@ -131,18 +126,19 @@ how to render a function and so on. The actual code is simple, kind of copy/past
 
 (defun get-index-node (index package-name symbol-name)
   (aref (docparser:query
-     index
-     :package-name (string-upcase package-name)
-     :symbol-name (string-upcase symbol-name))
-    0))
+   index
+   :package-name (string-upcase package-name)
+   :symbol-name (string-upcase symbol-name))
+  0))
   
 (defun make-function-string (index package-name symbol-name)
   &quot;Returns HTML representation of a function&quot;
   (let* ((node (get-index-node index package-name symbol-name))
-     (lambda-list (docparser:operator-lambda-list node)))
+   (lambda-list (docparser:operator-lambda-list node)))
     (concatenate
      'string
-     &quot;&lt;b&gt;&quot; (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
+     &quot;&lt;b&gt;&quot; package-name &quot;:&quot; (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
+     (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
      (string-downcase (format nil &quot;~a&quot; (if lambda-list lambda-list &quot;()&quot;)))
      &quot;&lt;p&gt;&quot; (docparser:node-docstring node) &quot;&lt;/p&gt;&quot;)))
 
@@ -151,7 +147,8 @@ how to render a function and so on. The actual code is simple, kind of copy/past
   (let ((node (get-index-node index package-name symbol-name)))
     (concatenate
      'string
-     &quot;&lt;b&gt;&quot; (string-downcase symbol-name) &quot;&lt;/b&gt;&quot;
+     &quot;&lt;b&gt;&quot; package-name &quot;:&quot; (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
+     (string-downcase symbol-name) &quot;&lt;/b&gt;&quot;
      &quot;&lt;p&gt;&quot; (docparser:node-docstring node) &quot;&lt;/p&gt;&quot;)))
   
 (defun make-code-string (path)
@@ -180,62 +177,62 @@ how to render a function and so on. The actual code is simple, kind of copy/past
     &quot;&lt;head&gt;&lt;link href=\&quot;cl-html-readme.css\&quot; rel=\&quot;stylesheet\&quot; type=\&quot;text/css\&quot;/&gt;&lt;/head&gt;&quot;
     &quot;&lt;body&gt;&quot;
     (semantic (:name &quot;header&quot;)
-          (heading (:name &quot;cl-html-readme&quot;))
-          ,(cl-html-readme:read-file &quot;make-readme/introduction.html&quot;)
-          &quot;&lt;p&gt;The source code is available &lt;a href=\&quot;https://github.com/Frechmatz/cl-html-readme\&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;&quot;)
+        (heading (:name &quot;cl-html-readme&quot;))
+        ,(cl-html-readme:read-file &quot;make-readme/introduction.html&quot;)
+        &quot;&lt;p&gt;The source code is available &lt;a href=\&quot;https://github.com/Frechmatz/cl-html-readme\&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;&quot;)
     (semantic (:name &quot;nav&quot;)
-          (heading (:name &quot;Table of contents&quot;)
-               (toc)))
+        (heading (:name &quot;Table of contents&quot;)
+           (toc)))
     (semantic (:name &quot;section&quot;)
-          (heading (:name &quot;Change-Log&quot; :toc t)
-               (heading (:name &quot;Version 1.0.0&quot;)
-                &quot;&lt;p&gt;The first release of cl-html-readme.&lt;/p&gt;&quot;)
-               (heading (:name &quot;Version 1.0.1&quot;)
-                &quot;&lt;p&gt;&lt;b&gt;This version is the current quicklisp release.&lt;/b&gt;&lt;/p&gt;&quot;
-                (heading (:name &quot;Changes&quot;)
-                     &quot;&lt;ul&gt;&quot;
-                     &quot;&lt;li&gt;HTML serialization inserts linebreaks for better readability and diff friendliness.&lt;/li&gt;&quot;
-                     &quot;&lt;li&gt;Removed a couple of too fragile tests.&lt;/li&gt;&quot;
-                     &quot;&lt;/ul&gt;&quot;))
-               (heading (:name &quot;Version 2.0.0&quot;)
-                (heading (:name &quot;Breaking changes&quot;)
-                     &quot;&lt;ul&gt;&quot;
-                     &quot;&lt;li&gt;Support of HTML style and class attributes has been removed.&lt;/li&gt;&lt;/ul&gt;&quot;)
-                (heading (:name &quot;Changes&quot;)
-                     &quot;&lt;ul&gt;&quot;
-                     &quot;&lt;li&gt;A more efficient implementation of the TOC generation algorithm.&lt;/li&gt;&quot;
-                     &quot;&lt;li&gt;A major rework of the test suite which was buggy and difficult to understand.&lt;/li&gt;&quot;
-                     &quot;&lt;/ul&gt;&quot;)))
-          (heading (:name &quot;Installation&quot; :toc t)
-               ,(cl-html-readme:read-file &quot;make-readme/installation.html&quot;))
-          (heading (:name &quot;DSL&quot; :toc t)
-               ,(cl-html-readme:read-file &quot;make-readme/dsl-introduction.html&quot;)
-               (heading (:name &quot;Heading elements and Table of Contents&quot; :toc t)
-                (heading (:name &quot;DSL&quot;)
-                     ,(make-code-string &quot;make-readme/dsl-example-plain.dsl&quot;))
-                (heading (:name &quot;Generated HTML&quot;)
-                     ,(make-code-string &quot;make-readme/dsl-example-plain.html&quot;)))
-               (heading (:name &quot;Semantic elements&quot; :toc t)
-                (heading (:name &quot;DSL&quot;)
-                     ,(make-code-string &quot;make-readme/dsl-example-semantic.dsl&quot;))
-                (heading (:name &quot;Generated HTML&quot;)
-                     ,(make-code-string &quot;make-readme/dsl-example-semantic.html&quot;))))
-          (heading (:name &quot;API&quot; :toc t)
-               ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*home-directory*&quot;)
-               ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*tab-width*&quot;)
-               ,(make-function-string index &quot;cl-html-readme&quot; &quot;doc-to-html&quot;)
-               ,(make-function-string index &quot;cl-html-readme&quot; &quot;make-path&quot;)
-               ,(make-function-string index &quot;cl-html-readme&quot; &quot;read-file&quot;))
-          (heading (:name &quot;Example&quot; :toc t)
-               ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
-               (heading (:name &quot;make-doc.lisp&quot;)
-                ,(make-code-string &quot;make-readme/make-doc.lisp&quot;)))
-          (heading (:name &quot;Run tests&quot; :toc t)
-               &quot;&lt;pre&gt;&lt;code&gt;(asdf:test-system :cl-html-readme)&lt;/code&gt;&lt;/pre&gt;&quot;)
-          (heading (:name &quot;Generate documentation&quot; :toc t)
-               ,(make-code-string &quot;make-readme/generate-doc.lisp&quot;)))
+        (heading (:name &quot;Change-Log&quot; :toc t)
+           (heading (:name &quot;Version 1.0.0&quot;)
+        &quot;&lt;p&gt;The first release of cl-html-readme.&lt;/p&gt;&quot;)
+           (heading (:name &quot;Version 1.0.1&quot;)
+        &quot;&lt;p&gt;&lt;b&gt;This version is the current quicklisp release.&lt;/b&gt;&lt;/p&gt;&quot;
+        (heading (:name &quot;Changes&quot;)
+           &quot;&lt;ul&gt;&quot;
+           &quot;&lt;li&gt;HTML serialization inserts linebreaks for better readability and diff friendliness.&lt;/li&gt;&quot;
+           &quot;&lt;li&gt;Removed a couple of too fragile tests.&lt;/li&gt;&quot;
+           &quot;&lt;/ul&gt;&quot;))
+           (heading (:name &quot;Version 2.0.0&quot;)
+        (heading (:name &quot;Breaking changes&quot;)
+           &quot;&lt;ul&gt;&quot;
+           &quot;&lt;li&gt;Support of HTML style and class attributes has been removed.&lt;/li&gt;&lt;/ul&gt;&quot;)
+        (heading (:name &quot;Changes&quot;)
+           &quot;&lt;ul&gt;&quot;
+           &quot;&lt;li&gt;A more efficient implementation of the TOC generation algorithm.&lt;/li&gt;&quot;
+           &quot;&lt;li&gt;A major rework of the test suite which was buggy and difficult to understand.&lt;/li&gt;&quot;
+           &quot;&lt;/ul&gt;&quot;)))
+        (heading (:name &quot;Installation&quot; :toc t)
+           ,(cl-html-readme:read-file &quot;make-readme/installation.html&quot;))
+        (heading (:name &quot;DSL&quot; :toc t)
+           ,(cl-html-readme:read-file &quot;make-readme/dsl-introduction.html&quot;)
+           (heading (:name &quot;Heading elements and Table of Contents&quot; :toc t)
+        (heading (:name &quot;DSL&quot;)
+           ,(make-code-string &quot;make-readme/dsl-example-plain.dsl&quot;))
+        (heading (:name &quot;Generated HTML&quot;)
+           ,(make-code-string &quot;make-readme/dsl-example-plain.html&quot;)))
+           (heading (:name &quot;Semantic elements&quot; :toc t)
+        (heading (:name &quot;DSL&quot;)
+           ,(make-code-string &quot;make-readme/dsl-example-semantic.dsl&quot;))
+        (heading (:name &quot;Generated HTML&quot;)
+           ,(make-code-string &quot;make-readme/dsl-example-semantic.html&quot;))))
+        (heading (:name &quot;API&quot; :toc t)
+           ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*home-directory*&quot;)
+           ,(make-variable-string index &quot;cl-html-readme&quot; &quot;*tab-width*&quot;)
+           ,(make-function-string index &quot;cl-html-readme&quot; &quot;doc-to-html&quot;)
+           ,(make-function-string index &quot;cl-html-readme&quot; &quot;make-path&quot;)
+           ,(make-function-string index &quot;cl-html-readme&quot; &quot;read-file&quot;))
+        (heading (:name &quot;Example&quot; :toc t)
+           ,(cl-html-readme:read-file &quot;make-readme/example-introduction.html&quot;)
+           (heading (:name &quot;make-doc.lisp&quot;)
+        ,(make-code-string &quot;make-readme/make-doc.lisp&quot;)))
+        (heading (:name &quot;Run tests&quot; :toc t)
+           &quot;&lt;pre&gt;&lt;code&gt;(asdf:test-system :cl-html-readme)&lt;/code&gt;&lt;/pre&gt;&quot;)
+        (heading (:name &quot;Generate documentation&quot; :toc t)
+           ,(make-code-string &quot;make-readme/generate-doc.lisp&quot;)))
     (semantic (:name &quot;footer&quot;)
-          &quot;&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated &quot; ,(now) &quot;&lt;/small&gt;&lt;/p&gt;&quot;)
+        &quot;&lt;hr/&gt;&lt;p&gt;&lt;small&gt;Generated &quot; ,(now) &quot;&lt;/small&gt;&lt;/p&gt;&quot;)
     &quot;&lt;/body&gt;&lt;/html&gt;&quot;))
 
 ;;
@@ -244,19 +241,18 @@ how to render a function and so on. The actual code is simple, kind of copy/past
 
 (defun make-doc ()
   (let ((index (make-index :cl-html-readme)))
-    (let ((cl-html-readme:*home-directory*
-        (asdf:system-source-directory :cl-html-readme))
-      (cl-html-readme:*tab-width* 4))
+    (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme))
+    (cl-html-readme:*tab-width* 2))
       (with-open-file (fh (cl-html-readme:make-path &quot;docs/index.html&quot;)
-              :direction :output
-              :if-exists :supersede
-              :if-does-not-exist :create
-              :external-format :utf-8)
-    (cl-html-readme:doc-to-html fh (get-readme index)))))
+        :direction :output
+        :if-exists :supersede
+        :if-does-not-exist :create
+        :external-format :utf-8)
+  (cl-html-readme:doc-to-html fh (get-readme index)))))
     &quot;DONE&quot;)
 
 ;;(make-doc)</code></pre></p>
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-09-15  21:58:58</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-09-20  18:27:37</small></p></footer></body></html>
