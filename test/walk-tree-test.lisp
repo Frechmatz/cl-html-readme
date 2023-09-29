@@ -134,7 +134,7 @@
 	      :form "heading"
 	      :form-properties (list :name "H1")
 	      :compare-content (lambda(content)
-				 (format t "~%Content:~a~%" content)
+				 ;;(format t "~%Content:~a~%" content)
 				 (and
 				  (= 2 (length content))
 				  (string= "TEXT-2" (first content))
@@ -154,7 +154,7 @@
 	      :form "heading"
 	      :form-properties (list :name "H1")
 	      :compare-content (lambda(content)
-				 (format t "~%Content:~a~%" content)
+				 ;;(format t "~%Content:~a~%" content)
 				 (and
 				  (= 1 (length content))
 				  (string= "TEXT-2" (first content)))))
@@ -173,7 +173,7 @@
 	      :form "heading"
 	      :form-properties (list :name "H1")
 	      :compare-content (lambda(content)
-				 (format t "~%Content:~a~%" content)
+				 ;;(format t "~%Content:~a~%" content)
 				 (not content)))
 	(list :action :close-element :context nil)
 	(list :action :text :text "TEXT-2"))))))
