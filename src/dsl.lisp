@@ -170,13 +170,20 @@
 ;;
 
 (defclass tree-builder ()
-  ((node-stack :initform nil)
-   (root-node :initform nil)))
+  ())
 
 (defgeneric open-element (tree-builder element-symbol element-properties))
 (defgeneric close-element (tree-builder))
 (defgeneric add-text (tree-builder text))
 (defgeneric get-tree (tree-builder))
+
+;;
+;; Version 1 of tree-builder
+;;
+
+(defclass tree-builder-v1 (tree-builder)
+  ((node-stack :initform nil)
+   (root-node :initform nil)))
 
 (defclass dsl-element-node ()
   ((element-symbol :initarg :element-symbol)
@@ -189,28 +196,28 @@
     (setf (slot-value dsl-element-node 'content) (push item l)))
   nil)
     
-(defun push-stack (tree-builder item)
+(defun push-stack (tree-builder-v1 item)
   (assert (typep item 'dsl-element-node))
-  (let ((l (slot-value tree-builder 'node-stack)))
-    (setf (slot-value tree-builder 'node-stack) (push item l))))
+  (let ((l (slot-value tree-builder-v1 'node-stack)))
+    (setf (slot-value tree-builder-v1 'node-stack) (push item l))))
 
-(defun pop-stack (tree-builder)
-  (let ((stack (slot-value tree-builder 'node-stack)))
+(defun pop-stack (tree-builder-v1)
+  (let ((stack (slot-value tree-builder-v1 'node-stack)))
     (if (not (< 1 (length stack)))
 	(error (format nil "Stack underflow. Probably unbalanced open/close-element calls.")))
     (let ((r (rest stack)))
-      (setf (slot-value tree-builder 'node-stack) r))))
+      (setf (slot-value tree-builder-v1 'node-stack) r))))
 
 (defclass dsl-text-node ()
   ((text :initarg :text)))
 
-(defmethod initialize-instance :after ((instance tree-builder) &rest init-args)
+(defmethod initialize-instance :after ((instance tree-builder-v1) &rest init-args)
   (declare (ignore init-args))
   (let ((node (make-instance 'dsl-element-node :element-symbol 'root :element-properties nil)))
     (setf (slot-value instance 'root-node) node)
     (setf (slot-value instance 'node-stack) (list node))))
 
-(defmethod open-element ((instance tree-builder) element-symbol element-properties)
+(defmethod open-element ((instance tree-builder-v1) element-symbol element-properties)
   (if (not (get-dsl-element element-symbol))
       (error (format nil "Not a DSL element: ~a" element-symbol)))
   (let ((node (make-instance
@@ -222,11 +229,11 @@
     (push-stack instance node))
   nil)
 
-(defmethod close-element ((instance tree-builder))
+(defmethod close-element ((instance tree-builder-v1))
   (pop-stack instance)
   nil)
 
-(defmethod add-text ((instance tree-builder) text)
+(defmethod add-text ((instance tree-builder-v1) text)
   (if (not (stringp text))
       (error "Text must be a string"))
   (let ((node (make-instance 'dsl-text-node :text text))
@@ -234,7 +241,7 @@
     (push-content stack-pointer node))
   nil)
 
-(defmethod get-tree ((instance tree-builder))
+(defmethod get-tree ((instance tree-builder-v1))
   "Generate resulting tree"
   (if (not (eq 1 (length (slot-value instance 'node-stack))))
       (error "Unbalanced tree"))
@@ -261,7 +268,7 @@
 ;;
 
 (defun make-tree-builder ()
-  (make-instance 'tree-builder))
+  (make-instance 'tree-builder-v1))
 
 ;;
 ;; TOC
