@@ -6,7 +6,7 @@
 
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation tree."
-  (let ((id-store nil) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
+  (let ((id-store nil) (tree-builder (cl-html-readme-dsl:make-tree-builder)))
     (labels ((make-id (name &key (counter 0))
 	       (let ((id (if (eq 0 counter) name (format nil "~a-~a" name counter))))
 		 (if (find id id-store :test #'string=)
@@ -35,7 +35,7 @@
 
 (defun set-toc (doc)
   "Replace toc element with toc-root. Returns a new documentation tree."
-  (let ((tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
+  (let ((tree-builder (cl-html-readme-dsl:make-tree-builder)))
     (cl-html-readme-dsl:walk-tree
      doc
      :open-element
@@ -58,7 +58,7 @@
 
 (defun set-heading-indentation-levels (doc)
   "Set indentation levels of heading elements. Returns a new documentation tree."
-  (let ((level 0) (tree-builder (make-instance 'cl-html-readme-dsl:tree-builder)))
+  (let ((level 0) (tree-builder (cl-html-readme-dsl:make-tree-builder)))
     (labels ((set-indentation-level (properties)
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :level) level)

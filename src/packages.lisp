@@ -20,7 +20,7 @@
    :toc-heading-p
    :dsl-syntax-error
    :walk-tree
-   :tree-builder
+   :make-tree-builder
    :open-element
    :close-element
    :add-text

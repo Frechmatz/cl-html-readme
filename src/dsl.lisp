@@ -257,6 +257,13 @@
       tree)))
 
 ;;
+;;
+;;
+
+(defun make-tree-builder ()
+  (make-instance 'tree-builder))
+
+;;
 ;; TOC
 ;;
 
@@ -264,7 +271,7 @@
   "Returns a documentation object representing the toc heading tree"
   (flet ((is-toc-heading (element-symbol element-properties)
 	   (and (heading-p element-symbol) (getf element-properties :toc))))
-    (let ((tree-builder (make-instance 'tree-builder)))
+    (let ((tree-builder (make-tree-builder)))
       (walk-tree
        doc
        :open-element
