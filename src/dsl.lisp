@@ -7,42 +7,31 @@
 ;;
 ;; DSL definition:
 ;;
-;; <documentation> ::=
-;;   ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
+;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
 ;;
-;; <semantic> ::=
-;;   (semantic (<semantic-properties>) { <string> | <heading> | <toc> | <toc-root> })
+;; <semantic> ::= (semantic <semantic-properties> { <string> | <heading> | <toc> | <toc-root> })
 ;;
-;; <heading> ::=
-;;   (heading (<heading-properties>) { <string> | <heading> | <toc> | <toc-root> })
+;; <heading> ::= (heading <heading-properties> { <string> | <heading> | <toc> | <toc-root> })
 ;;
-;; <toc> ::=
-;;   (toc (<toc-properties>)) ;; High level representation of <toc-root> element.
+;; <toc> ::= (toc <toc-properties>) ;; High level representation of <toc-root> element
 ;;
-;; <toc-root> ::=
-;;   (toc-root (<toc-root-properties>) { <toc-item> | <toc-container> })
+;; <toc-root> ::= (toc-root <toc-root-properties> { <toc-item> | <toc-container> })
 ;;
-;; <toc-item> ::=
-;;   (toc-item (<toc-item-properties>))
+;; <toc-item> ::= (toc-item <toc-item-properties>)
 ;;
-;; <toc-container> ::=
-;;   (toc-container (<toc-container-properties>) { <toc-item> | <toc-container> })
+;; <toc-container> ::= (toc-container <toc-container-properties> { <toc-item> | <toc-container> })
 ;;
-;; <semantic-properties> ::=
-;;   :name <string>
+;; <semantic-properties> ::= (:name <string> {:<keyword> <value>})
 ;;
-;; <heading-properties> ::=
-;;   :name <string> [:id <string>] [:toc t | nil]
+;; <heading-properties> ::= (:name <string> [:toc t | nil] {:<keyword> <value>})
 ;;
-;; <toc-properties> ::= No properties yet
+;; <toc-properties> ::= ({:<keyword> <value>})
 ;;
-;; <toc-item-properties> ::=
-;;   :name <string> :id <string>
+;; <toc-item-properties> ::= (:name <string> {:<keyword> <value>})
 ;;
-;; <toc-container-properties> ::=
-;;   :name <string> :id <string>
+;; <toc-container-properties> ::= (:name <string> {:<keyword> <value>})
 ;;
-;; <toc-root-properties> ::= No properties yet
+;; <toc-root-properties> ::= ({:<keyword> <value>})
 ;;
 ;; <string> ::= A string literal
 ;;
@@ -53,8 +42,8 @@
     (:name "HEADING" :mandatory-properties (:name))
     (:name "TOC" :mandatory-properties ())
     (:name "TOC-ROOT" :mandatory-properties ())
-    (:name "TOC-ITEM" :mandatory-properties (:name :id))
-    (:name "TOC-CONTAINER" :mandatory-properties (:name :id))))
+    (:name "TOC-ITEM" :mandatory-properties (:name))
+    (:name "TOC-CONTAINER" :mandatory-properties (:name))))
 
 (defun get-dsl-element (element)
   (if (not (symbolp element))
@@ -83,6 +72,13 @@
 (defun toc-heading-p (properties)
   (getf properties :toc))
 
+;;
+;;
+;;
+
+(define-condition dsl-syntax-error (simple-error)())
+
+;; TODO Check if mandatory properties are present
 (defun validate-properties (element properties)
   (declare (ignore element properties))
   nil)
@@ -115,10 +111,6 @@
 ;; DSL-Tree Walker
 ;;
 
-(define-condition dsl-syntax-error (simple-error)())
-
-
-;; TODO: Validation of tree
 (defun walk-tree (documentation &key open-element close-element text)
   "Walk a DSL tree. The function has the following arguments:
    <ul>
@@ -131,9 +123,7 @@
    <li>:text A function that is called for each text node.
      <p>(lambda(str))</p></li>
    </ul>"
-  ;;(declare (optimize (debug 3) (speed 0) (space 0)))
   (labels ((walk-tree-impl (l)
-	     ;;(declare (optimize (debug 3) (speed 0) (space 0)))
 	     (if (not (listp l))
 		 (progn
 		   (if (not (stringp l))
