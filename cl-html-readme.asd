@@ -38,7 +38,8 @@
 			     (:file "walk-tree-test")
 			     (:file "doc-to-string-test")
 			     (:file "tree-builder-test")
-			     (:file "extract-toc-test"))))
+			     (:file "extract-toc-test")
+			     (:file "html-writer-test"))))
   :perform (test-op (o c) (symbol-call :lisp-unit '#:run-tests :all :cl-html-readme-test)))
 
 (defsystem :cl-html-readme/doc
