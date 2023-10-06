@@ -3,7 +3,7 @@
 (defun record-tree-walk (doc)
   "Records handler invocations of the tree-walker and returns the recording."
   (let ((recording nil))
-    (cl-html-readme-dsl:walk-tree
+    (cl-html-readme-dsl::walk-tree
      doc
      :open-element
      (lambda(element properties content)
@@ -177,50 +177,4 @@
 				 (not content)))
 	(list :action :close-element :context nil)
 	(list :action :text :text "TEXT-2"))))))
-
-(define-test walk-tree-test-syntax-error-1 ()
-  (let ((doc '("TEXT-1" nil))
-	(catched-error nil))
-    (handler-case
-	(cl-html-readme-dsl:walk-tree
-	 doc
-	 :open-element
-	 (lambda(element properties content)
-	   (declare (ignore element properties content))
-	   nil) 
-	 :close-element
-	 (lambda(context)
-	   (declare (ignore context))
-	   nil)
-	 :text
-	 (lambda(str)
-	   (declare (ignore str))
-	   nil))
-      (error (err)
-	(setf catched-error err)))
-    (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:dsl-syntax-error))))
-
-(define-test walk-tree-test-syntax-error-2 ()
-  (let ((doc '("TEXT-1" (some-undefined-form (:name "form")) "TEXT-2"))
-	(catched-error nil))
-    (handler-case
-	(cl-html-readme-dsl:walk-tree
-	 doc
-	 :open-element
-	 (lambda(element properties content)
-	   (declare (ignore element properties content))
-	   nil) 
-	 :close-element
-	 (lambda(context)
-	   (declare (ignore context))
-	   nil)
-	 :text
-	 (lambda(str)
-	   (declare (ignore str))
-	   nil))
-      (error (err)
-	(setf catched-error err)))
-    (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:dsl-syntax-error))))
 

@@ -52,7 +52,7 @@
 		 (format buffer "~a" (format-item (getf plist key))))))
 	   (print-doc-content ()
 	     (let ((print-space (make-space-printer)))
-	       (cl-html-readme-dsl:walk-tree
+	       (cl-html-readme-dsl::walk-tree
 		doc
 		:open-element
 		(lambda(element-symbol element-properties content)

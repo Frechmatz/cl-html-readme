@@ -78,10 +78,27 @@
 
 (define-condition dsl-syntax-error (simple-error)())
 
-;; TODO Check if mandatory properties are present
-(defun validate-properties (element properties)
-  (declare (ignore element properties))
-  nil)
+(defun validate-element (element properties)
+  (let ((form-definition (get-dsl-element element)))
+    (if (not form-definition)
+      (error
+       'dsl-syntax-error
+       :format-control "Not a DSL special form: ~a"
+       :format-arguments (list element)))
+    (dolist (key (getf form-definition :mandatory-properties))
+      (if (not (getf properties key))
+	  (error
+	   'dsl-syntax-error
+	   :format-control "Mandatory property ~a missing for form ~a"
+	   :format-arguments (list key element))))
+  nil))
+
+(defun validate-text (text)
+  (if (not (stringp text))
+      (error
+       'dsl-syntax-error
+       :format-control "Text must be a string: ~a"
+       :format-arguments (list text))))
 
 ;;
 ;; Property list tooling
@@ -112,7 +129,8 @@
 ;;
 
 (defun walk-tree (documentation &key open-element close-element text)
-  "Walk a DSL tree. The function has the following arguments:
+  "DSL tree traversal. The function assumes that the documentation object conforms to
+the syntax of the DSL. No validation is applied. The function has the following arguments:
    <ul>
    <li>documentation An instance of <documentation>./li>
    <li>:open-element A function that is called when a DSL element is opened.
@@ -126,22 +144,11 @@
   (labels ((walk-tree-impl (l)
 	     (if (not (listp l))
 		 (progn
-		   (if (not (stringp l))
-		       (error
-			'dsl-syntax-error
-			:format-control "Not a string: ~a"
-			:format-arguments (list l)))
 		   (funcall text l))
 		 (progn
 		   (let* ((element-symbol (first l))
 			  (element-properties (second l)) 
 			  (dsl-element (get-dsl-element element-symbol)))
-		     (if (not dsl-element)
-			 (error
-			  'dsl-syntax-error
-			  :format-control "Not a DSL element: ~a "
-			  :format-arguments (list element-symbol)))
-		     (validate-properties dsl-element element-properties)
 		     (let* ((content (rest (rest l)))
 			    (context (funcall
 				      open-element
@@ -158,6 +165,8 @@
 ;;
 ;; DSL-Tree builder
 ;;
+
+(define-condition dsl-tree-builder-error (simple-error)())
 
 (defclass tree-builder ()
   ())
@@ -194,7 +203,10 @@
 (defun pop-stack (tree-builder-v1)
   (let ((stack (slot-value tree-builder-v1 'node-stack)))
     (if (not (< 1 (length stack)))
-	(error (format nil "Stack underflow. Probably unbalanced open/close-element calls.")))
+	(error
+	 'dsl-tree-builder-error
+	 :format-control "Stack underflow. Unbalanced open/close-element calls."
+	 :format-arguments nil))
     (let ((r (rest stack)))
       (setf (slot-value tree-builder-v1 'node-stack) r))))
 
@@ -208,8 +220,7 @@
     (setf (slot-value instance 'node-stack) (list node))))
 
 (defmethod open-element ((instance tree-builder-v1) element-symbol element-properties)
-  (if (not (get-dsl-element element-symbol))
-      (error (format nil "Not a DSL element: ~a" element-symbol)))
+  (validate-element element-symbol element-properties)
   (let ((node (make-instance
 	       'dsl-element-node
 	       :element-symbol element-symbol
@@ -224,8 +235,7 @@
   nil)
 
 (defmethod add-text ((instance tree-builder-v1) text)
-  (if (not (stringp text))
-      (error "Text must be a string"))
+  (validate-text text)
   (let ((node (make-instance 'dsl-text-node :text text))
 	(stack-pointer (first (slot-value instance 'node-stack))))
     (push-content stack-pointer node))
@@ -234,7 +244,10 @@
 (defmethod get-tree ((instance tree-builder-v1))
   "Generate resulting tree"
   (if (not (eq 1 (length (slot-value instance 'node-stack))))
-      (error "Unbalanced tree"))
+      (error
+       'dsl-tree-builder-error
+       :format-control "Pending open elements on stack"
+       :format-arguments (list)))
   (labels ((process-node (node)
 	     (if (typep node 'dsl-text-node)
 		 (slot-value node 'text)
@@ -302,12 +315,12 @@
       (if toc-headings
 	  (progn
 	    ;; Render toc-root
-	    (cl-html-readme-dsl:open-element
+	    (open-element
 	     tree-builder
 	     'toc-root
 	     (list))
 	    ;; Render toc content
-	    (cl-html-readme-dsl:walk-tree
+	    (walk-tree
 	     toc-headings
 	     :text (lambda(str) (declare (ignore str)) nil)
 	     :open-element
@@ -316,14 +329,14 @@
 	       (if (not content)
 		   (progn
 		     ;; Heading does not have sub-headings. Render a plain toc-item.
-		     (cl-html-readme-dsl:open-element
+		     (open-element
 		      tree-builder
 		      'toc-item
 		       (remove-toc-property element-properties))
 		     nil)
 		   (progn
 		     ;; Heading has sub-headings. Render a toc-container.
-		     (cl-html-readme-dsl:open-element
+		     (open-element
 		      tree-builder
 		      'toc-container
 		       (remove-toc-property element-properties))
@@ -331,9 +344,9 @@
 	     :close-element
 	     (lambda(context)
 	       (declare (ignore context))
-	       (cl-html-readme-dsl:close-element tree-builder)))
+	       (close-element tree-builder)))
 	    ;; Close toc-root
-	    (cl-html-readme-dsl:close-element tree-builder))))))
+	    (close-element tree-builder))))))
 
 (defun expand-toc (doc)
   "Replace toc element with toc-root. Returns a new documentation tree."
@@ -355,5 +368,19 @@
 	 (if (not (eq context :ignore-close-element))
 	     (close-element tree-builder)))
        :text
-       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
+       (lambda(str) (add-text tree-builder str)))
     (get-tree tree-builder)))
+
+;;
+;;
+;;
+
+(defun validate (doc)
+  "Validate a documentation object"
+  (walk-tree
+   doc
+   :close-element (lambda(context) (declare (ignore context)) nil)
+   :open-element (lambda(element-symbol element-properties content)
+		   (declare (ignore content))
+		   (validate-element element-symbol element-properties))
+   :text (lambda(text) (validate-text text))))

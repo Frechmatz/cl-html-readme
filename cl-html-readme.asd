@@ -37,6 +37,7 @@
 			     (:file "util")
 			     (:file "walk-tree-test")
 			     (:file "doc-to-string-test")
+			     (:file "validate-test")
 			     (:file "tree-builder-test")
 			     (:file "extract-toc-test")
 			     (:file "html-writer-test"))))

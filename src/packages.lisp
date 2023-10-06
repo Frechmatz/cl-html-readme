@@ -8,20 +8,4 @@
    :make-path))
 
 (defpackage :cl-html-readme-dsl
-  (:use :cl)
-  (:export
-   :semantic-p
-   :heading-p
-   :toc-p
-   :toc-root-p
-   :toc-item-p
-   :toc-container-p
-   :toc-heading-p
-   :dsl-syntax-error
-   :walk-tree
-   :make-tree-builder
-   :open-element
-   :close-element
-   :add-text
-   :get-tree
-   :expand-toc))
+  (:use :cl))

@@ -2,7 +2,7 @@
 
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation object."
-  (let ((id-store nil) (tree-builder (cl-html-readme-dsl:make-tree-builder)))
+  (let ((id-store nil) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
     (labels ((make-id (name &key (counter 0))
 	       (let ((id (if (eq 0 counter) name (format nil "~a-~a" name counter))))
 		 (if (find id id-store :test #'string=)
@@ -14,51 +14,51 @@
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :id) (make-id (getf l :name)))
 		 l)))
-      (cl-html-readme-dsl:walk-tree
+      (cl-html-readme-dsl::walk-tree
        doc
        :open-element
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (if (getf element-properties :toc)
-	     (cl-html-readme-dsl:open-element tree-builder element-symbol (set-id element-properties))
-	     (cl-html-readme-dsl:open-element tree-builder element-symbol element-properties))
+	     (cl-html-readme-dsl::open-element tree-builder element-symbol (set-id element-properties))
+	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties))
 	 nil)
        :close-element
-       (lambda(context) (declare (ignore context)) (cl-html-readme-dsl:close-element tree-builder))
+       (lambda(context) (declare (ignore context)) (cl-html-readme-dsl::close-element tree-builder))
        :text
-       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
-      (cl-html-readme-dsl:get-tree tree-builder))))
+       (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
+      (cl-html-readme-dsl::get-tree tree-builder))))
 
 (defun set-heading-indentation-levels (doc)
   "Set indentation levels of heading elements. Returns a new documentation object."
-  (let ((level 0) (tree-builder (cl-html-readme-dsl:make-tree-builder)))
+  (let ((level 0) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
     (labels ((set-indentation-level (properties)
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :level) level)
 		 l)))
-      (cl-html-readme-dsl:walk-tree
+      (cl-html-readme-dsl::walk-tree
        doc
        :open-element
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
-	 (if (cl-html-readme-dsl:heading-p element-symbol)
+	 (if (cl-html-readme-dsl::heading-p element-symbol)
 	     (progn
-	       (cl-html-readme-dsl:open-element
+	       (cl-html-readme-dsl::open-element
 		tree-builder element-symbol
 		(set-indentation-level element-properties))
 	       (setf level (+ 1 level))
 	       :decrement-level)
 	     (progn
-	       (cl-html-readme-dsl:open-element tree-builder element-symbol element-properties)
+	       (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
 	       nil)))
        :close-element
        (lambda(context)
 	 (if (eq context :decrement-level)
 	     (setf level (+ -1 level)))
-	 (cl-html-readme-dsl:close-element tree-builder))
+	 (cl-html-readme-dsl::close-element tree-builder))
        :text
-       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
-      (cl-html-readme-dsl:get-tree tree-builder))))
+       (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
+      (cl-html-readme-dsl::get-tree tree-builder))))
 
 ;;
 ;; HTML generation
@@ -75,13 +75,13 @@
 	       (if (<= level 5)
 		   (format nil "h~a" (+ 1 level))
 		   (format nil "h6")))))
-    (cl-html-readme-dsl:walk-tree
+    (cl-html-readme-dsl::walk-tree
      doc
      :open-element
      (lambda(element-symbol element-properties content)
        (declare (ignore content))
        (cond
-	 ((cl-html-readme-dsl:heading-p element-symbol)
+	 ((cl-html-readme-dsl::heading-p element-symbol)
 	  ;; <h{level} id={id}> {name} </h{level}>
 	  (newline)
 	  (format
@@ -92,7 +92,7 @@
 	   (getf element-properties :name)
 	   (format-heading element-properties))
 	  nil)
-	 ((cl-html-readme-dsl:semantic-p element-symbol)
+	 ((cl-html-readme-dsl::semantic-p element-symbol)
 	  (newline)
 	  ;; <{name}>...</{name}>
 	  (format
@@ -100,14 +100,14 @@
 	   "<~a>"
 	   (getf element-properties :name))
 	  (format nil "</~a>" (getf element-properties :name)))
-	 ((cl-html-readme-dsl:toc-root-p element-symbol)
+	 ((cl-html-readme-dsl::toc-root-p element-symbol)
 	  (newline)
 	  ;; <ul>...</ul>
 	  (format
 	   output-stream
 	   "<ul>")
 	  "</ul>")
-	 ((cl-html-readme-dsl:toc-item-p element-symbol)
+	 ((cl-html-readme-dsl::toc-item-p element-symbol)
 	  ;; <li><a href=#{id}> {name} </a> </li>
 	  (newline)
 	  (format
@@ -116,7 +116,7 @@
 	   (getf element-properties :id)
 	   (getf element-properties :name))
 	  nil)
-	 ((cl-html-readme-dsl:toc-container-p element-symbol)
+	 ((cl-html-readme-dsl::toc-container-p element-symbol)
 	  ;; <li> <a href=#{id}> {name} </a>
 	  ;; <ul>...</ul>
 	  ;; </li>
@@ -147,8 +147,9 @@
        <li>output-stream A stream into which the resulting HTML is written.</li>
        <li>documentation A list following the syntax of the DSL.</li>
    </ul>"
+  (cl-html-readme-dsl::validate documentation)
   (setf documentation (set-heading-ids documentation))
-  (setf documentation (cl-html-readme-dsl:expand-toc documentation))
+  (setf documentation (cl-html-readme-dsl::expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
   (serialize output-stream documentation)
   nil)
