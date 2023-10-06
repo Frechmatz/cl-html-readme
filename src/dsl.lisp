@@ -334,3 +334,26 @@
 	       (cl-html-readme-dsl:close-element tree-builder)))
 	    ;; Close toc-root
 	    (cl-html-readme-dsl:close-element tree-builder))))))
+
+(defun expand-toc (doc)
+  "Replace toc element with toc-root. Returns a new documentation tree."
+  (let ((tree-builder (make-tree-builder)))
+    (walk-tree
+     doc
+     :open-element
+     (lambda(element-symbol element-properties content)
+       (declare (ignore content))
+       (if (toc-p element-symbol)
+	   (progn
+	     (write-toc doc element-properties tree-builder)
+	     :ignore-close-element)
+	   (progn
+	     (open-element tree-builder element-symbol element-properties)
+	     t)))
+       :close-element
+       (lambda(context)
+	 (if (not (eq context :ignore-close-element))
+	     (close-element tree-builder)))
+       :text
+       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
+    (get-tree tree-builder)))

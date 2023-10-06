@@ -35,29 +35,6 @@
 	    (expected-doc-str (doc-to-string expected-doc)))
 	(assert-equal expected-doc-str doc-str)))))
 
-
-;;
-;; Set Toc
-;;
-
-(define-test test-set-toc-1 ()
-  (let ((doc '((heading (:name "H1" :toc t))
-	       (heading (:name "H2" :toc t))
-	       (toc)
-	       (heading (:name "H3" :toc t)))))
-    (let ((updated-doc (cl-html-readme::set-toc doc))
-	  (expected-doc
-	    '((heading (:name "H1" :toc t))
-	      (heading (:name "H2" :toc t))
-	      (toc-root ()
-	       (toc-item (:name "H1"))
-	       (toc-item (:name "H2"))
-	       (toc-item (:name "H3")))
-	      (heading (:name "H3" :toc t)))))
-      (let ((doc-str (doc-to-string updated-doc))
-	    (expected-doc-str (doc-to-string expected-doc)))
-	(assert-equal expected-doc-str doc-str)))))
-
 ;;
 ;; Set Heading-Ids
 ;;

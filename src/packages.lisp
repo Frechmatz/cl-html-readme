@@ -24,5 +24,4 @@
    :close-element
    :add-text
    :get-tree
-   :write-toc))
-
+   :expand-toc))

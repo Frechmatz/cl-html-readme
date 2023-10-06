@@ -1,9 +1,5 @@
 (in-package :cl-html-readme)
 
-;;
-;; Transformation functions
-;;
-
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation tree."
   (let ((id-store nil) (tree-builder (cl-html-readme-dsl:make-tree-builder)))
@@ -32,29 +28,6 @@
        :text
        (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
       (cl-html-readme-dsl:get-tree tree-builder))))
-
-(defun set-toc (doc)
-  "Replace toc element with toc-root. Returns a new documentation tree."
-  (let ((tree-builder (cl-html-readme-dsl:make-tree-builder)))
-    (cl-html-readme-dsl:walk-tree
-     doc
-     :open-element
-     (lambda(element-symbol element-properties content)
-       (declare (ignore content))
-       (if (cl-html-readme-dsl:toc-p element-symbol)
-	   (progn
-	     (cl-html-readme-dsl:write-toc doc element-properties tree-builder)
-	     :ignore-close-element)
-	   (progn
-	     (cl-html-readme-dsl:open-element tree-builder element-symbol element-properties)
-	     t)))
-       :close-element
-       (lambda(context)
-	 (if (not (eq context :ignore-close-element))
-	     (cl-html-readme-dsl:close-element tree-builder)))
-       :text
-       (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
-    (cl-html-readme-dsl:get-tree tree-builder)))
 
 (defun set-heading-indentation-levels (doc)
   "Set indentation levels of heading elements. Returns a new documentation tree."
@@ -175,7 +148,7 @@
        <li>documentation A list following the syntax of the DSL.</li>
    </ul>"
   (setf documentation (set-heading-ids documentation))
-  (setf documentation (set-toc documentation))
+  (setf documentation (cl-html-readme-dsl:expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
   (serialize output-stream documentation)
   nil)

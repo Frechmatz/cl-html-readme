@@ -70,7 +70,7 @@
 		   (doc '((heading (:name "H1" :toc t))
 			  (heading (:name "H2" :toc t))
 			  (heading (:name "H3" :toc t)))))
-	       (cl-html-readme-dsl:write-toc doc nil tree-builder)
+	       (cl-html-readme-dsl::write-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
 			'((toc-root ()
@@ -88,7 +88,7 @@
 			   (heading (:name "H2.1" :toc t))
 			   (heading (:name "H2.2" :toc t)))
 			  (heading (:name "H3" :toc t)))))
-	       (cl-html-readme-dsl:write-toc doc nil tree-builder)
+	       (cl-html-readme-dsl::write-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
 			'((toc-root ()
@@ -116,7 +116,7 @@
 				     (heading (:name "H2.2" :toc t))))
 			   "XXXX"
 			   (heading (:name "H3" :toc t))))))
-	       (cl-html-readme-dsl:write-toc doc nil tree-builder)
+	       (cl-html-readme-dsl::write-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc
 			'((toc-root ()
@@ -134,10 +134,32 @@
 		   (doc '((heading (:name "H1"))
 			  (heading (:name "H2"))
 			  (heading (:name "H3")))))
-	       (cl-html-readme-dsl:write-toc doc nil tree-builder)
+	       (cl-html-readme-dsl::write-toc doc nil tree-builder)
 	       (let* ((toc (cl-html-readme-dsl:get-tree tree-builder))
 		      (expected-toc '()))
 		 (let ((toc-str (doc-to-string toc))
 		       (expected-toc-str (doc-to-string expected-toc)))
 		 (assert-equal expected-toc-str toc-str)))))
+
+;;
+;; expand-toc
+;;
+
+(define-test test-expand-toc-1 ()
+  (let ((doc '((heading (:name "H1" :toc t :a 1 :b 2))
+	       (heading (:name "H2" :toc t :c 11 :d 12))
+	       (toc)
+	       (heading (:name "H3" :toc t)))))
+    (let ((updated-doc (cl-html-readme-dsl:expand-toc doc))
+	  (expected-doc
+	    '((heading (:name "H1" :toc t :a 1 :b 2))
+	      (heading (:name "H2" :toc t :c 11 :d 12))
+	      (toc-root ()
+	       (toc-item (:name "H1" :a 1 :b 2))
+	       (toc-item (:name "H2" :c 11 :d 12))
+	       (toc-item (:name "H3")))
+	      (heading (:name "H3" :toc t)))))
+      (let ((doc-str (doc-to-string updated-doc))
+	    (expected-doc-str (doc-to-string expected-doc)))
+	(assert-equal expected-doc-str doc-str)))))
 
