@@ -3,7 +3,6 @@
   (:export
    :*home-directory*
    :*tab-width*
-   :html-writer
    :doc-to-html
    :read-file
    :make-path))
