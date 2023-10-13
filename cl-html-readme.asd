@@ -48,7 +48,11 @@
   :long-description
   "Documentation sources of cl-html-readme. Documentation is created via (cl-html-readme-make-doc::make-doc)"
   :depends-on (:cl-html-readme :docparser)
-  :components ((:module "make-readme"
+  :components ((:module "make-readme/examples"
+		:serial t
+		:components ((:file "plain")
+			     (:file "semantic")))
+	       (:module "make-readme"
 		:serial t
 		:components ((:file "packages")
 			     (:file "make-doc")))))
