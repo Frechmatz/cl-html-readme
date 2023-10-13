@@ -147,8 +147,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
 		   (funcall text l))
 		 (progn
 		   (let* ((element-symbol (first l))
-			  (element-properties (second l)) 
-			  (dsl-element (get-dsl-element element-symbol)))
+			  (element-properties (second l)))
 		     (let* ((content (rest (rest l)))
 			    (context (funcall
 				      open-element
