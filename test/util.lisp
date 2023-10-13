@@ -77,39 +77,3 @@
 	    (progn
 	      (format t "~%Error while stringifying doc object:~%~a~%Doc:~%~a~%" err doc)
 	      (error err))))))))
-
-
-#|
-(defun dsl-to-string-examples ()
-  (let ((examples
-	  (list
-	   ;;(list
-	   ;; :name "Buggy"
-	   ;; :doc '(heading ()))
-	   (list
-	    :name "A string"
-	    :doc (list "Text"))
-	   (list
-	    :name "Two strings"
-	    :doc (list "Text 1" "Text 2"))
-	   (list
-	    :name "A string and a form"
-	    :doc `("Intro" (heading (:toc t :name "Heading 1"))))
-	   (list
-	    :name "Form properties to be sorted alphabetically"
-	    :doc `((heading (:d "D" :a "A" :z "Z"))))
-	   (list
-	    :name "Form property values types to be recognized"
-	    :doc `("Intro" (heading (:string "D" :number 123456 :keyword :a-keyword :boolean t))))
-	   (list
-	    :name "Nested forms"
-	    :doc `((heading (:name "H1") (heading (:name "H1.1")))))
-	   )))
-    (format t "~%~%Stringifying examples")
-    (dolist (example examples)
-      (format t "~%~%Formatting example: ~a" (getf example :name))
-      (format t "~%Output: >>~a<<" (doc-to-string (getf example :doc))))
-    (format t "~%DONE~%")))
-
-;;(dsl-to-string-examples)
-|#
