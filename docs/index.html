@@ -101,14 +101,14 @@ that can appear (almost) everywhere.
 &lt;/section&gt;
 &lt;footer&gt;Lorem ipsum
 &lt;/footer&gt;</code></pre></p>
-<h1 id="API">API</h1><b>cl-html-readme:*home-directory*</b>&nbsp;*home-directory*</b><p>Home directory of the project for which documentation is to be generated.</p><b>cl-html-readme:*tab-width*</b>&nbsp;*tab-width*</b><p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>cl-html-readme:doc-to-html</b>&nbsp;doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
+<h1 id="API">API</h1><b>cl-html-readme:*home-directory*</b>&nbsp;<p>Home directory of the project for which documentation is to be generated.</p><b>cl-html-readme:*tab-width*</b>&nbsp;<p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>cl-html-readme:doc-to-html</b>&nbsp;(output-stream documentation)<p>Serializes a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream A stream into which the resulting HTML is written.</li>
        <li>documentation A list following the syntax of the DSL.</li>
-   </ul></p><b>cl-html-readme:make-path</b>&nbsp;make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
+   </ul></p><b>cl-html-readme:make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
    <ul>
       <li>path A path relative to *home-directory*, e.g. examples/example-1.lisp. A path can be represented as String or as Pathname.</li>
-   </ul></p><b>cl-html-readme:read-file</b>&nbsp;read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
+   </ul></p><b>cl-html-readme:read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
@@ -138,7 +138,6 @@ that can appear (almost) everywhere.
     (concatenate
      'string
      &quot;&lt;b&gt;&quot; package-name &quot;:&quot; (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
-     (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
      (string-downcase (format nil &quot;~a&quot; (if lambda-list lambda-list &quot;()&quot;)))
      &quot;&lt;p&gt;&quot; (docparser:node-docstring node) &quot;&lt;/p&gt;&quot;)))
 
@@ -148,7 +147,6 @@ that can appear (almost) everywhere.
     (concatenate
      'string
      &quot;&lt;b&gt;&quot; package-name &quot;:&quot; (string-downcase symbol-name) &quot;&lt;/b&gt;&amp;nbsp;&quot;
-     (string-downcase symbol-name) &quot;&lt;/b&gt;&quot;
      &quot;&lt;p&gt;&quot; (docparser:node-docstring node) &quot;&lt;/p&gt;&quot;)))
   
 (defun make-code-string (path)
@@ -255,4 +253,4 @@ that can appear (almost) everywhere.
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-09-20  18:27:37</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-10-13  17:11:53</small></p></footer></body></html>
