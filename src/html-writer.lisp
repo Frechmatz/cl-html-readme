@@ -151,5 +151,9 @@
   (setf documentation (set-heading-ids documentation))
   (setf documentation (cl-html-readme-dsl::expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
-  (serialize output-stream documentation)
-  nil)
+  (if output-stream
+      (serialize output-stream documentation)
+      (let ((string-output-stream (make-string-output-stream)))
+	(serialize string-output-stream documentation)
+	(get-output-stream-string string-output-stream))))
+
