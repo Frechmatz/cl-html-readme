@@ -4,6 +4,7 @@
    :*home-directory*
    :*tab-width*
    :doc-to-html
+   :read-stream
    :read-file
    :make-path))
 

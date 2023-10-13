@@ -51,7 +51,13 @@
 	      (t (append-char ch)))))
 	(get-output-stream-string string-stream)))))
 
-(defun read-text-stream (stream &key (replace-tabs nil) (escape nil))
+(defun read-stream (stream &key (replace-tabs nil) (escape nil))
+  "Reads a text stream and returns it as a string. The function has the following parameters:
+   <ul>
+      <li>stream An input stream.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+      <li>:escape If t then special characters are replaced with HTML character entities.</li>
+   </ul>"
   (let ((output (make-array '(0) :element-type 'base-char
 			    :fill-pointer 0 :adjustable t)))
     (with-output-to-string (s output)
@@ -71,4 +77,4 @@
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul>"
   (with-open-file (fh (make-path path) :direction :input :external-format :utf-8)
-    (read-text-stream fh :replace-tabs replace-tabs :escape escape)))
+    (read-stream fh :replace-tabs replace-tabs :escape escape)))
