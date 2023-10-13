@@ -21,7 +21,6 @@
     (concatenate
      'string
      "<b>" package-name ":" (string-downcase symbol-name) "</b>&nbsp;"
-     (string-downcase symbol-name) "</b>&nbsp;"
      (string-downcase (format nil "~a" (if lambda-list lambda-list "()")))
      "<p>" (docparser:node-docstring node) "</p>")))
 
@@ -31,7 +30,6 @@
     (concatenate
      'string
      "<b>" package-name ":" (string-downcase symbol-name) "</b>&nbsp;"
-     (string-downcase symbol-name) "</b>"
      "<p>" (docparser:node-docstring node) "</p>")))
   
 (defun make-code-string (path)
