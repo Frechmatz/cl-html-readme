@@ -24,14 +24,8 @@
   :homepage "https://github.com/Frechmatz/cl-html-readme"
   :description "Test suite for cl-html-readme"
   :long-description "Test suite for cl-html-readme"
-  :depends-on (:lisp-unit)
-  :components ((:module "src"
-		:serial t
-		:components ((:file "packages")
-			     (:file "dsl")
-			     (:file "readme-util")
-			     (:file "html-writer")))
-	       (:module "test"
+  :depends-on (:cl-html-readme :lisp-unit)
+  :components ((:module "test"
 		:serial t
 		:components ((:file "packages")
 			     (:file "util")
@@ -53,14 +47,8 @@
   :description "Documentation sources of cl-html-readme"
   :long-description
   "Documentation sources of cl-html-readme. Documentation is created via (cl-html-readme-make-doc::make-doc)"
-  :depends-on (:docparser)
-  :components ((:module "src"
-		:serial t
-		:components ((:file "packages")
-			     (:file "dsl")
-			     (:file "readme-util")
-			     (:file "html-writer")))
-	       (:module "make-readme"
+  :depends-on (:cl-html-readme :docparser)
+  :components ((:module "make-readme"
 		:serial t
 		:components ((:file "packages")
 			     (:file "make-doc")))))
