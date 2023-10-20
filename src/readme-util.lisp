@@ -78,3 +78,14 @@
    </ul>"
   (with-open-file (fh (make-path path) :direction :input :external-format :utf-8)
     (read-stream fh :replace-tabs replace-tabs :escape escape)))
+
+(defun read-string (string &key (replace-tabs nil) (escape nil))
+  "Reads a multiline string and returns it as a string. The function has the following parameters:
+   <ul>
+      <li>string A string.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+      <li>:escape If t then special characters are replaced with HTML character entities.</li>
+   </ul>"
+  (let ((stream (make-string-input-stream string)))
+    (read-stream stream :replace-tabs replace-tabs :escape escape)))
+

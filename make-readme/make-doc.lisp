@@ -40,6 +40,23 @@
    (cl-html-readme:read-file path :replace-tabs t :escape t)
    "</code></pre></p>"))
 
+(defun make-code-string-string (str)
+  "Returns HTML representation of a string"
+  (concatenate
+   'string
+   "<p><pre><code>"
+   (cl-html-readme:read-string str :replace-tabs t :escape t)
+   "</code></pre></p>"))
+
+(defun get-package-docstring (index package-name)
+  (let ((docstring nil))
+    (docparser:do-packages (package index)
+      (if (string= (string-upcase package-name) (docparser:package-index-name package))
+	  (setf docstring (docparser:package-index-docstring package))))
+    (if (not docstring)
+	(error "Package ~a not found" package-name))
+    docstring))
+
 (defun now ()
   "Returns a string representing the current date and time."
   (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
@@ -53,7 +70,7 @@
 ;; Readme
 ;;
 
-(defun get-readme (index)
+(defun get-readme (index doc-index)
   `("<html>"
     "<head><link href=\"cl-html-readme.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
     "<body>"
@@ -88,27 +105,41 @@
 		       ,(cl-html-readme:read-file "make-readme/installation.html"))
 	      (heading (:name "DSL" :toc t)
 		       ,(cl-html-readme:read-file "make-readme/dsl-introduction.html")
-		       (heading (:name "Heading elements and Table of Contents" :toc t)
-				(heading (:name "DSL")
-					 ,(make-code-string "make-readme/dsl-example-plain.dsl"))
-				(heading (:name "Generated HTML")
-					 ,(make-code-string "make-readme/dsl-example-plain.html")))
-		       (heading (:name "Semantic elements" :toc t)
-				(heading (:name "DSL")
-					 ,(make-code-string "make-readme/dsl-example-semantic.dsl"))
-				(heading (:name "Generated HTML")
-					 ,(make-code-string "make-readme/dsl-example-semantic.html"))))
+		       ;; Example 1
+		       (heading
+			(:toc t
+			 :name ,(get-package-docstring
+				 doc-index
+				 "cl-html-readme-make-readme-dsl-example-toc"))
+			,(make-code-string "make-readme/examples/toc.lisp")
+			(heading
+			 (:name "Generated HTML")
+			 ,(make-code-string-string
+			   (cl-html-readme-make-readme-dsl-example-toc::example))))
+		       ;; Example 2
+		       (heading
+			(:toc t
+			 :name ,(get-package-docstring
+				 doc-index
+				 "cl-html-readme-make-readme-dsl-example-semantic"))
+			,(make-code-string "make-readme/examples/semantic.lisp")
+			(heading
+			 (:name "Generated HTML")
+			 ,(make-code-string-string
+			   (cl-html-readme-make-readme-dsl-example-semantic::example)))))
+	      
 	      (heading (:name "API" :toc t)
 		       ,(make-variable-string index "cl-html-readme" "*home-directory*")
 		       ,(make-variable-string index "cl-html-readme" "*tab-width*")
 		       ,(make-function-string index "cl-html-readme" "doc-to-html")
 		       ,(make-function-string index "cl-html-readme" "make-path")
 		       ,(make-function-string index "cl-html-readme" "read-file")
-		       ,(make-function-string index "cl-html-readme" "read-stream"))
-	      (heading (:name "Example" :toc t)
-		       ,(cl-html-readme:read-file "make-readme/example-introduction.html")
-		       (heading (:name "make-doc.lisp")
-				,(make-code-string "make-readme/make-doc.lisp")))
+		       ,(make-function-string index "cl-html-readme" "read-stream")
+		       ,(make-function-string index "cl-html-readme" "read-string"))
+	      ;; (heading (:name "Example" :toc t)
+	      ;; 	       "The following example shows how the documentation of cl-html-readme is generated."
+	      ;; 	       (heading (:name "make-doc.lisp")
+	      ;; 			,(make-code-string "make-readme/make-doc.lisp")))
 	      (heading (:name "Run tests" :toc t)
 		       "<pre><code>(asdf:test-system :cl-html-readme)</code></pre>")
 	      (heading (:name "Generate documentation" :toc t)
@@ -122,7 +153,7 @@
 ;;
 
 (defun make-doc ()
-  (let ((index (make-index :cl-html-readme)))
+  (let ((index (make-index :cl-html-readme)) (doc-index (make-index :cl-html-readme/doc)))
     (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme))
 	  (cl-html-readme:*tab-width* 2))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
@@ -130,7 +161,7 @@
 			  :if-exists :supersede
 			  :if-does-not-exist :create
 			  :external-format :utf-8)
-	(cl-html-readme:doc-to-html fh (get-readme index)))))
+	(cl-html-readme:doc-to-html fh (get-readme index doc-index)))))
     "DONE")
 
 ;;(make-doc)

@@ -142,7 +142,7 @@
 ;;
 
 (defun doc-to-html (output-stream documentation)
-  "Serializes a documentation object to HTML. The function has the following parameters:
+  "Renders a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream A stream into which the resulting HTML is written.</li>
        <li>documentation A list following the syntax of the DSL.</li>

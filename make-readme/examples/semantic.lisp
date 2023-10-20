@@ -1,6 +1,6 @@
 (defpackage :cl-html-readme-make-readme-dsl-example-semantic
   (:use :cl)
-  (:documentation "Semantic example"))
+  (:documentation "Example: Semantic elements"))
 (in-package :cl-html-readme-make-readme-dsl-example-semantic)
 
 (defun example ()
@@ -14,7 +14,7 @@
 		      (heading (:name "Chapter 1" :toc t))
 		      "Lorem ipsum"
 		      (heading (:name "Chapter 2" :toc t))
-		      "Lorem ipsum")
+		      "<b>Lorem ipsum</b>")
 	    (semantic (:name "footer") "Lorem ipsum"))))
     (cl-html-readme:doc-to-html nil documentation)))
 

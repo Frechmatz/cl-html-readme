@@ -1,6 +1,6 @@
 (defsystem :cl-html-readme
   :serial t
-  :version "1.0.1"
+  :version "2.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
@@ -8,22 +8,22 @@
   :description "A HTML Documentation Generator for Common Lisp projects."
   :long-description "A HTML Documentation Generator for Common Lisp projects."
   :components ((:module "src"
-			:serial t
-			:components ((:file "packages")
-				     (:file "dsl")
-				     (:file "readme-util")
-				     (:file "html-writer"))))
+		:serial t
+		:components ((:file "packages")
+			     (:file "dsl")
+			     (:file "readme-util")
+			     (:file "html-writer"))))
   :in-order-to ((test-op (test-op "cl-html-readme/test"))))
 
 (defsystem :cl-html-readme/test
   :serial t
-  :version "1.0.1"
+  :version "2.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-html-readme"
-  :description "Test suite for cl-html-readme"
-  :long-description "Test suite for cl-html-readme"
+  :description "Test suite of cl-html-readme"
+  :long-description "Test suite of cl-html-readme"
   :depends-on (:cl-html-readme :lisp-unit)
   :components ((:module "test"
 		:serial t
@@ -39,18 +39,17 @@
 
 (defsystem :cl-html-readme/doc
   :serial t
-  :version "1.0.1"
+  :version "2.0.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
   :homepage "https://github.com/Frechmatz/cl-html-readme"
-  :description "Documentation sources of cl-html-readme"
-  :long-description
-  "Documentation sources of cl-html-readme. Documentation is created via (cl-html-readme-make-doc::make-doc)"
+  :description "Documentation of cl-html-readme"
+  :long-description "Documentation of cl-html-readme"
   :depends-on (:cl-html-readme :docparser)
   :components ((:module "make-readme/examples"
 		:serial t
-		:components ((:file "plain")
+		:components ((:file "toc")
 			     (:file "semantic")))
 	       (:module "make-readme"
 		:serial t

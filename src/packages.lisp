@@ -6,6 +6,7 @@
    :doc-to-html
    :read-stream
    :read-file
+   :read-string
    :make-path))
 
 (defpackage :cl-html-readme-dsl
