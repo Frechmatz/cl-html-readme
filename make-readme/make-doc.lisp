@@ -61,7 +61,7 @@
 ;; Readme
 ;;
 
-(defun get-readme (index doc-index)
+(defun get-readme (index)
   `("<html>"
     "<head><link href=\"cl-html-readme.css\" rel=\"stylesheet\" type=\"text/css\"/></head>"
     "<body>"
@@ -164,7 +164,7 @@
 ;;
 
 (defun make-doc ()
-  (let ((index (make-index :cl-html-readme)) (doc-index (make-index :cl-html-readme/doc)))
+  (let ((index (make-index :cl-html-readme)))
     (let ((cl-html-readme:*home-directory* (asdf:system-source-directory :cl-html-readme))
 	  (cl-html-readme:*tab-width* 2))
       (with-open-file (fh (cl-html-readme:make-path "docs/index.html")
@@ -172,7 +172,7 @@
 			  :if-exists :supersede
 			  :if-does-not-exist :create
 			  :external-format :utf-8)
-	(cl-html-readme:doc-to-html fh (get-readme index doc-index)))))
+	(cl-html-readme:doc-to-html fh (get-readme index)))))
     "DONE")
 
 ;;(make-doc)
