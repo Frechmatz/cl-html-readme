@@ -9,7 +9,7 @@
 (defun make-path (path)
   "Creates an absolute path. The function has the following parameters:
    <ul>
-      <li>path A path relative to *home-directory*, e.g. examples/example-1.lisp. A path can be represented as String or as Pathname.</li>
+      <li>path A path relative to *home-directory*, e.g. <code>\"examples/example-1.lisp\"</code>. A path can be represented as String or as Pathname.</li>
    </ul>"
   (if (not *home-directory*)
       (error "Variable *HOME-DIRECTORY* not set"))
@@ -68,7 +68,6 @@
 	      (format s "~a~%" (format-string str :replace-tabs replace-tabs :escape escape))))))
   (string-trim '(#\Space #\Tab #\Newline) output)))
 
-
 (defun read-file (path &key (replace-tabs nil) (escape nil))
   "Reads a text file and returns it as a string. The function has the following parameters:
    <ul>
@@ -80,7 +79,7 @@
     (read-stream fh :replace-tabs replace-tabs :escape escape)))
 
 (defun read-string (string &key (replace-tabs nil) (escape nil))
-  "Reads a multiline string and returns it as a string. The function has the following parameters:
+  "Parses a multiline string and returns it as a string. The function has the following parameters:
    <ul>
       <li>string A string.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>

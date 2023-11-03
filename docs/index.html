@@ -11,7 +11,7 @@ as markup language for their docstrings.
 <p>The key features of cl-html-readme are
     <ul>
 	<li>Generate HTML heading and semantic elements.</li>
-	<li>Generate a Table of Contents. Provide full control of what should be part of it.</li>
+	<li>Generate a Table of contents. Provide full control of what should be part of it.</li>
 	<li>Easily embed source code files as well as HTML files.</li>
     </ul>
 </p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header>
@@ -21,9 +21,16 @@ as markup language for their docstrings.
 <li><a href="#Change-Log">Change-Log</a></li>
 <li><a href="#Installation">Installation</a></li>
 <li><a href="#DSL">DSL</a><ul>
-<li><a href="#Example: Table of contents">Example: Table of contents</a></li>
-<li><a href="#Example: Semantic elements">Example: Semantic elements</a></li></ul></li>
-<li><a href="#API">API</a></li>
+<li><a href="#Table of contents">Table of contents</a></li>
+<li><a href="#Semantic elements">Semantic elements</a></li></ul></li>
+<li><a href="#API">API</a><ul>
+<li><a href="#*home-directory*">*home-directory*</a></li>
+<li><a href="#*tab-width*">*tab-width*</a></li>
+<li><a href="#doc-to-html">doc-to-html</a></li>
+<li><a href="#make-path">make-path</a></li>
+<li><a href="#read-string">read-string</a></li>
+<li><a href="#read-file">read-file</a></li>
+<li><a href="#read-stream">read-stream</a></li></ul></li>
 <li><a href="#Run tests">Run tests</a></li>
 <li><a href="#Generate documentation">Generate documentation</a></li></ul></nav>
 <section>
@@ -38,7 +45,8 @@ as markup language for their docstrings.
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
 that can appear (almost) everywhere. They are not processed in any way during the HTML generation but written "as is".
-<h2 id="Example: Table of contents">Example: Table of contents</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-toc
+<h2>Examples</h2>
+<h3 id="Table of contents">Table of contents</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-toc
   (:use :cl)
   (:documentation &quot;Example: Table of contents&quot;))
 (in-package :cl-html-readme-make-readme-dsl-example-toc)
@@ -54,7 +62,7 @@ that can appear (almost) everywhere. They are not processed in any way during th
     (cl-html-readme:doc-to-html nil documentation)))
 
 ;;(example)</code></pre></p>
-<h3>Generated HTML</h3><p><pre><code>&lt;h1&gt;Example&lt;/h1&gt;
+<h4>Generated HTML</h4><p><pre><code>&lt;h1&gt;Example&lt;/h1&gt;
 &lt;h1&gt;Table of contents&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&quot;#Chapter 1&quot;&gt;Chapter 1&lt;/a&gt;&lt;/li&gt;
@@ -62,7 +70,7 @@ that can appear (almost) everywhere. They are not processed in any way during th
 &lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1&lt;/h1&gt;Lorem ipsum
 &lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2&lt;/h1&gt;&lt;b&gt;Lorem ipsum&lt;/b&gt;
 &lt;h2&gt;Chapter 2.1&lt;/h2&gt;Lorem ipsum</code></pre></p>
-<h2 id="Example: Semantic elements">Example: Semantic elements</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-semantic
+<h3 id="Semantic elements">Semantic elements</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-semantic
   (:use :cl)
   (:documentation &quot;Example: Semantic elements&quot;))
 (in-package :cl-html-readme-make-readme-dsl-example-semantic)
@@ -83,7 +91,7 @@ that can appear (almost) everywhere. They are not processed in any way during th
     (cl-html-readme:doc-to-html nil documentation)))
 
 ;;(example)</code></pre></p>
-<h3>Generated HTML</h3><p><pre><code>&lt;header&gt;
+<h4>Generated HTML</h4><p><pre><code>&lt;header&gt;
 &lt;h1&gt;Example&lt;/h1&gt;&lt;/header&gt;
 &lt;nav&gt;
 &lt;h1&gt;Table of contents&lt;/h1&gt;
@@ -94,30 +102,50 @@ that can appear (almost) everywhere. They are not processed in any way during th
 &lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1&lt;/h1&gt;Lorem ipsum
 &lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2&lt;/h1&gt;&lt;b&gt;Lorem ipsum&lt;/b&gt;&lt;/section&gt;
 &lt;footer&gt;Lorem ipsum&lt;/footer&gt;</code></pre></p>
-<h1 id="API">API</h1><b>cl-html-readme:*home-directory*</b>&nbsp;<p>Home directory of the project for which documentation is to be generated.</p><b>cl-html-readme:*tab-width*</b>&nbsp;<p>Width of a tab. Used, when tabs are to be replaced with space characters.</p><b>cl-html-readme:doc-to-html</b>&nbsp;(output-stream documentation)<p>Renders a documentation object to HTML. The function has the following parameters:
+<h1 id="API">API</h1>
+<h2 id="*home-directory*">*home-directory*</h2><b>cl-html-readme:*home-directory*</b>&nbsp;<p>Home directory of the project for which documentation is to be generated.</p>
+<h2 id="*tab-width*">*tab-width*</h2><b>cl-html-readme:*tab-width*</b>&nbsp;<p>Width of a tab. Used, when tabs are to be replaced with space characters.</p>
+<h2 id="doc-to-html">doc-to-html</h2><b>cl-html-readme:doc-to-html</b>&nbsp;(output-stream documentation)<p>Renders a documentation object to HTML. The function has the following parameters:
    <ul>
-       <li>output-stream A stream into which the resulting HTML is written.</li>
-       <li>documentation A list following the syntax of the DSL.</li>
-   </ul></p><b>cl-html-readme:make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
+       <li>output-stream nil or a stream into which the resulting HTML is written.</li>
+       <li>documentation A documentation object following the syntax of the DSL.</li>
+   </ul></p>
+<h2 id="make-path">make-path</h2><b>cl-html-readme:make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
    <ul>
-      <li>path A path relative to *home-directory*, e.g. examples/example-1.lisp. A path can be represented as String or as Pathname.</li>
-   </ul></p><b>cl-html-readme:read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
+      <li>path A path relative to *home-directory*, e.g. <code>"examples/example-1.lisp"</code>. A path can be represented as String or as Pathname.</li>
+   </ul></p>
+<h2 id="read-string">read-string</h2><b>cl-html-readme:read-string</b>&nbsp;(string &key (replace-tabs nil) (escape nil))<p>Parses a multiline string and returns it as a string. The function has the following parameters:
+   <ul>
+      <li>string A string.</li>
+      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
+      <li>:escape If t then special characters are replaced with HTML character entities.</li>
+   </ul></p>
+<h3>Example</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-escape
+  (:use :cl)
+  (:documentation &quot;Example: Escaping of characters&quot;))
+(in-package :cl-html-readme-make-readme-dsl-example-escape)
+
+(defun example ()
+  (let ((documentation
+    `((heading (:name &quot;Example&quot;))
+      ,(cl-html-readme:read-string &quot;&lt;b&gt;Lorum ipsum&lt;/b&gt;&quot; :escape t))))
+    (cl-html-readme:doc-to-html nil documentation)))
+
+;;(example)</code></pre></p>
+<h4>Generated HTML</h4><p><pre><code>&lt;h1&gt;Example&lt;/h1&gt;&amp;lt;b&amp;gt;Lorum ipsum&amp;lt;/b&amp;gt;</code></pre></p>
+<h2 id="read-file">read-file</h2><b>cl-html-readme:read-file</b>&nbsp;(path &key (replace-tabs nil) (escape nil))<p>Reads a text file and returns it as a string. The function has the following parameters:
    <ul>
       <li>path Path of the file relative to *home-directory*.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p><b>cl-html-readme:read-stream</b>&nbsp;(stream &key (replace-tabs nil) (escape nil))<p>Reads a text stream and returns it as a string. The function has the following parameters:
+   </ul></p>
+<h2 id="read-stream">read-stream</h2><b>cl-html-readme:read-stream</b>&nbsp;(stream &key (replace-tabs nil) (escape nil))<p>Reads a text stream and returns it as a string. The function has the following parameters:
    <ul>
       <li>stream An input stream.</li>
-      <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
-      <li>:escape If t then special characters are replaced with HTML character entities.</li>
-   </ul></p><b>cl-html-readme:read-string</b>&nbsp;(string &key (replace-tabs nil) (escape nil))<p>Reads a multiline string and returns it as a string. The function has the following parameters:
-   <ul>
-      <li>string A string.</li>
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul></p>
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-11-03  21:12:29</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-11-03  23:05:53</small></p></footer></body></html>

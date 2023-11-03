@@ -48,15 +48,6 @@
    (cl-html-readme:read-string str :replace-tabs t :escape t)
    "</code></pre></p>"))
 
-(defun get-package-docstring (index package-name)
-  (let ((docstring nil))
-    (docparser:do-packages (package index)
-      (if (string= (string-upcase package-name) (docparser:package-index-name package))
-	  (setf docstring (docparser:package-index-docstring package))))
-    (if (not docstring)
-	(error "Package ~a not found" package-name))
-    docstring))
-
 (defun now ()
   "Returns a string representing the current date and time."
   (multiple-value-bind (sec min hr day mon yr dow dst-p tz)
@@ -82,64 +73,84 @@
 	      (heading (:name "Table of contents")
 		       (toc)))
     (semantic (:name "section")
-	      (heading (:name "Change-Log" :toc t)
-		       (heading (:name "Version 1.0.0")
-				"<p>The first release of cl-html-readme.</p>")
-		       (heading (:name "Version 1.0.1")
-				"<p><b>This version is the current quicklisp release.</b></p>"
-				(heading (:name "Changes")
-					 "<ul>"
-					 "<li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li>"
-					 "<li>Removed a couple of too fragile tests.</li>"
-					 "</ul>"))
-		       (heading (:name "Version 2.0.0")
-				(heading (:name "Breaking changes")
-					 "<ul>"
-					 "<li>Support of HTML style and class attributes has been removed.</li></ul>")
-				(heading (:name "Changes")
-					 "<ul>"
-					 "<li>A more efficient implementation of the TOC generation algorithm.</li>"
-					 "<li>A major rework of the test suite which was buggy and difficult to understand.</li>"
-					 "</ul>")))
-	      (heading (:name "Installation" :toc t)
-		       ,(cl-html-readme:read-file "make-readme/installation.html"))
-	      (heading (:name "DSL" :toc t)
-		       ,(cl-html-readme:read-file "make-readme/dsl-introduction.html")
-		       ;; Example 1
-		       (heading
-			(:toc t
-			 :name ,(get-package-docstring
-				 doc-index
-				 "cl-html-readme-make-readme-dsl-example-toc"))
-			,(make-code-string "make-readme/examples/toc.lisp")
-			(heading
-			 (:name "Generated HTML")
-			 ,(make-code-string-string
-			   (cl-html-readme-make-readme-dsl-example-toc::example))))
-		       ;; Example 2
-		       (heading
-			(:toc t
-			 :name ,(get-package-docstring
-				 doc-index
-				 "cl-html-readme-make-readme-dsl-example-semantic"))
-			,(make-code-string "make-readme/examples/semantic.lisp")
-			(heading
-			 (:name "Generated HTML")
-			 ,(make-code-string-string
-			   (cl-html-readme-make-readme-dsl-example-semantic::example)))))
-	      
-	      (heading (:name "API" :toc t)
-		       ,(make-variable-string index "cl-html-readme" "*home-directory*")
-		       ,(make-variable-string index "cl-html-readme" "*tab-width*")
-		       ,(make-function-string index "cl-html-readme" "doc-to-html")
-		       ,(make-function-string index "cl-html-readme" "make-path")
-		       ,(make-function-string index "cl-html-readme" "read-file")
-		       ,(make-function-string index "cl-html-readme" "read-stream")
-		       ,(make-function-string index "cl-html-readme" "read-string"))
-	      ;; (heading (:name "Example" :toc t)
-	      ;; 	       "The following example shows how the documentation of cl-html-readme is generated."
-	      ;; 	       (heading (:name "make-doc.lisp")
-	      ;; 			,(make-code-string "make-readme/make-doc.lisp")))
+	      (heading
+	       (:name "Change-Log" :toc t)
+	       (heading
+		(:name "Version 1.0.0")
+		"<p>The first release of cl-html-readme.</p>")
+	       (heading
+		(:name "Version 1.0.1")
+		"<p><b>This version is the current quicklisp release.</b></p>"
+		(heading
+		 (:name "Changes")
+		 "<ul>"
+		 "<li>HTML serialization inserts linebreaks for better readability and diff friendliness.</li>"
+		 "<li>Removed a couple of too fragile tests.</li>"
+		 "</ul>"))
+	       (heading
+		(:name "Version 2.0.0")
+		(heading
+		 (:name "Breaking changes")
+		 "<ul>"
+		 "<li>Support of HTML style and class attributes has been removed.</li></ul>")
+		(heading
+		 (:name "Changes")
+		 "<ul>"
+		 "<li>A more efficient implementation of the TOC generation algorithm.</li>"
+		 "<li>A major rework of the test suite which was buggy and difficult to understand.</li>"
+		 "</ul>")))
+	      (heading
+	       (:name "Installation" :toc t)
+	       ,(cl-html-readme:read-file "make-readme/installation.html"))
+	      (heading
+	       (:name "DSL" :toc t)
+	       ,(cl-html-readme:read-file "make-readme/dsl-introduction.html")
+	       (heading
+		(:name "Examples")
+		(heading
+		 (:name "Table of contents" :toc t)
+		 ,(make-code-string "make-readme/examples/toc.lisp")
+		 (heading
+		  (:name "Generated HTML")
+		  ,(make-code-string-string
+		    (cl-html-readme-make-readme-dsl-example-toc::example))))
+		(heading
+		 (:name "Semantic elements" :toc t)
+		 ,(make-code-string "make-readme/examples/semantic.lisp")
+		 (heading
+		  (:name "Generated HTML")
+		  ,(make-code-string-string
+		    (cl-html-readme-make-readme-dsl-example-semantic::example))))))
+	      (heading
+	       (:name "API" :toc t)
+	       (heading
+		(:name "*home-directory*" :toc t)
+		,(make-variable-string index "cl-html-readme" "*home-directory*"))
+	       (heading
+		(:name "*tab-width*" :toc t)
+		,(make-variable-string index "cl-html-readme" "*tab-width*"))
+	       (heading
+		(:name "doc-to-html" :toc t)
+		,(make-function-string index "cl-html-readme" "doc-to-html"))
+	       (heading
+		(:name "make-path" :toc t)
+		,(make-function-string index "cl-html-readme" "make-path"))
+	       (heading
+		(:name "read-string" :toc t)
+		,(make-function-string index "cl-html-readme" "read-string")
+		(heading
+		 (:name "Example")
+		 ,(make-code-string "make-readme/examples/escape.lisp")
+		(heading
+		 (:name "Generated HTML")
+		 ,(make-code-string-string
+		   (cl-html-readme-make-readme-dsl-example-escape::example)))))
+	       (heading
+		(:name "read-file" :toc t)
+		,(make-function-string index "cl-html-readme" "read-file"))
+	       (heading
+		(:name "read-stream" :toc t)
+		,(make-function-string index "cl-html-readme" "read-stream")))
 	      (heading (:name "Run tests" :toc t)
 		       "<pre><code>(asdf:test-system :cl-html-readme)</code></pre>")
 	      (heading (:name "Generate documentation" :toc t)

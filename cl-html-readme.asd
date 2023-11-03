@@ -50,7 +50,8 @@
   :components ((:module "make-readme/examples"
 		:serial t
 		:components ((:file "toc")
-			     (:file "semantic")))
+			     (:file "semantic")
+			     (:file "escape")))
 	       (:module "make-readme"
 		:serial t
 		:components ((:file "packages")

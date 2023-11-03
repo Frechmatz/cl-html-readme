@@ -144,8 +144,8 @@
 (defun doc-to-html (output-stream documentation)
   "Renders a documentation object to HTML. The function has the following parameters:
    <ul>
-       <li>output-stream A stream into which the resulting HTML is written.</li>
-       <li>documentation A list following the syntax of the DSL.</li>
+       <li>output-stream nil or a stream into which the resulting HTML is written.</li>
+       <li>documentation A documentation object following the syntax of the DSL.</li>
    </ul>"
   (cl-html-readme-dsl::validate documentation)
   (setf documentation (set-heading-ids documentation))
