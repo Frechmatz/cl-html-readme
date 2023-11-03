@@ -9,7 +9,7 @@
 	    (heading (:name "Table of contents")
 		     (toc))
 	    (heading (:name "Chapter 1" :toc t)) "Lorem ipsum"
-	    (heading (:name "Chapter 2" :toc t) "Lorem ipsum"
+	    (heading (:name "Chapter 2" :toc t) "<b>Lorem ipsum</b>"
 		     (heading (:name "Chapter 2.1") "Lorem ipsum")))))
     (cl-html-readme:doc-to-html nil documentation)))
 

@@ -37,7 +37,7 @@ as markup language for their docstrings.
 <h1 id="Installation">Installation</h1><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p>
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents. Beside these predefined elements the actual "content" consists of plain strings
-that can appear (almost) everywhere.
+that can appear (almost) everywhere. They are not processed in any way during the HTML generation but written "as is".
 <h2 id="Example: Table of contents">Example: Table of contents</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-toc
   (:use :cl)
   (:documentation &quot;Example: Table of contents&quot;))
@@ -49,7 +49,7 @@ that can appear (almost) everywhere.
       (heading (:name &quot;Table of contents&quot;)
          (toc))
       (heading (:name &quot;Chapter 1&quot; :toc t)) &quot;Lorem ipsum&quot;
-      (heading (:name &quot;Chapter 2&quot; :toc t) &quot;Lorem ipsum&quot;
+      (heading (:name &quot;Chapter 2&quot; :toc t) &quot;&lt;b&gt;Lorem ipsum&lt;/b&gt;&quot;
          (heading (:name &quot;Chapter 2.1&quot;) &quot;Lorem ipsum&quot;)))))
     (cl-html-readme:doc-to-html nil documentation)))
 
@@ -60,7 +60,7 @@ that can appear (almost) everywhere.
 &lt;li&gt;&lt;a href=&quot;#Chapter 1&quot;&gt;Chapter 1&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;#Chapter 2&quot;&gt;Chapter 2&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
 &lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1&lt;/h1&gt;Lorem ipsum
-&lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2&lt;/h1&gt;Lorem ipsum
+&lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2&lt;/h1&gt;&lt;b&gt;Lorem ipsum&lt;/b&gt;
 &lt;h2&gt;Chapter 2.1&lt;/h2&gt;Lorem ipsum</code></pre></p>
 <h2 id="Example: Semantic elements">Example: Semantic elements</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-semantic
   (:use :cl)
@@ -120,4 +120,4 @@ that can appear (almost) everywhere.
 <h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-10-20  21:43:05</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-11-03  21:12:29</small></p></footer></body></html>
