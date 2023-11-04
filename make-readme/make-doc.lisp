@@ -1,13 +1,20 @@
 (in-package :cl-html-readme-make-doc)
 
 ;;
-;; Helper functions 
+;; Generate documentation of cl-html-readme
+;; Uses the docparser library https://github.com/eudoxia0/docparser
+;;
+
+;;
+;; Utility functions for metadata retrieval and HTML formatting
 ;;
 
 (defun make-index (system)
+  "Create a system index"
   (docparser:parse system))
 
 (defun get-index-node (index package-name symbol-name)
+  "Retrieve a node from a system index"
   (aref (docparser:query
 	 index
 	 :package-name (string-upcase package-name)
@@ -32,7 +39,7 @@
      "<b>" package-name ":" (string-downcase symbol-name) "</b>&nbsp;"
      "<p>" (docparser:node-docstring node) "</p>")))
   
-(defun make-code-string (path)
+(defun make-code-string-from-file (path)
   "Returns HTML representation of a source code file"
   (concatenate
    'string
@@ -40,7 +47,7 @@
    (cl-html-readme:read-file path :replace-tabs t :escape t)
    "</code></pre></p>"))
 
-(defun make-code-string-string (str)
+(defun make-code-string-from-string (str)
   "Returns HTML representation of a string"
   (concatenate
    'string
@@ -58,7 +65,7 @@
       str)))
 
 ;;
-;; Readme
+;; Create the documentation object of cl-html-readme
 ;;
 
 (defun get-readme (index)
@@ -101,8 +108,10 @@
        (heading
 	(:name "Changes")
 	"<ul>"
-	"<li>A more efficient implementation of the TOC generation algorithm.</li>"
-	"<li>A major rework of the test suite which was buggy and difficult to understand.</li>"
+	"<li>Added read-stream and read-string to the API.</li>"
+	"<li>Improved documentation.</li>"
+	"<li>Increased test coverage.</li>"
+	"<li>A more efficient implementation of the TOC generation.</li>"
 	"</ul>")))
      (heading
       (:name "Installation" :toc t)
@@ -114,17 +123,17 @@
        (:name "Examples")
        (heading
 	(:name "Table of contents" :toc t)
-	,(make-code-string "make-readme/examples/toc.lisp")
+	,(make-code-string-from-file "make-readme/examples/toc.lisp")
 	(heading
 	 (:name "Generated HTML")
-	 ,(make-code-string-string
+	 ,(make-code-string-from-string
 	   (cl-html-readme-make-readme-dsl-example-toc::example))))
        (heading
 	(:name "Semantic elements" :toc t)
-	,(make-code-string "make-readme/examples/semantic.lisp")
+	,(make-code-string-from-file "make-readme/examples/semantic.lisp")
 	(heading
 	 (:name "Generated HTML")
-	 ,(make-code-string-string
+	 ,(make-code-string-from-string
 	   (cl-html-readme-make-readme-dsl-example-semantic::example))))))
      (heading
       (:name "API" :toc t)
@@ -145,10 +154,10 @@
        ,(make-function-string index "cl-html-readme" "read-string")
        (heading
 	(:name "Example")
-	,(make-code-string "make-readme/examples/escape.lisp")
+	,(make-code-string-from-file "make-readme/examples/escape.lisp")
 	(heading
 	 (:name "Generated HTML")
-	 ,(make-code-string-string
+	 ,(make-code-string-from-string
 	   (cl-html-readme-make-readme-dsl-example-escape::example)))))
       (heading
        (:name "read-file" :toc t)
@@ -161,14 +170,14 @@
       "<pre><code>(asdf:test-system :cl-html-readme)</code></pre>")
      (heading
       (:name "Generate documentation" :toc t)
-      ,(make-code-string "make-readme/generate-doc.lisp")))
+      ,(make-code-string-from-file "make-readme/generate-doc.lisp")))
     (semantic
      (:name "footer")
      "<hr/><p><small>Generated " ,(now) "</small></p>")
     "</body></html>"))
 
 ;;
-;; Generate readme
+;; Generate the documentation
 ;;
 
 (defun make-doc ()

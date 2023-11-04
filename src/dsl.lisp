@@ -348,7 +348,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
 	    (close-element tree-builder))))))
 
 (defun expand-toc (doc)
-  "Replace toc element with toc-root. Returns a new documentation tree."
+  "Replace toc element with toc-root. Returns a new documentation object."
   (let ((tree-builder (make-tree-builder)))
     (walk-tree
      doc
