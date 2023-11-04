@@ -92,7 +92,6 @@
        "<p>The first release of cl-html-readme.</p>")
       (heading
        (:name "Version 1.0.1")
-       "<p><b>This version is the current quicklisp release.</b></p>"
        (heading
 	(:name "Changes")
 	"<ul>"
@@ -101,6 +100,7 @@
 	"</ul>"))
       (heading
        (:name "Version 2.0.0")
+       "<p><b>This version is the current quicklisp release.</b></p>"
        (heading
 	(:name "Breaking changes")
 	"<ul>"
