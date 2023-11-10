@@ -103,7 +103,7 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 &lt;footer&gt;Lorem ipsum&lt;/footer&gt;</code></pre></p>
 <h1 id="API">API</h1>
 <h2 id="*home-directory*">*home-directory*</h2><b>cl-html-readme:*home-directory*</b>&nbsp;<p>Home directory of the project for which documentation is to be generated.</p>
-<h2 id="*tab-width*">*tab-width*</h2><b>cl-html-readme:*tab-width*</b>&nbsp;<p>Width of a tab. Used, when tabs are to be replaced with space characters.</p>
+<h2 id="*tab-width*">*tab-width*</h2><b>cl-html-readme:*tab-width*</b>&nbsp;<p>The width of a tab.</p>
 <h2 id="doc-to-html">doc-to-html</h2><b>cl-html-readme:doc-to-html</b>&nbsp;(output-stream documentation)<p>Renders a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream nil or a stream into which the resulting HTML is written.</li>
@@ -144,7 +144,7 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul></p>
-<h1 id="Run tests">Run tests</h1><pre><code>(asdf:test-system :cl-html-readme)</code></pre>
+<h1 id="Run tests">Run tests</h1><p><pre><code>(asdf:test-system :cl-html-readme)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-11-04  02:07:56</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-11-10  17:11:54</small></p></footer></body></html>
