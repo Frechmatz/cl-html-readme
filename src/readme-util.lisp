@@ -4,7 +4,7 @@
   "Home directory of the project for which documentation is to be generated.")
 
 (defparameter *tab-width* 8
-  "Width of a tab. Used, when tabs are to be replaced with space characters.")
+  "The width of a tab.")
 
 (defun make-path (path)
   "Creates an absolute path. The function has the following parameters:
