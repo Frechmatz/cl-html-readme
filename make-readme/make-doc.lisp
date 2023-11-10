@@ -48,7 +48,7 @@
    "</code></pre></p>"))
 
 (defun make-code-string-from-string (str)
-  "Returns HTML representation of a string"
+  "Returns HTML representation of a string representing source code"
   (concatenate
    'string
    "<p><pre><code>"
@@ -76,7 +76,7 @@
      (:name "header")
      (heading
       (:name "cl-html-readme"))
-     ,(cl-html-readme:read-file "make-readme/introduction.html")
+     ,(cl-html-readme:read-file "make-readme/snippets/introduction.html")
      "<p>The source code is available <a href=\"https://github.com/Frechmatz/cl-html-readme\">here</a>.</p>")
     (semantic
      (:name "nav")
@@ -115,10 +115,10 @@
 	"</ul>")))
      (heading
       (:name "Installation" :toc t)
-      ,(cl-html-readme:read-file "make-readme/installation.html"))
+      ,(cl-html-readme:read-file "make-readme/snippets/installation.html"))
      (heading
       (:name "DSL" :toc t)
-      ,(cl-html-readme:read-file "make-readme/dsl-introduction.html")
+      ,(cl-html-readme:read-file "make-readme/snippets/dsl-introduction.html")
       (heading
        (:name "Examples")
        (heading
@@ -167,10 +167,10 @@
        ,(make-function-string index "cl-html-readme" "read-stream")))
      (heading
       (:name "Run tests" :toc t)
-      "<pre><code>(asdf:test-system :cl-html-readme)</code></pre>")
+      ,(make-code-string-from-string "(asdf:test-system :cl-html-readme)"))
      (heading
       (:name "Generate documentation" :toc t)
-      ,(make-code-string-from-file "make-readme/generate-doc.lisp")))
+      ,(make-code-string-from-file "make-readme/snippets/generate-doc.lisp")))
     (semantic
      (:name "footer")
      "<hr/><p><small>Generated " ,(now) "</small></p>")
