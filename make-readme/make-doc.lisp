@@ -126,13 +126,19 @@
     (semantic
      (:name "section")
      (heading
+      (:name "Installation" :toc t)
+      (heading
+       (:name "Quicklisp")
+       "<p><pre><code>(ql:quickload \"cl-html-readme\")</code></pre></p>"
+       "The current Quicklisp release is version "
+       ,(cl-html-readme:read-file "quicklisprelease.txt")))
+     (heading
       (:name "Change-Log" :toc t)
       (heading
        (:name "Version 1.0.0")
        "<p>The first release of cl-html-readme.</p>")
       (heading
        (:name "Version 1.0.1")
-       "<p><b>This version is the current quicklisp release.</b></p>"
        (heading
 	(:name "Changes")
 	"<ul>"
@@ -153,9 +159,6 @@
 	"<li>Increased test coverage.</li>"
 	"<li>A more efficient implementation of the TOC generation.</li>"
 	"</ul>")))
-     (heading
-      (:name "Installation" :toc t)
-      ,(cl-html-readme:read-file "make-readme/snippets/installation.html"))
      (heading
       (:name "DSL" :toc t)
       ,(cl-html-readme:read-file "make-readme/snippets/dsl-introduction.html")
