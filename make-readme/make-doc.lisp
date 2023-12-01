@@ -147,7 +147,6 @@
 	"</ul>"))
       (heading
        (:name "Version 2.0.0")
-       "<p><b>This version is the current quicklisp release.</b></p>"
        (heading
 	(:name "Breaking changes")
 	"<ul>"
