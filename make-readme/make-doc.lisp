@@ -127,11 +127,11 @@
      (:name "section")
      (heading
       (:name "Installation" :toc t)
-      (heading
-       (:name "Quicklisp")
-       "<p><pre><code>(ql:quickload \"cl-html-readme\")</code></pre></p>"
-       "The current Quicklisp release is version "
-       ,(cl-html-readme:read-file "quicklisprelease.txt")))
+       "The library is available via Quicklisp. "
+       "Within the REPL run <code>(ql:quickload \"cl-html-readme\")</code> "
+       "to install and "
+       "<code>(slot-value (asdf:find-system 'cl-html-readme) 'asdf:version)</code> "
+       "to get the version number of the installed release.")
      (heading
       (:name "Change-Log" :toc t)
       (heading

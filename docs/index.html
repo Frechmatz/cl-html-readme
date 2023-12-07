@@ -4,7 +4,6 @@
 as markup language for their docstrings.
 <p>The goal of this library is to make it easy to generate a table of contents or
   to structure the documentation with semantic elements. It shall not impose any styling. To accomplish this, the library provides a DSL as well as a couple of helper functions.</p>
-<p>The library does not cover retrieval of metadata, like for example object documentation strings. An excellent library for such purposes is <a href="https://github.com/eudoxia0/docparser">docparser</a></p>
 <p>The general concept is to declare an HTML skeleton using the DSL of cl-html-readme and
   to provide the actual documentation and any arbitrary markup as plain HTML strings embedded
   into it.</p>
@@ -34,8 +33,7 @@ as markup language for their docstrings.
 <li><a href="#Run tests">Run tests</a></li>
 <li><a href="#Generate documentation">Generate documentation</a></li></ul></nav>
 <section>
-<h1 id="Installation">Installation</h1>
-<h2>Quicklisp</h2><p><pre><code>(ql:quickload "cl-html-readme")</code></pre></p>The current Quicklisp release is version 1.0.1
+<h1 id="Installation">Installation</h1>The library is available via Quicklisp. Within the REPL run <code>(ql:quickload "cl-html-readme")</code> to install and <code>(slot-value (asdf:find-system 'cl-html-readme) 'asdf:version)</code> to get the version number of the installed release.
 <h1 id="Change-Log">Change-Log</h1>
 <h2>Version 1.0.0</h2><p>The first release of cl-html-readme.</p>
 <h2>Version 1.0.1</h2>
@@ -148,4 +146,4 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 <h1 id="Run tests">Run tests</h1><p><pre><code>(asdf:test-system :cl-html-readme)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-12-01  18:13:04</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-12-07  23:00:10</small></p></footer></body></html>
