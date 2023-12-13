@@ -1,6 +1,6 @@
 (defsystem :cl-html-readme
   :serial t
-  :version "2.0.0"
+  :version "2.0.1"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
@@ -17,7 +17,7 @@
 
 (defsystem :cl-html-readme/test
   :serial t
-  :version "2.0.0"
+  :version "2.0.1"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
@@ -39,7 +39,7 @@
 
 (defsystem :cl-html-readme/doc
   :serial t
-  :version "2.0.0"
+  :version "2.0.1"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
