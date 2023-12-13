@@ -126,7 +126,9 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 (defun example ()
   (let ((documentation
     `((heading (:name &quot;Example&quot;))
-      ,(cl-html-readme:read-string &quot;&lt;b&gt;Lorum ipsum&lt;/b&gt;&quot; :escape t))))
+      ,(cl-html-readme:read-string
+        &quot;&lt;b&gt;Lorum ipsum&lt;/b&gt;&quot;
+        :escape t))))
     (cl-html-readme:doc-to-html nil documentation)))
 
 ;;(example)</code></pre></p>
@@ -146,4 +148,4 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 <h1 id="Run tests">Run tests</h1><p><pre><code>(asdf:test-system :cl-html-readme)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-12-07  23:00:10</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2023-12-13  18:00:33</small></p></footer></body></html>

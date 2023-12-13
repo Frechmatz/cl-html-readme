@@ -6,7 +6,9 @@
 (defun example ()
   (let ((documentation
 	  `((heading (:name "Example"))
-	    ,(cl-html-readme:read-string "<b>Lorum ipsum</b>" :escape t))))
+	    ,(cl-html-readme:read-string
+	      "<b>Lorum ipsum</b>"
+	      :escape t))))
     (cl-html-readme:doc-to-html nil documentation)))
 
 ;;(example)
