@@ -1,5 +1,35 @@
 (in-package :cl-html-readme)
 
+(defparameter *get-heading-attributes*
+  (lambda (properties)
+    (declare (ignore properties))
+    nil)
+    "Get the HTML attributes of a heading element. Called with the properties of the corresponding DSL <code>heading</code> element.")
+
+(defparameter *get-semantic-attributes*
+  (lambda (properties)
+    (declare (ignore properties))
+    nil)
+    "Get the HTML attributes of a semantic element. Called with the properties of the corresponding DSL <code>semantic</code> element.")
+
+(defparameter *get-toc-root-attributes*
+  (lambda (properties)
+    (declare (ignore properties))
+    nil)
+    "Get the HTML attributes of the root \"&lt;ul&gt;\" element of the table of contents. Called with the properties of the corresponding DSL <code>toc</code> element.")
+					    
+(defparameter *get-toc-item-attributes*
+  (lambda (properties)
+    (declare (ignore properties))
+    nil)
+    "Get the HTML attributes of an item \"&lt;li&gt;\" element of the table of contents. Items are leaf nodes of the TOC tree. Called with the properties of the corresponding DSL <code>toc</code> element.")
+
+(defparameter *get-toc-container-attributes*
+  (lambda (properties)
+    (declare (ignore properties))
+    nil)
+    "Get the HTML attributes of a container \"&lt;ul&gt;\" element of the table of contents. Containers are nodes of the TOC tree that have children. Called with the properties of the corresponding DSL <code>toc</code> element.")
+
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation object."
   (let ((id-store nil) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
@@ -64,6 +94,24 @@
 ;; HTML generation
 ;;
 
+(defun format-extra-attributes-impl (attrs)
+  (let ((string-output-stream (make-string-output-stream))
+	(reading-key t)
+	(cur-key nil)
+	(cur-value nil))
+    (dolist (item attrs)
+      (if reading-key
+	  (setf cur-key item)
+	  (setf cur-value item))
+      (if (and (not reading-key) (stringp cur-value) (< 0 (length cur-value)))
+	  (format
+	   string-output-stream
+	   " ~a=\"~a\""
+	   (string-downcase (symbol-name cur-key))
+	   cur-value))
+      (setf reading-key (not reading-key)))
+    (get-output-stream-string string-output-stream)))
+
 (defun serialize (output-stream doc)
   (labels ((newline ()
 	     (princ #\Newline output-stream))
@@ -74,68 +122,74 @@
 	     (let ((level (getf properties :level)))
 	       (if (<= level 5)
 		   (format nil "h~a" (+ 1 level))
-		   (format nil "h6")))))
-    (cl-html-readme-dsl::walk-tree
-     doc
-     :open-element
-     (lambda(element-symbol element-properties content)
-       (declare (ignore content))
-       (cond
-	 ((cl-html-readme-dsl::heading-p element-symbol)
-	  ;; <h{level} id={id}> {name} </h{level}>
-	  (newline)
-	  (format
-	   output-stream
-	   "<~a~a>~a</~a>"
-	   (format-heading element-properties)
-	   (format-id element-properties)
-	   (getf element-properties :name)
-	   (format-heading element-properties))
-	  nil)
-	 ((cl-html-readme-dsl::semantic-p element-symbol)
-	  (newline)
-	  ;; <{name}>...</{name}>
-	  (format
-	   output-stream
-	   "<~a>"
-	   (getf element-properties :name))
-	  (format nil "</~a>" (getf element-properties :name)))
-	 ((cl-html-readme-dsl::toc-root-p element-symbol)
-	  (newline)
-	  ;; <ul>...</ul>
-	  (format
-	   output-stream
-	   "<ul>")
-	  "</ul>")
-	 ((cl-html-readme-dsl::toc-item-p element-symbol)
-	  ;; <li><a href=#{id}> {name} </a> </li>
-	  (newline)
-	  (format
-	   output-stream
-	   "<li><a href=\"#~a\">~a</a></li>"
-	   (getf element-properties :id)
-	   (getf element-properties :name))
-	  nil)
-	 ((cl-html-readme-dsl::toc-container-p element-symbol)
-	  ;; <li> <a href=#{id}> {name} </a>
-	  ;; <ul>...</ul>
-	  ;; </li>
-	  (newline)
-	  (format
-	   output-stream
-	   "<li><a href=\"#~a\">~a</a><ul>"
-	   (getf element-properties :id)
-	   (getf element-properties :name))
-	  "</ul></li>")
-	 (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
-     :close-element
-     (lambda(context)
-       (if context
-	   (format output-stream "~a" context)))
-     :text
-     (lambda(str)
-       (format output-stream "~a" str)))
-    nil))
+		   (format nil "h6"))))
+	   (format-extra-attributes (fn properties)
+	     (format-extra-attributes-impl
+	      (funcall fn properties))))
+    (let ((toc-properties nil))
+      (cl-html-readme-dsl::walk-tree
+       doc
+       :open-element
+       (lambda(element-symbol element-properties content)
+	 (declare (ignore content))
+	 (cond
+	   ((cl-html-readme-dsl::heading-p element-symbol)
+	    ;; <h{level} id={id} {render-hook}> {name} </h{level}>
+	    (newline)
+	    (format
+	     output-stream
+	     "<~a~a~a>~a</~a>"
+	     (format-heading element-properties)
+	     (format-id element-properties)
+	     (format-extra-attributes *get-heading-attributes* element-properties)
+	     (getf element-properties :name)
+	     (format-heading element-properties))
+	    nil)
+	   ((cl-html-readme-dsl::semantic-p element-symbol)
+	    (newline)
+	    ;; <{name}>...</{name}>
+	    (format
+	     output-stream
+	     "<~a>"
+	     (getf element-properties :name))
+	    (format nil "</~a>" (getf element-properties :name)))
+	   ((cl-html-readme-dsl::toc-root-p element-symbol)
+	    (newline)
+	    ;; <ul>...</ul>
+	    (format
+	     output-stream
+	     "<ul>")
+	    "</ul>")
+	   ((cl-html-readme-dsl::toc-item-p element-symbol)
+	    ;; <li><a href=#{id}> {name} </a> </li>
+	    (newline)
+	    (format
+	     output-stream
+	     "<li><a href=\"#~a\">~a</a></li>"
+	     (getf element-properties :id)
+	     (getf element-properties :name))
+	    nil)
+	   ((cl-html-readme-dsl::toc-container-p element-symbol)
+	    ;; <li> <a href=#{id}> {name} </a>
+	    ;; <ul>...</ul>
+	    ;; </li>
+	    (newline)
+	    (format
+	     output-stream
+	     "<li><a href=\"#~a\">~a</a><ul>"
+	     (getf element-properties :id)
+	     (getf element-properties :name))
+	    "</ul></li>")
+	   (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
+       :close-element
+       (lambda(context)
+	 (if context
+	     (format output-stream "~a" context)))
+       :text
+       (lambda(str)
+	 (format output-stream "~a" str)))
+      nil)))
+
 
 ;;
 ;; API

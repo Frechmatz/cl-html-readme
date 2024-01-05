@@ -127,11 +127,11 @@
      (:name "section")
      (heading
       (:name "Installation" :toc t)
-       "The library is available via Quicklisp. "
-       "Within the REPL run <code>(ql:quickload \"cl-html-readme\")</code> "
-       "to install and "
-       "<code>(slot-value (asdf:find-system 'cl-html-readme) 'asdf:version)</code> "
-       "to get the version number of the installed release.")
+      "The library is available via Quicklisp. "
+      "Within the REPL run <code>(ql:quickload \"cl-html-readme\")</code> "
+      "to install and "
+      "<code>(slot-value (asdf:find-system 'cl-html-readme) 'asdf:version)</code> "
+      "to get the version number of the installed release.")
      (heading
       (:name "Change-Log" :toc t)
       (heading
@@ -158,6 +158,13 @@
 	"<li>Improved documentation.</li>"
 	"<li>Increased test coverage.</li>"
 	"<li>A more efficient implementation of the TOC generation.</li>"
+	"</ul>"))
+      (heading
+       (:name "Version 2.1.0")
+       (heading
+	(:name "Changes")
+	"<ul>"
+	"<li>Added rendering hooks</li>"
 	"</ul>")))
      (heading
       (:name "DSL" :toc t)
@@ -207,7 +214,32 @@
        ,(make-function-string :cl-html-readme "cl-html-readme" "read-file"))
       (heading
        (:name "read-stream" :toc t)
-       ,(make-function-string :cl-html-readme "cl-html-readme" "read-stream")))
+       ,(make-function-string :cl-html-readme "cl-html-readme" "read-stream"))
+      (heading
+       (:name "Rendering Hooks" :toc t)
+       "Beside of ids the library does not generate any HTML attributes. Rendering hooks can be used to add custom attributes to the output. A hook is a function that is called with the properties of the (typically) current DSL element and returns a property list containing the \"extra\" attributes that are to be rendered. If the value of an attribute is nil, not a string or an empty string the attribute will not be rendered."
+       (heading
+	(:name "Example")
+	,(make-code-string-from-file "make-readme/examples/rendering-hook.lisp")
+	(heading
+	 (:name "Generated HTML")
+	 ,(make-code-string-from-string
+	   (cl-html-readme-make-readme-example-rendering-hook::example))))
+       (heading
+	(:name "*get-heading-attributes*" :toc t)
+	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-heading-attributes*"))
+       (heading
+	(:name "*get-semantic-attributes*" :toc t)
+	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-semantic-attributes*"))
+       (heading
+	(:name "*get-toc-root-attributes*" :toc t)
+	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-root-attributes*"))
+       (heading
+	(:name "*get-toc-container-attributes*" :toc t)
+	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-container-attributes*"))
+       (heading
+	(:name "*get-toc-item-attributes*" :toc t)
+	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-item-attributes*"))))
      (heading
       (:name "Run tests" :toc t)
       ,(make-code-string-from-string "(asdf:test-system :cl-html-readme)"))
