@@ -1,6 +1,6 @@
 (defsystem :cl-html-readme
   :serial t
-  :version "2.0.1"
+  :version "2.1.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
@@ -17,7 +17,7 @@
 
 (defsystem :cl-html-readme/test
   :serial t
-  :version "2.0.1"
+  :version "2.1.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
@@ -39,7 +39,7 @@
 
 (defsystem :cl-html-readme/doc
   :serial t
-  :version "2.0.1"
+  :version "2.1.0"
   :licence "MIT"
   :author "Oliver <frechmatz@gmx.de>"
   :maintainer "Oliver <frechmatz@gmx.de>"
@@ -51,7 +51,8 @@
 		:serial t
 		:components ((:file "toc")
 			     (:file "semantic")
-			     (:file "escape")))
+			     (:file "escape")
+			     (:file "rendering-hook")))
 	       (:module "make-readme"
 		:serial t
 		:components ((:file "packages")
