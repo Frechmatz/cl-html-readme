@@ -214,32 +214,32 @@
        ,(make-function-string :cl-html-readme "cl-html-readme" "read-file"))
       (heading
        (:name "read-stream" :toc t)
-       ,(make-function-string :cl-html-readme "cl-html-readme" "read-stream"))
+       ,(make-function-string :cl-html-readme "cl-html-readme" "read-stream")))
+     (heading
+      (:name "Rendering Hooks" :toc t)
+      "Rendering hooks can be used to add custom HTML attributes to the output. A hook is a function that is called with the properties of the (typically) current DSL special form and returns a property list containing the additional attributes. An attribute is omitted from rendering when its value  is nil, not a string or an empty string."
       (heading
-       (:name "Rendering Hooks" :toc t)
-       "Beside of ids the library does not generate any HTML attributes. Rendering hooks can be used to add custom attributes to the output. A hook is a function that is called with the properties of the (typically) current DSL element and returns a property list containing the \"extra\" attributes that are to be rendered. If the value of an attribute is nil, not a string or an empty string the attribute will not be rendered."
+       (:name "Example")
+       ,(make-code-string-from-file "make-readme/examples/rendering-hook.lisp")
        (heading
-	(:name "Example")
-	,(make-code-string-from-file "make-readme/examples/rendering-hook.lisp")
-	(heading
-	 (:name "Generated HTML")
-	 ,(make-code-string-from-string
-	   (cl-html-readme-make-readme-example-rendering-hook::example))))
-       (heading
-	(:name "*get-heading-attributes*" :toc t)
-	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-heading-attributes*"))
-       (heading
-	(:name "*get-semantic-attributes*" :toc t)
-	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-semantic-attributes*"))
-       (heading
-	(:name "*get-toc-root-attributes*" :toc t)
-	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-root-attributes*"))
-       (heading
-	(:name "*get-toc-container-attributes*" :toc t)
-	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-container-attributes*"))
-       (heading
-	(:name "*get-toc-item-attributes*" :toc t)
-	,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-item-attributes*"))))
+	(:name "Generated HTML")
+	,(make-code-string-from-string
+	  (cl-html-readme-make-readme-example-rendering-hook::example))))
+      (heading
+       (:name "*get-heading-attributes*" :toc t)
+       ,(make-variable-string :cl-html-readme "cl-html-readme" "*get-heading-attributes*"))
+      (heading
+       (:name "*get-semantic-attributes*" :toc t)
+       ,(make-variable-string :cl-html-readme "cl-html-readme" "*get-semantic-attributes*"))
+      (heading
+       (:name "*get-toc-root-attributes*" :toc t)
+       ,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-root-attributes*"))
+      (heading
+       (:name "*get-toc-container-attributes*" :toc t)
+       ,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-container-attributes*"))
+      (heading
+       (:name "*get-toc-item-attributes*" :toc t)
+       ,(make-variable-string :cl-html-readme "cl-html-readme" "*get-toc-item-attributes*")))     
      (heading
       (:name "Run tests" :toc t)
       ,(make-code-string-from-string "(asdf:test-system :cl-html-readme)"))

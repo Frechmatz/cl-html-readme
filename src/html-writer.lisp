@@ -4,31 +4,32 @@
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the HTML attributes of a heading element. Called with the properties of the corresponding DSL <code>heading</code> element.")
+    "Get the attributes of a heading form. A heading is rendered as a \"&lt;h1&gt;\" ... \"&lt;h6&gt;\" HTML element. The hook is called with the properties of the DSL <code>heading</code> form.")
 
 (defparameter *get-semantic-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the HTML attributes of a semantic element. Called with the properties of the corresponding DSL <code>semantic</code> element.")
+    "Get the attributes of a semantic form. A semantic form is rendered as a \"&lt;${properties.name}&gt;\" HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.")
 
 (defparameter *get-toc-root-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the HTML attributes of the root \"&lt;ul&gt;\" element of the table of contents. Called with the properties of the corresponding DSL <code>toc</code> element.")
+  "Get the attributes of the TOC root form. This form is created during the TOC expansion. The TOC root is rendered as a \"&lt;ul&gt;\"
+ HTML element. The hook is called with the properties of the DSL <code>toc</code> form.")
 					    
 (defparameter *get-toc-item-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the HTML attributes of an item \"&lt;li&gt;\" element of the table of contents. Items are leaf nodes of the TOC tree. Called with the properties of the corresponding DSL <code>toc</code> element.")
+    "Get the attributes of a TOC item form. Such forms are created during the TOC expansion. An item is an entry of the TOC that does not have sub-entries. Items are rendered as \"&lt;li&gt;\" HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
 (defparameter *get-toc-container-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the HTML attributes of a container \"&lt;ul&gt;\" element of the table of contents. Containers are nodes of the TOC tree that have children. Called with the properties of the corresponding DSL <code>toc</code> element.")
+    "Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as \"&lt;ul&gt;\" HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation object."

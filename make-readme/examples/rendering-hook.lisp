@@ -10,9 +10,9 @@
 	    (lambda (properties)
 	      (list
 	       :class (getf properties :class)
-	       :nil nil
-	       :list (list "a")
-	       :empty-str ""))))
+	       :a nil
+	       :b (list "")
+	       :c ""))))
       (cl-html-readme:doc-to-html nil documentation))))
 
 ;;(example)
