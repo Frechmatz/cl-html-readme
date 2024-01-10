@@ -30,6 +30,12 @@ as markup language for their docstrings.
 <li><a href="#read-string">read-string</a></li>
 <li><a href="#read-file">read-file</a></li>
 <li><a href="#read-stream">read-stream</a></li></ul></li>
+<li><a href="#Rendering Hooks">Rendering Hooks</a><ul>
+<li><a href="#*get-heading-attributes*">*get-heading-attributes*</a></li>
+<li><a href="#*get-semantic-attributes*">*get-semantic-attributes*</a></li>
+<li><a href="#*get-toc-root-attributes*">*get-toc-root-attributes*</a></li>
+<li><a href="#*get-toc-container-attributes*">*get-toc-container-attributes*</a></li>
+<li><a href="#*get-toc-item-attributes*">*get-toc-item-attributes*</a></li></ul></li>
 <li><a href="#Run tests">Run tests</a></li>
 <li><a href="#Generate documentation">Generate documentation</a></li></ul></nav>
 <section>
@@ -41,6 +47,8 @@ as markup language for their docstrings.
 <h2>Version 2.0.0</h2>
 <h3>Breaking changes</h3><ul><li>Support of HTML style and class attributes has been removed.</li></ul>
 <h3>Changes</h3><ul><li>Added read-stream and read-string to the API.</li><li>Improved documentation.</li><li>Increased test coverage.</li><li>A more efficient implementation of the TOC generation.</li></ul>
+<h2>Version 2.1.0</h2>
+<h3>Changes</h3><ul><li>Added rendering hooks</li></ul>
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents placeholder. The actual "content" are plain strings that are embedded into this skeleton. These strings are not parsed during the HTML generation but written "as is".
 <h2>Examples</h2>
@@ -145,7 +153,33 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul></p>
+<h1 id="Rendering Hooks">Rendering Hooks</h1>Rendering hooks can be used to add custom HTML attributes to the output. A hook is a function that is called with the properties of the (typically) current DSL special form and returns a property list containing the additional attributes. An attribute is omitted from rendering when its value  is nil, not a string or an empty string.
+<h2>Example</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-example-rendering-hook
+  (:use :cl)
+  (:documentation &quot;Example: Rendering hook&quot;))
+(in-package :cl-html-readme-make-readme-example-rendering-hook)
+
+(defun example ()
+  (let ((documentation
+    `((heading (:name &quot;Header&quot; :toc t :class &quot;heading-class&quot;)))))
+    (let ((cl-html-readme:*get-heading-attributes*
+      (lambda (properties)
+        (list
+         :class (getf properties :class)
+         :a nil
+         :b (list &quot;&quot;)
+         :c &quot;&quot;))))
+      (cl-html-readme:doc-to-html nil documentation))))
+
+;;(example)</code></pre></p>
+<h3>Generated HTML</h3><p><pre><code>&lt;h1 id=&quot;Header&quot; class=&quot;heading-class&quot;&gt;Header&lt;/h1&gt;</code></pre></p>
+<h2 id="*get-heading-attributes*">*get-heading-attributes*</h2><b>cl-html-readme:*get-heading-attributes*</b>&nbsp;<p>Get the attributes of a heading form. A heading is rendered as a <code>"&lt;h1&gt;"</code> ... <code>"&lt;h6&gt;" </code> HTML element. The hook is called with the properties of the DSL <code>heading</code> form.</p>
+<h2 id="*get-semantic-attributes*">*get-semantic-attributes*</h2><b>cl-html-readme:*get-semantic-attributes*</b>&nbsp;<p>Get the attributes of a semantic form. A semantic form is rendered as a <code>"&lt;${properties.name}&gt;"</code> HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.</p>
+<h2 id="*get-toc-root-attributes*">*get-toc-root-attributes*</h2><b>cl-html-readme:*get-toc-root-attributes*</b>&nbsp;<p>Get the attributes of the TOC root form. This form is created during the TOC expansion. The TOC root is rendered as a <code>"&lt;ul&gt;"</code>
+ HTML element. The hook is called with the properties of the DSL <code>toc</code> form.</p>
+<h2 id="*get-toc-container-attributes*">*get-toc-container-attributes*</h2><b>cl-html-readme:*get-toc-container-attributes*</b>&nbsp;<p>Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as <code>"&lt;ul&gt;"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.</p>
+<h2 id="*get-toc-item-attributes*">*get-toc-item-attributes*</h2><b>cl-html-readme:*get-toc-item-attributes*</b>&nbsp;<p>Get the attributes of a TOC item form. Such forms are created during the TOC expansion. Each entry of the TOC is represented by an item. Items are rendered as <code>"&lt;li&gt;"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.</p>
 <h1 id="Run tests">Run tests</h1><p><pre><code>(asdf:test-system :cl-html-readme)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2023-12-13  18:00:33</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2024-01-10  22:56:04</small></p></footer></body></html>
