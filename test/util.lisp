@@ -77,3 +77,14 @@
 	    (progn
 	      (format t "~%Error while stringifying doc object:~%~a~%Doc:~%~a~%" err doc)
 	      (error err))))))))
+
+
+(defun doc-to-html (doc)
+  "Render to HTML. Omit newlines."
+  (let ((cl-html-readme::*print-newline*
+	  (lambda (stream)
+	    (declare (ignore stream))
+	    nil)))
+    (cl-html-readme:doc-to-html nil doc)))
+
+
