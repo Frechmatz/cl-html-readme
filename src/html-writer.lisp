@@ -31,6 +31,11 @@
     nil)
     "Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as \"&lt;ul&gt;\" HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
+(defparameter *print-newline*
+  (lambda (stream)
+    (princ #\Newline stream))
+  "Private helper hook for unit tests to get more predictable HTML output.")
+
 (defun set-heading-ids (doc)
   "Assign ids to toc-headings. Returns a new documentation object."
   (let ((id-store nil) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
@@ -115,7 +120,7 @@
 
 (defun serialize (output-stream doc)
   (labels ((newline ()
-	     (princ #\Newline output-stream))
+	     (funcall *print-newline* output-stream))
 	   (format-id (properties)
 	     (if (getf properties :id)
 		 (format nil " id=\"~a\"" (getf properties :id)) ""))
@@ -134,6 +139,9 @@
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (cond
+	   ;;
+	   ;; Heading
+	   ;;
 	   ((cl-html-readme-dsl::heading-p element-symbol)
 	    ;; <h{level} id={id} {render-hook}> {name} </h{level}>
 	    (newline)
@@ -146,40 +154,58 @@
 	     (getf element-properties :name)
 	     (format-heading element-properties))
 	    nil)
+	   ;;
+	   ;; Semantic
+	   ;;
 	   ((cl-html-readme-dsl::semantic-p element-symbol)
 	    (newline)
-	    ;; <{name}>...</{name}>
+	    ;; <{name {render-hook}}>...</{name}>
 	    (format
 	     output-stream
-	     "<~a>"
-	     (getf element-properties :name))
+	     "<~a~a>"
+	     (getf element-properties :name)
+	     (format-extra-attributes *get-semantic-attributes* element-properties))
 	    (format nil "</~a>" (getf element-properties :name)))
+	   ;;
+	   ;; Toc-Root
+	   ;;
 	   ((cl-html-readme-dsl::toc-root-p element-symbol)
+	    (setf toc-properties element-properties)
 	    (newline)
-	    ;; <ul>...</ul>
+	    ;; <ul {render-hook}>...</ul>
 	    (format
 	     output-stream
-	     "<ul>")
+	     "<ul~a>"
+	     (format-extra-attributes *get-toc-root-attributes* toc-properties))
 	    "</ul>")
+	   ;;
+	   ;; Toc-Item
+	   ;;
 	   ((cl-html-readme-dsl::toc-item-p element-symbol)
-	    ;; <li><a href=#{id}> {name} </a> </li>
+	    ;; <li {render-hook}><a href=#{id}> {name} </a> </li>
 	    (newline)
 	    (format
 	     output-stream
-	     "<li><a href=\"#~a\">~a</a></li>"
+	     "<li~a><a href=\"#~a\">~a</a></li>"
+	     (format-extra-attributes *get-toc-item-attributes* toc-properties)
 	     (getf element-properties :id)
 	     (getf element-properties :name))
 	    nil)
+	   ;;
+	   ;; Toc-Container
+	   ;;
 	   ((cl-html-readme-dsl::toc-container-p element-symbol)
-	    ;; <li> <a href=#{id}> {name} </a>
-	    ;; <ul>...</ul>
+	    ;; <li {render-hook}> <a href=#{id}> {name} </a>
+	    ;; <ul {render-hook}>...</ul>
 	    ;; </li>
 	    (newline)
 	    (format
 	     output-stream
-	     "<li><a href=\"#~a\">~a</a><ul>"
+	     "<li~a><a href=\"#~a\">~a</a><ul~a>"
+	     (format-extra-attributes *get-toc-item-attributes* toc-properties)
 	     (getf element-properties :id)
-	     (getf element-properties :name))
+	     (getf element-properties :name)
+	     (format-extra-attributes *get-toc-container-attributes* toc-properties))
 	    "</ul></li>")
 	   (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
        :close-element
