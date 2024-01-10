@@ -4,32 +4,32 @@
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the attributes of a heading form. A heading is rendered as a \"&lt;h1&gt;\" ... \"&lt;h6&gt;\" HTML element. The hook is called with the properties of the DSL <code>heading</code> form.")
+    "Get the attributes of a heading form. A heading is rendered as a <code>\"&lt;h1&gt;\"</code> ... <code>\"&lt;h6&gt;\" </code> HTML element. The hook is called with the properties of the DSL <code>heading</code> form.")
 
 (defparameter *get-semantic-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the attributes of a semantic form. A semantic form is rendered as a \"&lt;${properties.name}&gt;\" HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.")
+    "Get the attributes of a semantic form. A semantic form is rendered as a <code>\"&lt;${properties.name}&gt;\"</code> HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.")
 
 (defparameter *get-toc-root-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-  "Get the attributes of the TOC root form. This form is created during the TOC expansion. The TOC root is rendered as a \"&lt;ul&gt;\"
+  "Get the attributes of the TOC root form. This form is created during the TOC expansion. The TOC root is rendered as a <code>\"&lt;ul&gt;\"</code>
  HTML element. The hook is called with the properties of the DSL <code>toc</code> form.")
 					    
 (defparameter *get-toc-item-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the attributes of a TOC item form. Such forms are created during the TOC expansion. An item is an entry of the TOC that does not have sub-entries. Items are rendered as \"&lt;li&gt;\" HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
+    "Get the attributes of a TOC item form. Such forms are created during the TOC expansion. Each entry of the TOC is represented by an item. Items are rendered as <code>\"&lt;li&gt;\"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
 (defparameter *get-toc-container-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as \"&lt;ul&gt;\" HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
+    "Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as <code>\"&lt;ul&gt;\"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
 (defparameter *print-newline*
   (lambda (stream)
