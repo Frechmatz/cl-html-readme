@@ -307,7 +307,6 @@ the syntax of the DSL. No validation is applied. The function has the following 
 (defun write-toc (doc toc-properties tree-builder)
   "Extracts toc and writes toc-root, toc-container, toc-item elements into the builder.
   - toc-properties: The properties of the corresponding toc-form"
-  (declare (ignore toc-properties))
   (flet ((remove-toc-property (properties)
 	   (filter-property-list-entries properties :key-blacklist (list :toc))))
     (let ((toc-headings (get-toc-headings doc)))
@@ -317,7 +316,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
 	    (open-element
 	     tree-builder
 	     'toc-root
-	     (list))
+	     toc-properties)
 	    ;; Render toc content
 	    (walk-tree
 	     toc-headings
@@ -331,14 +330,22 @@ the syntax of the DSL. No validation is applied. The function has the following 
 		     (open-element
 		      tree-builder
 		      'toc-item
-		       (remove-toc-property element-properties))
+		      (remove-toc-property
+		       (concatenate
+			'list
+			toc-properties
+			element-properties)))
 		     nil)
 		   (progn
 		     ;; Heading has sub-headings. Render a toc-container.
 		     (open-element
 		      tree-builder
 		      'toc-container
-		       (remove-toc-property element-properties))
+		      (remove-toc-property
+		       (concatenate
+			'list
+			element-properties
+			toc-properties)))
 		     nil)))
 	     :close-element
 	     (lambda(context)
