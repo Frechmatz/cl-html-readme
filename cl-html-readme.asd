@@ -34,6 +34,8 @@
 			     (:file "validate-test")
 			     (:file "tree-builder-test")
 			     (:file "extract-toc-test")
+			     (:file "set-heading-indentation-levels-test")
+			     (:file "set-heading-ids-test")
 			     (:file "html-writer-test"))))
   :perform (test-op (o c) (symbol-call :lisp-unit '#:run-tests :all :cl-html-readme-test)))
 

@@ -390,3 +390,82 @@ the syntax of the DSL. No validation is applied. The function has the following 
 		   (declare (ignore content))
 		   (validate-element element-symbol element-properties))
    :text (lambda(text) (validate-text text))))
+
+;;
+;;
+;;
+
+(defun set-heading-ids (doc)
+  "Assign ids to toc-headings. Returns a new documentation object."
+  (let ((id-store nil) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
+    (labels ((make-id (name &key (counter 0))
+	       (let ((id (if (eq 0 counter) name (format nil "~a-~a" name counter))))
+		 (if (find id id-store :test #'string=)
+		     (make-id name :counter (+ 1 counter))
+		     (progn
+		       (push id id-store)
+		       id))))
+	     (set-id (properties)
+	       (let ((l (copy-list properties)))
+		 (setf (getf l :id) (make-id (getf l :name)))
+		 l)))
+      (cl-html-readme-dsl::walk-tree
+       doc
+       :open-element
+       (lambda(element-symbol element-properties content)
+	 (declare (ignore content))
+	 (if (getf element-properties :toc)
+	     (cl-html-readme-dsl::open-element tree-builder element-symbol (set-id element-properties))
+	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties))
+	 nil)
+       :close-element
+       (lambda(context) (declare (ignore context)) (cl-html-readme-dsl::close-element tree-builder))
+       :text
+       (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
+      (cl-html-readme-dsl::get-tree tree-builder))))
+
+
+;;
+;;
+;;
+
+(defun set-heading-indentation-levels (doc)
+  "Set indentation levels of heading elements. Returns a new documentation object."
+  (let ((level 0) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
+    (labels ((set-indentation-level (properties)
+	       (let ((l (copy-list properties)))
+		 (setf (getf l :level) level)
+		 l)))
+      (cl-html-readme-dsl::walk-tree
+       doc
+       :open-element
+       (lambda(element-symbol element-properties content)
+	 (declare (ignore content))
+	 (if (cl-html-readme-dsl::heading-p element-symbol)
+	     (progn
+	       (cl-html-readme-dsl::open-element
+		tree-builder element-symbol
+		(set-indentation-level element-properties))
+	       (setf level (+ 1 level))
+	       :decrement-level)
+	     (progn
+	       (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
+	       nil)))
+       :close-element
+       (lambda(context)
+	 (if (eq context :decrement-level)
+	     (setf level (+ -1 level)))
+	 (cl-html-readme-dsl::close-element tree-builder))
+       :text
+       (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
+      (cl-html-readme-dsl::get-tree tree-builder))))
+
+;;
+;; 
+;;
+
+(defun compile-documentation (doc)
+  "Compile a documentation object to its internal representation"
+  (validate doc)
+  (set-heading-indentation-levels (expand-toc (set-heading-ids doc))))
+
