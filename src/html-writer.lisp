@@ -167,7 +167,7 @@
        <li>output-stream nil or a stream into which the resulting HTML is written.</li>
        <li>documentation A documentation object following the syntax of the DSL.</li>
    </ul>"
-  (let ((compiled-doc (cl-html-readme-dsl::compile-documentation documentation)))
+  (let ((compiled-doc (cl-html-readme-dsl-frontend::compile-documentation documentation)))
     (if output-stream
       (serialize output-stream compiled-doc)
       (let ((string-output-stream (make-string-output-stream)))

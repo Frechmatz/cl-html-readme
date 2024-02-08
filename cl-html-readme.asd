@@ -11,6 +11,7 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "dsl")
+			     (:file "dsl-frontend")
 			     (:file "readme-util")
 			     (:file "html-writer"))))
   :in-order-to ((test-op (test-op "cl-html-readme/test"))))

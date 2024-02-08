@@ -16,3 +16,10 @@
 
 (defpackage :cl-html-readme-dsl
   (:use :cl))
+
+(defpackage :cl-html-readme-dsl-frontend
+  (:use :cl)
+  (:export
+   :validate))
+
+

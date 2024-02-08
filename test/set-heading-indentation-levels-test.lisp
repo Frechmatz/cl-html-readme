@@ -9,7 +9,7 @@
   (let ((doc '((heading (:name "H1" :toc t))
 	       (heading (:name "H2" :toc t))
 	       (heading (:name "H3" :toc t)))))
-    (let ((updated-doc (cl-html-readme-dsl::set-heading-indentation-levels doc))
+    (let ((updated-doc (cl-html-readme-dsl-frontend::set-heading-indentation-levels doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :level 0))
 	      (heading (:name "H2" :toc t :level 0))
@@ -24,7 +24,7 @@
 		(heading (:name "H1.2" :toc t)
 		 (heading (:name "H1.2.1" :toc t))))
 	       (heading (:name "H2" :toc t)))))
-    (let ((updated-doc (cl-html-readme-dsl::set-heading-indentation-levels doc))
+    (let ((updated-doc (cl-html-readme-dsl-frontend::set-heading-indentation-levels doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :level 0)
 	       (heading (:name "H1.1" :toc t :level 1))

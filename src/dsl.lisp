@@ -1,19 +1,13 @@
 (in-package :cl-html-readme-dsl)
 
 ;;
-;; DSL of cl-html-readme
-;;
-
-;;
-;; DSL definition:
+;; Intermediate DSL definition:
 ;;
 ;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
 ;;
 ;; <semantic> ::= (semantic <semantic-properties> { <string> | <heading> | <toc> | <toc-root> })
 ;;
 ;; <heading> ::= (heading <heading-properties> { <string> | <heading> | <toc> | <toc-root> })
-;;
-;; <toc> ::= (toc <toc-properties>) ;; High level representation of <toc-root> element
 ;;
 ;; <toc-root> ::= (toc-root <toc-root-properties> { <toc-item> | <toc-container> })
 ;;
@@ -25,8 +19,6 @@
 ;;
 ;; <heading-properties> ::= (:name <string> [:toc t | nil] {:<keyword> <value>})
 ;;
-;; <toc-properties> ::= ({:<keyword> <value>})
-;;
 ;; <toc-item-properties> ::= (:name <string> {:<keyword> <value>})
 ;;
 ;; <toc-container-properties> ::= (:name <string> {:<keyword> <value>})
@@ -36,20 +28,21 @@
 ;; <string> ::= A string literal
 ;;
 
-
+#|
+;; TODO Move to dsl-backend
 (defparameter *dsl-elements*
   '((:name "SEMANTIC" :mandatory-properties (:name))
     (:name "HEADING" :mandatory-properties (:name))
-    (:name "TOC" :mandatory-properties ())
+;;    (:name "TOC" :mandatory-properties ())
     (:name "TOC-ROOT" :mandatory-properties ())
     (:name "TOC-ITEM" :mandatory-properties (:name))
     (:name "TOC-CONTAINER" :mandatory-properties (:name))))
+|#
 
-(defun get-dsl-element (element)
-  (if (not (symbolp element))
-      nil
-      (let ((name (symbol-name element)))
-	(find-if (lambda(e) (string= name (getf e :name))) *dsl-elements*))))
+
+;;
+;; TODO Separate backend/frontend
+;;
 
 (defun semantic-p (element)
   (and (symbolp element) (string= "SEMANTIC" (symbol-name element))))
@@ -78,52 +71,6 @@
 
 (define-condition dsl-syntax-error (simple-error)())
 
-(defun validate-element (element properties)
-  (let ((form-definition (get-dsl-element element)))
-    (if (not form-definition)
-      (error
-       'dsl-syntax-error
-       :format-control "Not a DSL special form: ~a"
-       :format-arguments (list element)))
-    (dolist (key (getf form-definition :mandatory-properties))
-      (if (not (getf properties key))
-	  (error
-	   'dsl-syntax-error
-	   :format-control "Mandatory property ~a missing for form ~a"
-	   :format-arguments (list key element))))
-  nil))
-
-(defun validate-text (text)
-  (if (not (stringp text))
-      (error
-       'dsl-syntax-error
-       :format-control "Text must be a string: ~a"
-       :format-arguments (list text))))
-
-;;
-;; Property list tooling
-;;
-
-(defun get-property-list-keys (plist)
-  "Get the keys of a property list"
-  (let ((keys nil) (push-key t))
-    (dolist (item plist)
-      (if push-key
-	  (push item keys))
-      (setf push-key (not push-key)))
-    keys))
-
-(defun filter-property-list-entries (plist &key key-blacklist)
-  "Filter entries of a property list"
-  (let ((keys (get-property-list-keys plist))
-	(result nil))
-    (dolist (key keys)
-      (if (not (find key key-blacklist))
-	  (progn
-	    (push (getf plist key) result)
-	    (push key result))))
-    result))
-
 ;;
 ;; DSL-Tree Walker
 ;;
@@ -141,11 +88,21 @@ the syntax of the DSL. No validation is applied. The function has the following 
    <li>:text A function that is called for each text node.
      <p>(lambda(str))</p></li>
    </ul>"
+;;  (format t "~%########### Walk-Tree ################ ~%")
   (labels ((walk-tree-impl (l)
+		   ;; (format 
+		   ;;  t
+		   ;;  "~%########### Walk-Tree-Impl called with  ~a ################ ~%" l)
 	     (if (not (listp l))
 		 (progn
+;;		   (format
+;;		    t
+;;		    "~%########### Walk-Tree-Impl: Not a list. calling text handler ~a ################ ~%" l)
 		   (funcall text l))
 		 (progn
+;;		   (format
+;;		    t
+;;		    "~%########### Walk-Tree-Impl: Item is a list. Processing form ~a ################ ~%" l)
 		   (let* ((element-symbol (first l))
 			  (element-properties (second l)))
 		     (let* ((content (rest (rest l)))
@@ -158,6 +115,10 @@ the syntax of the DSL. No validation is applied. The function has the following 
 			 (walk-tree-impl item))
 		       (funcall close-element context)))))))
     (dolist (item documentation)
+;;      (format
+ ;;      t
+ ;;      "~%########### Walk-Tree: Processing item ~a ################ ~%" item)
+      
       (walk-tree-impl item))
     nil))
 
@@ -219,7 +180,10 @@ the syntax of the DSL. No validation is applied. The function has the following 
     (setf (slot-value instance 'node-stack) (list node))))
 
 (defmethod open-element ((instance tree-builder-v1) element-symbol element-properties)
-  (validate-element element-symbol element-properties)
+  ;; Intended for internal use. Accepts anything.
+  ;;(validate-element element-symbol element-properties)
+  ;; TODO writer-factory in dsl-frontend, dsl-backend with validation handler
+;;  (format t "~%############## Open element called with ~a ~%" element-symbol)
   (let ((node (make-instance
 	       'dsl-element-node
 	       :element-symbol element-symbol
@@ -234,7 +198,11 @@ the syntax of the DSL. No validation is applied. The function has the following 
   nil)
 
 (defmethod add-text ((instance tree-builder-v1) text)
-  (validate-text text)
+  (if (not (stringp text))
+      (error
+       'dsl-syntax-error
+       :format-control "Text must be a string: ~a"
+       :format-arguments (list text)))
   (let ((node (make-instance 'dsl-text-node :text text))
 	(stack-pointer (first (slot-value instance 'node-stack))))
     (push-content stack-pointer node))
@@ -271,201 +239,4 @@ the syntax of the DSL. No validation is applied. The function has the following 
 
 (defun make-tree-builder ()
   (make-instance 'tree-builder-v1))
-
-;;
-;; TOC
-;;
-
-(defun get-toc-headings (doc)
-  "Returns a documentation object representing the toc heading tree"
-  (flet ((is-toc-heading (element-symbol element-properties)
-	   (and (heading-p element-symbol) (getf element-properties :toc))))
-    (let ((tree-builder (make-tree-builder)))
-      (walk-tree
-       doc
-       :open-element
-       (lambda(element-symbol element-properties content)
-	 (declare (ignore content))
-	 (if (is-toc-heading element-symbol element-properties)
-	     (progn
-	       (open-element
-		tree-builder
-		element-symbol
-		element-properties)
-	       t)
-	     nil))
-       :close-element
-       (lambda(context)
-	 (if context
-	     (close-element tree-builder)))
-       :text
-       (lambda(str)
-	 (declare (ignore str))
-	 nil))
-      (get-tree tree-builder))))
-
-(defun write-toc (doc toc-properties tree-builder)
-  "Extracts toc and writes toc-root, toc-container, toc-item elements into the builder.
-  - toc-properties: The properties of the corresponding toc-form"
-  (flet ((remove-toc-property (properties)
-	   (filter-property-list-entries properties :key-blacklist (list :toc))))
-    (let ((toc-headings (get-toc-headings doc)))
-      (if toc-headings
-	  (progn
-	    ;; Render toc-root
-	    (open-element
-	     tree-builder
-	     'toc-root
-	     toc-properties)
-	    ;; Render toc content
-	    (walk-tree
-	     toc-headings
-	     :text (lambda(str) (declare (ignore str)) nil)
-	     :open-element
-	     (lambda(element-symbol element-properties content)
-	       (declare (ignore element-symbol))
-	       (if (not content)
-		   (progn
-		     ;; Heading does not have sub-headings. Render a plain toc-item.
-		     (open-element
-		      tree-builder
-		      'toc-item
-		      (remove-toc-property
-		       (concatenate
-			'list
-			toc-properties
-			element-properties)))
-		     nil)
-		   (progn
-		     ;; Heading has sub-headings. Render a toc-container.
-		     (open-element
-		      tree-builder
-		      'toc-container
-		      (remove-toc-property
-		       (concatenate
-			'list
-			element-properties
-			toc-properties)))
-		     nil)))
-	     :close-element
-	     (lambda(context)
-	       (declare (ignore context))
-	       (close-element tree-builder)))
-	    ;; Close toc-root
-	    (close-element tree-builder))))))
-
-(defun expand-toc (doc)
-  "Replace toc element with toc-root. Returns a new documentation object."
-  (let ((tree-builder (make-tree-builder)))
-    (walk-tree
-     doc
-     :open-element
-     (lambda(element-symbol element-properties content)
-       (declare (ignore content))
-       (if (toc-p element-symbol)
-	   (progn
-	     (write-toc doc element-properties tree-builder)
-	     :ignore-close-element)
-	   (progn
-	     (open-element tree-builder element-symbol element-properties)
-	     t)))
-       :close-element
-       (lambda(context)
-	 (if (not (eq context :ignore-close-element))
-	     (close-element tree-builder)))
-       :text
-       (lambda(str) (add-text tree-builder str)))
-    (get-tree tree-builder)))
-
-;;
-;;
-;;
-
-(defun validate (doc)
-  "Validate a documentation object"
-  (walk-tree
-   doc
-   :close-element (lambda(context) (declare (ignore context)) nil)
-   :open-element (lambda(element-symbol element-properties content)
-		   (declare (ignore content))
-		   (validate-element element-symbol element-properties))
-   :text (lambda(text) (validate-text text))))
-
-;;
-;;
-;;
-
-(defun set-heading-ids (doc)
-  "Assign ids to toc-headings. Returns a new documentation object."
-  (let ((id-store nil) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
-    (labels ((make-id (name &key (counter 0))
-	       (let ((id (if (eq 0 counter) name (format nil "~a-~a" name counter))))
-		 (if (find id id-store :test #'string=)
-		     (make-id name :counter (+ 1 counter))
-		     (progn
-		       (push id id-store)
-		       id))))
-	     (set-id (properties)
-	       (let ((l (copy-list properties)))
-		 (setf (getf l :id) (make-id (getf l :name)))
-		 l)))
-      (cl-html-readme-dsl::walk-tree
-       doc
-       :open-element
-       (lambda(element-symbol element-properties content)
-	 (declare (ignore content))
-	 (if (getf element-properties :toc)
-	     (cl-html-readme-dsl::open-element tree-builder element-symbol (set-id element-properties))
-	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties))
-	 nil)
-       :close-element
-       (lambda(context) (declare (ignore context)) (cl-html-readme-dsl::close-element tree-builder))
-       :text
-       (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
-      (cl-html-readme-dsl::get-tree tree-builder))))
-
-
-;;
-;;
-;;
-
-(defun set-heading-indentation-levels (doc)
-  "Set indentation levels of heading elements. Returns a new documentation object."
-  (let ((level 0) (tree-builder (cl-html-readme-dsl::make-tree-builder)))
-    (labels ((set-indentation-level (properties)
-	       (let ((l (copy-list properties)))
-		 (setf (getf l :level) level)
-		 l)))
-      (cl-html-readme-dsl::walk-tree
-       doc
-       :open-element
-       (lambda(element-symbol element-properties content)
-	 (declare (ignore content))
-	 (if (cl-html-readme-dsl::heading-p element-symbol)
-	     (progn
-	       (cl-html-readme-dsl::open-element
-		tree-builder element-symbol
-		(set-indentation-level element-properties))
-	       (setf level (+ 1 level))
-	       :decrement-level)
-	     (progn
-	       (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
-	       nil)))
-       :close-element
-       (lambda(context)
-	 (if (eq context :decrement-level)
-	     (setf level (+ -1 level)))
-	 (cl-html-readme-dsl::close-element tree-builder))
-       :text
-       (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
-      (cl-html-readme-dsl::get-tree tree-builder))))
-
-;;
-;; 
-;;
-
-(defun compile-documentation (doc)
-  "Compile a documentation object to its internal representation"
-  (validate doc)
-  (set-heading-indentation-levels (expand-toc (set-heading-ids doc))))
 
