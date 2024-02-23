@@ -46,3 +46,6 @@
 		   (declare (ignore content))
 		   (validate-form form-symbol form-properties))
    :text (lambda(text) (validate-text text))))
+
+(defun make-tree-builder ()
+  (make-instance 'cl-html-readme-dsl::tree-builder-v1))

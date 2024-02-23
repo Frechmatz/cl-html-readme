@@ -20,7 +20,11 @@
 (defpackage :cl-html-readme-public-dsl
   (:use :cl)
   (:export
-   :validate))
+   :validate
+   :make-tree-builder))
 
 (defpackage :cl-html-readme-intermediate-dsl
-  (:use :cl))
+  (:use :cl)
+  (:export
+   :validate
+   :make-tree-builder))
