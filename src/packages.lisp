@@ -16,3 +16,11 @@
 
 (defpackage :cl-html-readme-dsl
   (:use :cl))
+
+(defpackage :cl-html-readme-public-dsl
+  (:use :cl)
+  (:export
+   :validate))
+
+(defpackage :cl-html-readme-intermediate-dsl
+  (:use :cl))

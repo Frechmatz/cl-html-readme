@@ -377,16 +377,3 @@ the syntax of the DSL. No validation is applied. The function has the following 
        (lambda(str) (add-text tree-builder str)))
     (get-tree tree-builder)))
 
-;;
-;;
-;;
-
-(defun validate (doc)
-  "Validate a documentation object"
-  (walk-tree
-   doc
-   :close-element (lambda(context) (declare (ignore context)) nil)
-   :open-element (lambda(element-symbol element-properties content)
-		   (declare (ignore content))
-		   (validate-element element-symbol element-properties))
-   :text (lambda(text) (validate-text text))))

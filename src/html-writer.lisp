@@ -228,7 +228,7 @@
        <li>output-stream nil or a stream into which the resulting HTML is written.</li>
        <li>documentation A documentation object following the syntax of the DSL.</li>
    </ul>"
-  (cl-html-readme-dsl::validate documentation)
+  (cl-html-readme-public-dsl:validate documentation)
   (setf documentation (set-heading-ids documentation))
   (setf documentation (cl-html-readme-dsl::expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
