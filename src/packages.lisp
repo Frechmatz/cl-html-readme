@@ -8,6 +8,7 @@
    :*get-toc-root-attributes*
    :*get-toc-item-attributes*
    :*get-toc-container-attributes*
+   :syntax-error
    :doc-to-html
    :read-stream
    :read-file

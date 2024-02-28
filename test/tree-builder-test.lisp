@@ -64,7 +64,7 @@
 		   (error (err)
 		     (setf catched-error err)))
 		 (assert-true catched-error)
-		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-syntax-error)))))
+		 (assert-true (typep catched-error 'cl-html-readme:syntax-error)))))
 
 (define-test test-tree-builder-invalid-text-2 ()
 	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
@@ -74,7 +74,7 @@
 		   (error (err)
 		     (setf catched-error err)))
 		 (assert-true catched-error)
-		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-syntax-error)))))
+		 (assert-true (typep catched-error 'cl-html-readme:syntax-error)))))
 
 (define-test test-tree-builder-invalid-element ()
 	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
@@ -84,7 +84,7 @@
 		   (error (err)
 		     (setf catched-error err)))
 		 (assert-true catched-error)
-		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-syntax-error)))))
+		 (assert-true (typep catched-error 'cl-html-readme:syntax-error)))))
 
 (define-test test-tree-builder-missing-mandatory-property ()
 	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
@@ -94,4 +94,4 @@
 		   (error (err)
 		     (setf catched-error err)))
 		 (assert-true catched-error)
-		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-syntax-error)))))
+		 (assert-true (typep catched-error 'cl-html-readme:syntax-error)))))

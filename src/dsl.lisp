@@ -85,20 +85,19 @@
 ;;
 ;;
 
-(define-condition dsl-syntax-error (simple-error)())
 
 ;; TODO Delete
 (defun validate-element (element properties)
   (let ((form-definition (get-dsl-element element)))
     (if (not form-definition)
       (error
-       'dsl-syntax-error
+       'cl-html-readme:syntax-error
        :format-control "Not a DSL special form: ~a"
        :format-arguments (list element)))
     (dolist (key (getf form-definition :mandatory-properties))
       (if (not (getf properties key))
 	  (error
-	   'dsl-syntax-error
+	   'cl-html-readme:syntax-error
 	   :format-control "Mandatory property ~a missing for form ~a"
 	   :format-arguments (list key element))))
   nil))
@@ -125,7 +124,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
 		 (progn
 		   (if (not (stringp l))
 		       (error
-			'dsl-syntax-error
+			'cl-html-readme:syntax-error
 			:format-control "Item must be a string: ~a"
 			:format-arguments (list l)))
 		   (funcall text l))
@@ -220,7 +219,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
 (defmethod add-text ((instance tree-builder-v1) text)
   (if (not (stringp text))
       (error
-       'dsl-syntax-error
+       'cl-html-readme:syntax-error
        :format-control "Text must be a string: ~a"
        :format-arguments (list text)))
   (let ((node (make-instance 'dsl-text-node :text text))

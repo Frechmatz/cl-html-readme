@@ -10,6 +10,7 @@
   :components ((:module "src"
 		:serial t
 		:components ((:file "packages")
+			     (:file "syntax-error")
 			     (:file "dsl")
 			     (:file "intermediate-dsl")
 			     (:file "public-dsl")

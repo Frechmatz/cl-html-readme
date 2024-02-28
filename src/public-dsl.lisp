@@ -61,13 +61,13 @@
   (let ((form-definition (get-dsl-form form-symbol)))
     (if (not form-definition)
       (error
-       'cl-html-readme-dsl::dsl-syntax-error
+       'cl-html-readme:syntax-error
        :format-control "Not a public DSL special form: ~a"
        :format-arguments (list form-symbol)))
     (dolist (key (getf form-definition :mandatory-properties))
       (if (not (getf form-properties key))
 	  (error
-	   'cl-html-readme-dsl::dsl-syntax-error
+	   'cl-html-readme:syntax-error
 	   :format-control "Mandatory property ~a missing for form ~a"
 	   :format-arguments (list key form-symbol))))
   nil))
