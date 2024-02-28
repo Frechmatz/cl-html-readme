@@ -1,108 +1,6 @@
 (in-package :cl-html-readme-dsl)
 
 ;;
-;; DSL of cl-html-readme
-;;
-
-;;
-;; DSL definition:
-;;
-;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
-;;
-;; <semantic> ::= (semantic <semantic-properties> { <string> | <heading> | <toc> | <toc-root> })
-;;
-;; <heading> ::= (heading <heading-properties> { <string> | <heading> | <toc> | <toc-root> })
-;;
-;; <toc> ::= (toc <toc-properties>) ;; High level representation of <toc-root> element
-;;
-;; <toc-root> ::= (toc-root <toc-root-properties> { <toc-item> | <toc-container> })
-;;
-;; <toc-item> ::= (toc-item <toc-item-properties>)
-;;
-;; <toc-container> ::= (toc-container <toc-container-properties> { <toc-item> | <toc-container> })
-;;
-;; <semantic-properties> ::= (:name <string> {:<keyword> <value>})
-;;
-;; <heading-properties> ::= (:name <string> [:toc t | nil] {:<keyword> <value>})
-;;
-;; <toc-properties> ::= ({:<keyword> <value>})
-;;
-;; <toc-item-properties> ::= (:name <string> {:<keyword> <value>})
-;;
-;; <toc-container-properties> ::= (:name <string> {:<keyword> <value>})
-;;
-;; <toc-root-properties> ::= ({:<keyword> <value>})
-;;
-;; <string> ::= A string literal
-;;
-
-;; TODO Delete
-(defparameter *dsl-elements*
-  '((:name "SEMANTIC" :mandatory-properties (:name))
-    (:name "HEADING" :mandatory-properties (:name))
-    (:name "TOC" :mandatory-properties ())
-    (:name "TOC-ROOT" :mandatory-properties ())
-    (:name "TOC-ITEM" :mandatory-properties (:name))
-    (:name "TOC-CONTAINER" :mandatory-properties (:name))))
-
-;; TODO Delete
-(defun get-dsl-element (element)
-  (if (not (symbolp element))
-      nil
-      (let ((name (symbol-name element)))
-	(find-if (lambda(e) (string= name (getf e :name))) *dsl-elements*))))
-
-;; TODO Delete
-(defun semantic-p (element)
-  (and (symbolp element) (string= "SEMANTIC" (symbol-name element))))
-
-;; TODO Delete
-(defun heading-p (element)
-  (and (symbolp element) (string= "HEADING" (symbol-name element))))
-
-;; TODO Delete
-(defun toc-p (element)
-  (and (symbolp element) (string= "TOC" (symbol-name element))))
-
-;; TODO Delete
-(defun toc-root-p (element)
-  (and (symbolp element) (string= "TOC-ROOT" (symbol-name element))))
-
-;; TODO Delete
-(defun toc-item-p (element)
-  (and (symbolp element) (string= "TOC-ITEM" (symbol-name element))))
-
-;; TODO Delete
-(defun toc-container-p (element)
-  (and (symbolp element) (string= "TOC-CONTAINER" (symbol-name element))))
-
-;; TODO Delete
-(defun toc-heading-p (properties)
-  (getf properties :toc))
-
-
-;;
-;;
-;;
-
-
-;; TODO Delete
-(defun validate-element (element properties)
-  (let ((form-definition (get-dsl-element element)))
-    (if (not form-definition)
-      (error
-       'cl-html-readme:syntax-error
-       :format-control "Not a DSL special form: ~a"
-       :format-arguments (list element)))
-    (dolist (key (getf form-definition :mandatory-properties))
-      (if (not (getf properties key))
-	  (error
-	   'cl-html-readme:syntax-error
-	   :format-control "Mandatory property ~a missing for form ~a"
-	   :format-arguments (list key element))))
-  nil))
-
-;;
 ;; DSL-Tree Walker
 ;;
 
@@ -151,12 +49,19 @@ the syntax of the DSL. No validation is applied. The function has the following 
 (define-condition dsl-tree-builder-error (simple-error)())
 
 (defclass tree-builder ()
-  ())
+  ((pre-open-element-handler
+    :initform (lambda(element-symbol element-properties)
+		(declare (ignore element-symbol element-properties))
+		nil))))
 
 (defgeneric open-element (tree-builder element-symbol element-properties))
 (defgeneric close-element (tree-builder))
 (defgeneric add-text (tree-builder text))
 (defgeneric get-tree (tree-builder))
+
+(defun set-pre-open-element-handler (builder handler)
+  (setf (slot-value builder 'pre-open-element-handler) handler))
+
 
 ;;
 ;; Version 1 of tree-builder
@@ -202,7 +107,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
     (setf (slot-value instance 'node-stack) (list node))))
 
 (defmethod open-element ((instance tree-builder-v1) element-symbol element-properties)
-  (validate-element element-symbol element-properties)
+  (funcall (slot-value instance 'pre-open-element-handler) element-symbol element-properties)
   (let ((node (make-instance
 	       'dsl-element-node
 	       :element-symbol element-symbol
@@ -251,4 +156,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
 	(dolist (node content-nodes)
 	  (push (process-node node) tree)))
       tree)))
+
+(defun make-tree-builder ()
+  (make-instance 'tree-builder-v1))
 

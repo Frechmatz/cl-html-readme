@@ -1,14 +1,29 @@
 (in-package :cl-html-readme-public-dsl)
 
+;;
+;; Public DSL of cl-html-readme:
+;;
+;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
+;;
+;; <semantic> ::= (semantic <semantic-properties> { <string> | <heading> | <toc> | <toc-root> })
+;;
+;; <heading> ::= (heading <heading-properties> { <string> | <heading> | <toc> | <toc-root> })
+;;
+;; <toc> ::= (toc <toc-properties>) ;; High level representation of <toc-root> element
+;;
+;; <semantic-properties> ::= (:name <string> {:<keyword> <value>})
+;;
+;; <heading-properties> ::= (:name <string> [:toc t | nil] {:<keyword> <value>})
+;;
+;; <toc-properties> ::= ({:<keyword> <value>})
+;;
+;; <string> ::= A string literal
+;;
 
 (defparameter *dsl-forms*
   '((:name "SEMANTIC" :mandatory-properties (:name))
     (:name "HEADING" :mandatory-properties (:name))
-    (:name "TOC" :mandatory-properties ())
-;;    (:name "TOC-ROOT" :mandatory-properties ())
-;;    (:name "TOC-ITEM" :mandatory-properties (:name))
-;;    (:name "TOC-CONTAINER" :mandatory-properties (:name)))
-  ))
+    (:name "TOC" :mandatory-properties ())))
 
 (defun get-dsl-form (form-symbol)
   (if (not (symbolp form-symbol))
@@ -24,10 +39,6 @@
 
 (defun toc-p (element)
   (and (symbolp element) (string= "TOC" (symbol-name element))))
-
-;;(defun toc-heading-p (properties)
-;;  (getf properties :toc))
-
 
 ;;
 ;; Property list tooling
@@ -54,23 +65,28 @@
     result))
 
 ;;
-;;
-;,
+;; Validation
+					;,
 
 (defun validate-form (form-symbol form-properties)
   (let ((form-definition (get-dsl-form form-symbol)))
     (if (not form-definition)
-      (error
-       'cl-html-readme:syntax-error
-       :format-control "Not a public DSL special form: ~a"
-       :format-arguments (list form-symbol)))
+	(progn
+	  (format
+	   t
+	   "~%cl-html-readme-public-dsl::validate-form failed: ~a ~a~%"
+	   form-symbol form-properties)
+	  (error
+	   'cl-html-readme:syntax-error
+	   :format-control "cl-html-readme-public-dsl::validate-form failed: ~a ~a"
+	   :format-arguments (list form-symbol form-properties))))
     (dolist (key (getf form-definition :mandatory-properties))
       (if (not (getf form-properties key))
 	  (error
 	   'cl-html-readme:syntax-error
 	   :format-control "Mandatory property ~a missing for form ~a"
 	   :format-arguments (list key form-symbol))))
-  nil))
+    nil))
 
 (defun validate (doc)
   "Validate a documentation object"
@@ -84,11 +100,21 @@
 	   (declare (ignore text))
 	   nil)))
 
+;;
+;; Tree-Builder
+;;
+
 (defun make-tree-builder ()
-  (make-instance 'cl-html-readme-dsl::tree-builder-v1))
+  (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+    ;; Set special-form validator
+    (cl-html-readme-dsl::set-pre-open-element-handler
+     builder
+     (lambda (form-symbol form-properties)
+       (validate-form form-symbol form-properties)))
+    builder))
 
 ;;
-;; TOC
+;; TOC-Processing
 ;;
 
 (defun get-toc-headings (doc)
@@ -184,17 +210,16 @@
 	   (progn
 	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
 	     t)))
-       :close-element
-       (lambda(context)
-	 (if (not (eq context :ignore-close-element))
-	     (cl-html-readme-dsl::close-element tree-builder)))
-       :text
-       (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
+     :close-element
+     (lambda(context)
+       (if (not (eq context :ignore-close-element))
+	   (cl-html-readme-dsl::close-element tree-builder)))
+     :text
+     (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
     (cl-html-readme-dsl::get-tree tree-builder)))
 
-
 ;;
-;;
+;; Heading-Ids
 ;;
 
 (defun set-heading-ids (doc)
@@ -228,7 +253,7 @@
 
 
 ;;
-;;
+;; Heading-Indentation
 ;;
 
 (defun set-heading-indentation-levels (doc)
@@ -243,7 +268,7 @@
        :open-element
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
-	 (if (cl-html-readme-dsl::heading-p element-symbol)
+	 (if (heading-p element-symbol)
 	     (progn
 	       (cl-html-readme-dsl::open-element
 		tree-builder element-symbol
@@ -263,7 +288,7 @@
       (cl-html-readme-dsl::get-tree tree-builder))))
 
 ;;
-;;
+;; Compilation of public DSL to intermediate DSL
 ;;
 
 (defun compile-documentation (documentation)
@@ -273,5 +298,3 @@
   (setf documentation (set-heading-indentation-levels documentation))
   documentation)
 
-
-  

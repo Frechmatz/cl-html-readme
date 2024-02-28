@@ -59,6 +59,7 @@
     (get-output-stream-string string-output-stream)))
 
 (defun serialize (output-stream doc)
+  "doc: Compiled documentation object (intermediate representation)"
   (labels ((newline ()
 	     (funcall *print-newline* output-stream))
 	   (format-id (properties)
@@ -82,7 +83,7 @@
 	   ;;
 	   ;; Heading
 	   ;;
-	   ((cl-html-readme-dsl::heading-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::heading-p element-symbol)
 	    ;; <h{level} id={id} {render-hook}> {name} </h{level}>
 	    (newline)
 	    (format
@@ -97,7 +98,7 @@
 	   ;;
 	   ;; Semantic
 	   ;;
-	   ((cl-html-readme-dsl::semantic-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::semantic-p element-symbol)
 	    (newline)
 	    ;; <{name {render-hook}}>...</{name}>
 	    (format
@@ -109,7 +110,7 @@
 	   ;;
 	   ;; Toc-Root
 	   ;;
-	   ((cl-html-readme-dsl::toc-root-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::toc-root-p element-symbol)
 	    (setf toc-properties element-properties)
 	    (newline)
 	    ;; <ul {render-hook}>...</ul>
@@ -121,7 +122,7 @@
 	   ;;
 	   ;; Toc-Item
 	   ;;
-	   ((cl-html-readme-dsl::toc-item-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::toc-item-p element-symbol)
 	    ;; <li {render-hook}><a href=#{id}> {name} </a> </li>
 	    (newline)
 	    (format
@@ -134,7 +135,7 @@
 	   ;;
 	   ;; Toc-Container
 	   ;;
-	   ((cl-html-readme-dsl::toc-container-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::toc-container-p element-symbol)
 	    ;; <li {render-hook}> <a href=#{id}> {name} </a>
 	    ;; <ul {render-hook}>...</ul>
 	    ;; </li>
