@@ -1,7 +1,7 @@
 (in-package :cl-html-readme-test)
 
 (define-test test-tree-builder-1 ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (cl-html-readme-dsl::add-text builder "1")
 	       (cl-html-readme-dsl::add-text builder "2")
 	       (let ((tree (cl-html-readme-dsl::get-tree builder))
@@ -11,7 +11,7 @@
 		   (assert-equal expected-tree-str tree-str)))))
 
 (define-test test-tree-builder-2 ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (cl-html-readme-dsl::open-element builder 'heading (list :name "heading-name"))
 	       (cl-html-readme-dsl::close-element builder)
 	       (let ((tree (cl-html-readme-dsl::get-tree builder))
@@ -21,7 +21,7 @@
 		   (assert-equal expected-tree-str tree-str)))))
 
 (define-test test-tree-builder-3 ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (cl-html-readme-dsl::add-text builder "1")
 	       (cl-html-readme-dsl::open-element builder 'heading (list :name "heading-name"))
 	       (cl-html-readme-dsl::close-element builder)
@@ -33,7 +33,7 @@
 		   (assert-equal expected-tree-str tree-str)))))
 
 (define-test test-tree-builder-4 ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (cl-html-readme-dsl::add-text builder "1")
 	       (cl-html-readme-dsl::open-element builder 'heading (list :name "heading-name"))
 	       (cl-html-readme-dsl::add-text builder "1.1")
@@ -46,7 +46,7 @@
 		   (assert-equal expected-tree-str tree-str)))))
 
 (define-test test-tree-builder-pending-elements ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (cl-html-readme-dsl::open-element builder 'heading (list :name "heading-name"))
 	       (let ((catched-error nil))
 		 (handler-case
@@ -57,7 +57,7 @@
 		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-tree-builder-error)))))
 
 (define-test test-tree-builder-invalid-text-1 ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (let ((catched-error nil))
 		 (handler-case
 		     (cl-html-readme-dsl::add-text builder :text-1)
@@ -67,7 +67,7 @@
 		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-syntax-error)))))
 
 (define-test test-tree-builder-invalid-text-2 ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (let ((catched-error nil))
 		 (handler-case
 		     (cl-html-readme-dsl::add-text builder nil)
@@ -77,7 +77,7 @@
 		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-syntax-error)))))
 
 (define-test test-tree-builder-invalid-element ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (let ((catched-error nil))
 		 (handler-case
 		     (cl-html-readme-dsl::open-element builder 'xxxx (list :name "name"))
@@ -87,7 +87,7 @@
 		 (assert-true (typep catched-error 'cl-html-readme-dsl::dsl-syntax-error)))))
 
 (define-test test-tree-builder-missing-mandatory-property ()
-	     (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
 	       (let ((catched-error nil))
 		 (handler-case
 		     (cl-html-readme-dsl::open-element builder 'heading nil)

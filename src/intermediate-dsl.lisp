@@ -3,7 +3,7 @@
 (defparameter *dsl-forms*
   '((:name "SEMANTIC" :mandatory-properties (:name))
     (:name "HEADING" :mandatory-properties (:name))
-    (:name "TOC" :mandatory-properties ())
+;;    (:name "TOC" :mandatory-properties ())
     (:name "TOC-ROOT" :mandatory-properties ())
     (:name "TOC-ITEM" :mandatory-properties (:name))
     (:name "TOC-CONTAINER" :mandatory-properties (:name))))
@@ -13,6 +13,22 @@
       nil
       (let ((name (symbol-name form-symbol)))
 	(find-if (lambda(e) (string= name (getf e :name))) *dsl-forms*))))
+
+
+(defun semantic-p (element)
+  (and (symbolp element) (string= "SEMANTIC" (symbol-name element))))
+
+(defun heading-p (element)
+  (and (symbolp element) (string= "HEADING" (symbol-name element))))
+
+(defun toc-root-p (element)
+  (and (symbolp element) (string= "TOC-ROOT" (symbol-name element))))
+
+(defun toc-item-p (element)
+  (and (symbolp element) (string= "TOC-ITEM" (symbol-name element))))
+
+(defun toc-container-p (element)
+  (and (symbolp element) (string= "TOC-CONTAINER" (symbol-name element))))
 
 (defun validate-form (form-symbol form-properties)
   (let ((form-definition (get-dsl-form form-symbol)))

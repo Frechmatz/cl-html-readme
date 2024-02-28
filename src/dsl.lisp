@@ -36,7 +36,7 @@
 ;; <string> ::= A string literal
 ;;
 
-
+;; TODO Delete
 (defparameter *dsl-elements*
   '((:name "SEMANTIC" :mandatory-properties (:name))
     (:name "HEADING" :mandatory-properties (:name))
@@ -45,32 +45,41 @@
     (:name "TOC-ITEM" :mandatory-properties (:name))
     (:name "TOC-CONTAINER" :mandatory-properties (:name))))
 
+;; TODO Delete
 (defun get-dsl-element (element)
   (if (not (symbolp element))
       nil
       (let ((name (symbol-name element)))
 	(find-if (lambda(e) (string= name (getf e :name))) *dsl-elements*))))
 
+;; TODO Delete
 (defun semantic-p (element)
   (and (symbolp element) (string= "SEMANTIC" (symbol-name element))))
 
+;; TODO Delete
 (defun heading-p (element)
   (and (symbolp element) (string= "HEADING" (symbol-name element))))
 
+;; TODO Delete
 (defun toc-p (element)
   (and (symbolp element) (string= "TOC" (symbol-name element))))
 
+;; TODO Delete
 (defun toc-root-p (element)
   (and (symbolp element) (string= "TOC-ROOT" (symbol-name element))))
 
+;; TODO Delete
 (defun toc-item-p (element)
   (and (symbolp element) (string= "TOC-ITEM" (symbol-name element))))
 
+;; TODO Delete
 (defun toc-container-p (element)
   (and (symbolp element) (string= "TOC-CONTAINER" (symbol-name element))))
 
+;; TODO Delete
 (defun toc-heading-p (properties)
   (getf properties :toc))
+
 
 ;;
 ;;
@@ -78,6 +87,7 @@
 
 (define-condition dsl-syntax-error (simple-error)())
 
+;; TODO Delete
 (defun validate-element (element properties)
   (let ((form-definition (get-dsl-element element)))
     (if (not form-definition)
@@ -93,6 +103,7 @@
 	   :format-arguments (list key element))))
   nil))
 
+;; TODO Delete
 (defun validate-text (text)
   (if (not (stringp text))
       (error
@@ -100,29 +111,6 @@
        :format-control "Text must be a string: ~a"
        :format-arguments (list text))))
 
-;;
-;; Property list tooling
-;;
-
-(defun get-property-list-keys (plist)
-  "Get the keys of a property list"
-  (let ((keys nil) (push-key t))
-    (dolist (item plist)
-      (if push-key
-	  (push item keys))
-      (setf push-key (not push-key)))
-    keys))
-
-(defun filter-property-list-entries (plist &key key-blacklist)
-  "Filter entries of a property list"
-  (let ((keys (get-property-list-keys plist))
-	(result nil))
-    (dolist (key keys)
-      (if (not (find key key-blacklist))
-	  (progn
-	    (push (getf plist key) result)
-	    (push key result))))
-    result))
 
 ;;
 ;; DSL-Tree Walker
@@ -264,116 +252,4 @@ the syntax of the DSL. No validation is applied. The function has the following 
 	(dolist (node content-nodes)
 	  (push (process-node node) tree)))
       tree)))
-
-;;
-;;
-;;
-
-(defun make-tree-builder ()
-  (make-instance 'tree-builder-v1))
-
-;;
-;; TOC
-;;
-
-(defun get-toc-headings (doc)
-  "Returns a documentation object representing the toc heading tree"
-  (flet ((is-toc-heading (element-symbol element-properties)
-	   (and (heading-p element-symbol) (getf element-properties :toc))))
-    (let ((tree-builder (make-tree-builder)))
-      (walk-tree
-       doc
-       :open-element
-       (lambda(element-symbol element-properties content)
-	 (declare (ignore content))
-	 (if (is-toc-heading element-symbol element-properties)
-	     (progn
-	       (open-element
-		tree-builder
-		element-symbol
-		element-properties)
-	       t)
-	     nil))
-       :close-element
-       (lambda(context)
-	 (if context
-	     (close-element tree-builder)))
-       :text
-       (lambda(str)
-	 (declare (ignore str))
-	 nil))
-      (get-tree tree-builder))))
-
-(defun write-toc (doc toc-properties tree-builder)
-  "Extracts toc and writes toc-root, toc-container, toc-item elements into the builder.
-  - toc-properties: The properties of the corresponding toc-form"
-  (flet ((remove-toc-property (properties)
-	   (filter-property-list-entries properties :key-blacklist (list :toc))))
-    (let ((toc-headings (get-toc-headings doc)))
-      (if toc-headings
-	  (progn
-	    ;; Render toc-root
-	    (open-element
-	     tree-builder
-	     'toc-root
-	     toc-properties)
-	    ;; Render toc content
-	    (walk-tree
-	     toc-headings
-	     :text (lambda(str) (declare (ignore str)) nil)
-	     :open-element
-	     (lambda(element-symbol element-properties content)
-	       (declare (ignore element-symbol))
-	       (if (not content)
-		   (progn
-		     ;; Heading does not have sub-headings. Render a plain toc-item.
-		     (open-element
-		      tree-builder
-		      'toc-item
-		      (remove-toc-property
-		       (concatenate
-			'list
-			toc-properties
-			element-properties)))
-		     nil)
-		   (progn
-		     ;; Heading has sub-headings. Render a toc-container.
-		     (open-element
-		      tree-builder
-		      'toc-container
-		      (remove-toc-property
-		       (concatenate
-			'list
-			element-properties
-			toc-properties)))
-		     nil)))
-	     :close-element
-	     (lambda(context)
-	       (declare (ignore context))
-	       (close-element tree-builder)))
-	    ;; Close toc-root
-	    (close-element tree-builder))))))
-
-(defun expand-toc (doc)
-  "Replace toc element with toc-root. Returns a new documentation object."
-  (let ((tree-builder (make-tree-builder)))
-    (walk-tree
-     doc
-     :open-element
-     (lambda(element-symbol element-properties content)
-       (declare (ignore content))
-       (if (toc-p element-symbol)
-	   (progn
-	     (write-toc doc element-properties tree-builder)
-	     :ignore-close-element)
-	   (progn
-	     (open-element tree-builder element-symbol element-properties)
-	     t)))
-       :close-element
-       (lambda(context)
-	 (if (not (eq context :ignore-close-element))
-	     (close-element tree-builder)))
-       :text
-       (lambda(str) (add-text tree-builder str)))
-    (get-tree tree-builder)))
 

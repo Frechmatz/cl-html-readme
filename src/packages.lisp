@@ -21,7 +21,8 @@
   (:use :cl)
   (:export
    :validate
-   :make-tree-builder))
+   :make-tree-builder
+   :compile-documentation))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
