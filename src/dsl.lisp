@@ -103,15 +103,6 @@
 	   :format-arguments (list key element))))
   nil))
 
-;; TODO Delete
-(defun validate-text (text)
-  (if (not (stringp text))
-      (error
-       'dsl-syntax-error
-       :format-control "Text must be a string: ~a"
-       :format-arguments (list text))))
-
-
 ;;
 ;; DSL-Tree Walker
 ;;
@@ -132,6 +123,11 @@ the syntax of the DSL. No validation is applied. The function has the following 
   (labels ((walk-tree-impl (l)
 	     (if (not (listp l))
 		 (progn
+		   (if (not (stringp l))
+		       (error
+			'dsl-syntax-error
+			:format-control "Item must be a string: ~a"
+			:format-arguments (list l)))
 		   (funcall text l))
 		 (progn
 		   (let* ((element-symbol (first l))
@@ -222,7 +218,11 @@ the syntax of the DSL. No validation is applied. The function has the following 
   nil)
 
 (defmethod add-text ((instance tree-builder-v1) text)
-  (validate-text text)
+  (if (not (stringp text))
+      (error
+       'dsl-syntax-error
+       :format-control "Text must be a string: ~a"
+       :format-arguments (list text)))
   (let ((node (make-instance 'dsl-text-node :text text))
 	(stack-pointer (first (slot-value instance 'node-stack))))
     (push-content stack-pointer node))
