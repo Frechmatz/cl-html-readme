@@ -104,7 +104,7 @@
 ;;
 
 (defun make-tree-builder ()
-  (let ((builder (cl-html-readme-dsl::make-tree-builder)))
+  (let ((builder (make-instance 'cl-html-readme-dsl::tree-builder-v1)))
     ;; Set special-form validator
     (cl-html-readme-dsl::set-pre-open-element-handler
      builder

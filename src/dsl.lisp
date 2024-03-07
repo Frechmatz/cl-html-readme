@@ -157,6 +157,3 @@ the syntax of the DSL. No validation is applied. The function has the following 
 	  (push (process-node node) tree)))
       tree)))
 
-(defun make-tree-builder ()
-  (make-instance 'tree-builder-v1))
-
