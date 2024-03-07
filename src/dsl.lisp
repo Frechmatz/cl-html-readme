@@ -48,20 +48,13 @@ the syntax of the DSL. No validation is applied. The function has the following 
 
 (define-condition dsl-tree-builder-error (simple-error)())
 
-(defclass tree-builder ()
-  ((pre-open-element-handler
-    :initform (lambda(element-symbol element-properties)
-		(declare (ignore element-symbol element-properties))
-		nil))))
+(defclass tree-builder () ())
 
 (defgeneric open-element (tree-builder element-symbol element-properties))
 (defgeneric close-element (tree-builder))
 (defgeneric add-text (tree-builder text))
 (defgeneric get-tree (tree-builder))
-
-(defun set-pre-open-element-handler (builder handler)
-  (setf (slot-value builder 'pre-open-element-handler) handler))
-
+(defgeneric validate-element (tree-builder element-symbol element-properties))
 
 ;;
 ;; Version 1 of tree-builder
@@ -107,7 +100,7 @@ the syntax of the DSL. No validation is applied. The function has the following 
     (setf (slot-value instance 'node-stack) (list node))))
 
 (defmethod open-element ((instance tree-builder-v1) element-symbol element-properties)
-  (funcall (slot-value instance 'pre-open-element-handler) element-symbol element-properties)
+  (validate-element instance element-symbol element-properties)
   (let ((node (make-instance
 	       'dsl-element-node
 	       :element-symbol element-symbol

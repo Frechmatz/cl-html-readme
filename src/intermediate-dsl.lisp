@@ -103,11 +103,13 @@
 ;; Tree-Builder
 ;;
 
+(defclass tree-builder (cl-html-readme-dsl::tree-builder-v1) ())
+
+(defmethod cl-html-readme-dsl::validate-element
+    ((instance tree-builder)
+     form-symbol form-properties)
+  (validate-form form-symbol form-properties))
+
 (defun make-tree-builder ()
-  (let ((builder (make-instance 'cl-html-readme-dsl::tree-builder-v1)))
-    ;; Set special-form validator
-    (cl-html-readme-dsl::set-pre-open-element-handler
-     builder
-     (lambda (form-symbol form-properties)
-       (validate-form form-symbol form-properties)))
+  (let ((builder (make-instance 'tree-builder)))
     builder))
