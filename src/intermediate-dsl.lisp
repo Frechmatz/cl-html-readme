@@ -28,8 +28,6 @@
 ;; <string> ::= A string literal
 ;;
 
-
-
 (defparameter *dsl-forms*
   '((:name "SEMANTIC" :mandatory-properties (:name))
     (:name "HEADING" :mandatory-properties (:name))
@@ -68,12 +66,13 @@
 	(progn
 	  (format
 	   t
-	   "~%cl-html-readme-intermediate-dsl::validate-form failed ~a ~a~%"
-	   form-symbol form-properties)
+	   "~%cl-html-readme-intermediate-dsl: Unknown DSL form '~a'~%"
+	   form-symbol)
 	  (error
-	   'cl-html-readme-dsl::dsl-syntax-error
-	   :format-control "cl-html-readme-public-dsl::validate-form failed: ~a ~a"
-	   :format-arguments (list form-symbol form-properties))))
+	   'cl-html-readme:syntax-error
+	   :format-control
+	   "cl-html-readme-intermediate-dsl: Unknown DSL form '~a'"
+	   :format-arguments (list form-symbol))))
     (dolist (key (getf form-definition :mandatory-properties))
       (if (not (getf form-properties key))
 	  (progn
@@ -87,17 +86,29 @@
 	     :format-arguments (list key form-symbol)))))
     nil))
 
-(defun validate (doc)
-  "Validate a documentation object"
-  (cl-html-readme-dsl::walk-tree
-   doc
-   :close-element (lambda(context) (declare (ignore context)) nil)
-   :open-element (lambda(form-symbol form-properties content)
-		   (declare (ignore content))
-		   (validate-form form-symbol form-properties))
-   :text (lambda(text)
-	   (declare (ignore text))
-	   nil)))
+;;
+;; Tree-Walker
+;;
+
+(defun make-tree-walker (&key open-form-handler close-form-handler text-handler)
+  (make-instance
+   'cl-html-readme-dsl::tree-walker-lambda
+   :open-form-handler
+   (lambda (form-symbol form-properties content)
+     ;; TODO Concept how to minimize costly validations
+     (validate-form form-symbol form-properties)
+     (funcall open-form-handler form-symbol form-properties content))
+   :close-form-handler close-form-handler
+   :text-handler text-handler))
+
+(defun walk-tree (documentation &key open-form-handler close-form-handler text-handler)
+  "Traverse a documentation object"
+  (let ((walker
+	  (make-tree-walker
+	   :open-form-handler open-form-handler
+	   :close-form-handler close-form-handler
+	   :text-handler text-handler)))
+    (cl-html-readme-dsl::walk-tree walker documentation)))
 
 ;;
 ;; Tree-Builder
@@ -113,3 +124,4 @@
 (defun make-tree-builder ()
   (let ((builder (make-instance 'tree-builder)))
     builder))
+

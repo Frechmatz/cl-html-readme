@@ -10,10 +10,21 @@
     keys))
 
 (defun doc-to-string (doc &key (string-enclosure-character "'"))
-  "Deterministic stringification of an object following the syntax of the DSL.
-   Uses the DSL tree walker, which is supposed to have been tested."
+  "Deterministic stringification of a documentation object.
+   Does not apply validation.
+   Assumes that public and intermediate documentation represention share the
+   same structure as defined by cl-html-readme-dsl.
+   Assumes that the tree walker has been tested."
   (labels
-      ((format-item (item)
+      ((walk-tree (tree &key open-form-handler close-form-handler text-handler)
+	 (let ((walker
+		 (make-instance
+		  'cl-html-readme-dsl::tree-walker-lambda
+		  :open-form-handler open-form-handler
+		  :close-form-handler close-form-handler
+		  :text-handler text-handler)))
+	   (cl-html-readme-dsl::walk-tree walker tree)))
+       (format-item (item)
 	 "Format an item. Formats a list as nil when it is empty and t when it is not empty"
 	 (cond
 	   ((keywordp item)
@@ -52,20 +63,20 @@
 		 (format buffer "~a" (format-item (getf plist key))))))
 	   (print-doc-content ()
 	     (let ((print-space (make-space-printer)))
-	       (cl-html-readme-dsl::walk-tree
+	       (walk-tree
 		doc
-		:open-element
+		:open-form-handler
 		(lambda(element-symbol element-properties content)
 		  (declare (ignore content))
 		  (funcall print-space)
 		  (format buffer "(~a (" (format-item element-symbol))
 		  (print-plist-content element-properties)
 		  (format buffer ")"))
-		:close-element
+		:close-form-handler
 		(lambda(context)
 		  (declare (ignore context))
 		  (format buffer ")"))
-		:text
+		:text-handler
 		(lambda(str)
 		  (funcall print-space)
 		  (format buffer "~a" (format-item str)))))))
@@ -78,7 +89,6 @@
 	      (format t "~%Error while stringifying doc object:~%~a~%Doc:~%~a~%" err doc)
 	      (error err))))))))
 
-
 (defun doc-to-html (doc)
   "Render to HTML. Omit newlines."
   (let ((cl-html-readme::*print-newline*
@@ -86,5 +96,3 @@
 	    (declare (ignore stream))
 	    nil)))
     (cl-html-readme:doc-to-html nil doc)))
-
-

@@ -59,7 +59,7 @@
     (get-output-stream-string string-output-stream)))
 
 (defun serialize (output-stream doc)
-  "doc: Compiled documentation object (intermediate representation)"
+  "Render documentation object in intermediate representation to HTML"
   (labels ((newline ()
 	     (funcall *print-newline* output-stream))
 	   (format-id (properties)
@@ -74,9 +74,9 @@
 	     (format-extra-attributes-impl
 	      (funcall fn properties))))
     (let ((toc-properties nil))
-      (cl-html-readme-dsl::walk-tree
+      (cl-html-readme-intermediate-dsl:walk-tree
        doc
-       :open-element
+       :open-form-handler
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (cond
@@ -149,11 +149,11 @@
 	     (format-extra-attributes *get-toc-container-attributes* toc-properties))
 	    "</ul></li>")
 	   (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
-       :close-element
+       :close-form-handler
        (lambda(context)
 	 (if context
 	     (format output-stream "~a" context)))
-       :text
+       :text-handler
        (lambda(str)
 	 (format output-stream "~a" str)))
       nil)))
@@ -169,6 +169,7 @@
        <li>output-stream nil or a stream into which the resulting HTML is written.</li>
        <li>documentation A documentation object following the syntax of the DSL.</li>
    </ul>"
+  ;; Compile to intermediate representation
   (let ((compiled (cl-html-readme-public-dsl:compile-documentation documentation)))
     (if output-stream
 	(progn

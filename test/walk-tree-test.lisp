@@ -3,9 +3,9 @@
 (defun record-tree-walk (doc)
   "Records handler invocations of the tree-walker and returns the recording."
   (let ((recording nil))
-    (cl-html-readme-dsl::walk-tree
+    (cl-html-readme-public-dsl:walk-tree
      doc
-     :open-element
+     :open-form-handler
      (lambda(element properties content)
        (push
 	(list
@@ -15,14 +15,14 @@
 	 :content content)
 	recording)
        (getf properties :cl-html-unit-test-open-element-return-context))
-     :close-element
+     :close-form-handler
      (lambda(context)
        (push
 	(list
 	 :action :close-element
 	 :context context)
 	recording))
-     :text
+     :text-handler
      (lambda(str)
        (push
 	(list

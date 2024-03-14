@@ -4,18 +4,27 @@
 ;; DSL-Tree Walker
 ;;
 
-(defun walk-tree (documentation &key open-element close-element text)
-  "DSL tree traversal. The function assumes that the documentation object conforms to
-the syntax of the DSL. No validation is applied. The function has the following arguments:
+(defclass tree-walker () ()
+  (:documentation "DSL traverser."))
+
+(defgeneric on-open-form (tree-walker form-symbol form-properties content)
+  (:documentation
+   "Called when a DSL special form is opened.
+    Returns a context that is passed to on-close-form"))
+
+(defgeneric on-close-form (tree-walker context)
+  (:documentation
+   "Called when a previously opened DSL special form is closed."))
+
+(defgeneric on-text (tree-walker text)
+  (:documentation
+   "Called for each text form."))
+
+(defun walk-tree (instance tree) 
+  "DSL tree traversal. The function has the following arguments:
    <ul>
-   <li>documentation An instance of <documentation>./li>
-   <li>:open-element A function that is called when a DSL element is opened.
-     <p>(lambda(element-symbol element-properties content))</p>
-     Returns a context that is passed to :close-element.</li>
-   <li>:close-element A function that is called when a previously opened DSL element closes.
-     <p>(lambda(context)) Context value as returned by open-element.</p></li>
-   <li>:text A function that is called for each text node.
-     <p>(lambda(str))</p></li>
+   <li>instance An instance of tree-walker./li>
+   <li>tree An object following the syntax of the DSL./li>
    </ul>"
   (labels ((walk-tree-impl (l)
 	     (if (not (listp l))
@@ -25,22 +34,41 @@ the syntax of the DSL. No validation is applied. The function has the following 
 			'cl-html-readme:syntax-error
 			:format-control "Item must be a string: ~a"
 			:format-arguments (list l)))
-		   (funcall text l))
+		   (on-text instance l))
 		 (progn
-		   (let* ((element-symbol (first l))
-			  (element-properties (second l)))
+		   (let* ((form-symbol (first l))
+			  (form-properties (second l)))
 		     (let* ((content (rest (rest l)))
-			    (context (funcall
-				      open-element
-				      element-symbol
-				      element-properties
+			    (context (on-open-form
+				      instance 
+				      form-symbol
+				      form-properties
 				      content)))
 		       (dolist (item content)
 			 (walk-tree-impl item))
-		       (funcall close-element context)))))))
-    (dolist (item documentation)
+		       (on-close-form instance context)))))))
+    (dolist (item tree)
       (walk-tree-impl item))
     nil))
+
+;;
+;; Tree-Walker implementation with lambda handlers
+;;
+
+(defclass tree-walker-lambda (tree-walker)
+  ((open-form-handler :initarg :open-form-handler)
+   (close-form-handler :initarg :close-form-handler)
+   (text-handler :initarg :text-handler))
+  (:documentation "DSL traverser with lambda callbacks."))
+
+(defmethod on-open-form ((instance tree-walker-lambda) form-symbol form-properties content)
+  (funcall (slot-value instance 'open-form-handler) form-symbol form-properties content))
+
+(defmethod on-close-form ((instance tree-walker-lambda) context)
+  (funcall (slot-value instance 'close-form-handler) context))
+
+(defmethod on-text ((instance tree-walker-lambda) text)
+  (funcall (slot-value instance 'text-handler) text))
 
 ;;
 ;; DSL-Tree builder

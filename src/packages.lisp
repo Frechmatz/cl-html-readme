@@ -21,12 +21,12 @@
 (defpackage :cl-html-readme-public-dsl
   (:use :cl)
   (:export
-   :validate
+   :walk-tree
    :make-tree-builder
    :compile-documentation))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
   (:export
-   :validate
+   :walk-tree
    :make-tree-builder))

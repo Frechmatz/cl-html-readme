@@ -66,7 +66,6 @@
 
 ;;
 ;; Validation
-					;,
 
 (defun validate-form (form-symbol form-properties)
   (let ((form-definition (get-dsl-form form-symbol)))
@@ -74,12 +73,13 @@
 	(progn
 	  (format
 	   t
-	   "~%cl-html-readme-public-dsl::validate-form failed: ~a ~a~%"
-	   form-symbol form-properties)
+	   "~%cl-html-readme-public-dsl: Unknown DSL form '~a'~%"
+	   form-symbol)
 	  (error
 	   'cl-html-readme:syntax-error
-	   :format-control "cl-html-readme-public-dsl::validate-form failed: ~a ~a"
-	   :format-arguments (list form-symbol form-properties))))
+	   :format-control
+	   "cl-html-readme-public-dsl: Unknown DSL form '~a'"
+	   :format-arguments (list form-symbol))))
     (dolist (key (getf form-definition :mandatory-properties))
       (if (not (getf form-properties key))
 	  (error
@@ -88,17 +88,29 @@
 	   :format-arguments (list key form-symbol))))
     nil))
 
-(defun validate (doc)
-  "Validate a documentation object"
-  (cl-html-readme-dsl::walk-tree
-   doc
-   :close-element (lambda(context) (declare (ignore context)) nil)
-   :open-element (lambda(form-symbol form-properties content)
-		   (declare (ignore content))
-		   (validate-form form-symbol form-properties))
-   :text (lambda(text)
-	   (declare (ignore text))
-	   nil)))
+;;
+;; Tree-Walker
+;;
+
+(defun make-tree-walker (&key open-form-handler close-form-handler text-handler)
+  (make-instance
+   'cl-html-readme-dsl::tree-walker-lambda
+   :open-form-handler
+   (lambda (form-symbol form-properties content)
+     ;; TODO Concept how to minimize costly validations
+     (validate-form form-symbol form-properties)
+     (funcall open-form-handler form-symbol form-properties content))
+   :close-form-handler close-form-handler
+   :text-handler text-handler))
+
+(defun walk-tree (documentation &key open-form-handler close-form-handler text-handler)
+  "Traverse a documentation object"
+  (let ((walker
+	  (make-tree-walker
+	   :open-form-handler open-form-handler
+	   :close-form-handler close-form-handler
+	   :text-handler text-handler)))
+    (cl-html-readme-dsl::walk-tree walker documentation)))
 
 ;;
 ;; Tree-Builder
@@ -124,9 +136,9 @@
   (flet ((is-toc-heading (element-symbol element-properties)
 	   (and (heading-p element-symbol) (getf element-properties :toc))))
     (let ((tree-builder (make-tree-builder)))
-      (cl-html-readme-dsl::walk-tree
+      (walk-tree
        doc
-       :open-element
+       :open-form-handler
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (if (is-toc-heading element-symbol element-properties)
@@ -137,11 +149,11 @@
 		element-properties)
 	       t)
 	     nil))
-       :close-element
+       :close-form-handler
        (lambda(context)
 	 (if context
 	     (cl-html-readme-dsl::close-element tree-builder)))
-       :text
+       :text-handler
        (lambda(str)
 	 (declare (ignore str))
 	 nil))
@@ -161,10 +173,10 @@
 	     'toc-root
 	     toc-properties)
 	    ;; Render toc content
-	    (cl-html-readme-dsl::walk-tree
+	    (walk-tree
 	     toc-headings
-	     :text (lambda(str) (declare (ignore str)) nil)
-	     :open-element
+	     :text-handler (lambda(str) (declare (ignore str)) nil)
+	     :open-form-handler
 	     (lambda(element-symbol element-properties content)
 	       (declare (ignore element-symbol))
 	       (if (not content)
@@ -190,7 +202,7 @@
 			element-properties
 			toc-properties)))
 		     nil)))
-	     :close-element
+	     :close-form-handler
 	     (lambda(context)
 	       (declare (ignore context))
 	       (cl-html-readme-dsl::close-element tree-builder)))
@@ -200,9 +212,9 @@
 (defun expand-toc (doc)
   "Replace toc element with toc-root. Returns a new documentation object."
   (let ((tree-builder (cl-html-readme-intermediate-dsl::make-tree-builder)))
-    (cl-html-readme-dsl::walk-tree
+    (walk-tree
      doc
-     :open-element
+     :open-form-handler
      (lambda(element-symbol element-properties content)
        (declare (ignore content))
        (if (toc-p element-symbol)
@@ -212,11 +224,11 @@
 	   (progn
 	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
 	     t)))
-     :close-element
+     :close-form-handler
      (lambda(context)
        (if (not (eq context :ignore-close-element))
 	   (cl-html-readme-dsl::close-element tree-builder)))
-     :text
+     :text-handler
      (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
     (cl-html-readme-dsl::get-tree tree-builder)))
 
@@ -238,18 +250,18 @@
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :id) (make-id (getf l :name)))
 		 l)))
-      (cl-html-readme-dsl::walk-tree
+      (walk-tree
        doc
-       :open-element
+       :open-form-handler
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (if (getf element-properties :toc)
 	     (cl-html-readme-dsl::open-element tree-builder element-symbol (set-id element-properties))
 	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties))
 	 nil)
-       :close-element
+       :close-form-handler
        (lambda(context) (declare (ignore context)) (cl-html-readme-dsl::close-element tree-builder))
-       :text
+       :text-handler
        (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
       (cl-html-readme-dsl::get-tree tree-builder))))
 
@@ -265,9 +277,9 @@
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :level) level)
 		 l)))
-      (cl-html-readme-dsl::walk-tree
+      (cl-html-readme-intermediate-dsl:walk-tree
        doc
-       :open-element
+       :open-form-handler
        (lambda(element-symbol element-properties content)
 	 (declare (ignore content))
 	 (if (heading-p element-symbol)
@@ -280,12 +292,12 @@
 	     (progn
 	       (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
 	       nil)))
-       :close-element
+       :close-form-handler
        (lambda(context)
 	 (if (eq context :decrement-level)
 	     (setf level (+ -1 level)))
 	 (cl-html-readme-dsl::close-element tree-builder))
-       :text
+       :text-handler
        (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
       (cl-html-readme-dsl::get-tree tree-builder))))
 
@@ -294,7 +306,6 @@
 ;;
 
 (defun compile-documentation (documentation)
-  (validate documentation)
   (setf documentation (set-heading-ids documentation))
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
