@@ -9,7 +9,7 @@
 ;;
 ;; <heading> ::= (heading <heading-properties> { <string> | <heading> | <toc> | <toc-root> })
 ;;
-;; <toc> ::= (toc <toc-properties>) ;; High level representation of <toc-root> element
+;; <toc> ::= (toc <toc-properties>)
 ;;
 ;; <semantic-properties> ::= (:name <string> {:<keyword> <value>})
 ;;
@@ -118,7 +118,7 @@
 
 (defclass tree-builder (cl-html-readme-dsl::tree-builder-v1) ())
 
-(defmethod cl-html-readme-dsl::open-element
+(defmethod cl-html-readme-dsl::open-form
     ((instance tree-builder) form-symbol form-properties)
   (validate-form form-symbol form-properties)
   (call-next-method))
@@ -143,7 +143,7 @@
 	 (declare (ignore content))
 	 (if (is-toc-heading form-symbol form-properties)
 	     (progn
-	       (cl-html-readme-dsl::open-element
+	       (cl-html-readme-dsl::open-form
 		tree-builder
 		form-symbol
 		form-properties)
@@ -152,7 +152,7 @@
        :close-form-handler
        (lambda(context)
 	 (if context
-	     (cl-html-readme-dsl::close-element tree-builder)))
+	     (cl-html-readme-dsl::close-form tree-builder)))
        :text-handler
        (lambda(str)
 	 (declare (ignore str))
@@ -160,7 +160,7 @@
       (cl-html-readme-dsl::get-tree tree-builder))))
 
 (defun write-toc (doc toc-properties tree-builder)
-  "Extracts toc and writes toc-root, toc-container, toc-item elements into the builder.
+  "Extracts toc and writes toc-root, toc-container, toc-item forms into the builder.
   - toc-properties: The properties of the corresponding toc-form"
   (flet ((remove-toc-property (properties)
 	   (filter-property-list-entries properties :key-blacklist (list :toc))))
@@ -168,7 +168,7 @@
       (if toc-headings
 	  (progn
 	    ;; Render toc-root
-	    (cl-html-readme-dsl::open-element
+	    (cl-html-readme-dsl::open-form
 	     tree-builder
 	     'toc-root
 	     toc-properties)
@@ -182,7 +182,7 @@
 	       (if (not content)
 		   (progn
 		     ;; Heading does not have sub-headings. Render a plain toc-item.
-		     (cl-html-readme-dsl::open-element
+		     (cl-html-readme-dsl::open-form
 		      tree-builder
 		      'toc-item
 		      (remove-toc-property
@@ -193,7 +193,7 @@
 		     nil)
 		   (progn
 		     ;; Heading has sub-headings. Render a toc-container.
-		     (cl-html-readme-dsl::open-element
+		     (cl-html-readme-dsl::open-form
 		      tree-builder
 		      'toc-container
 		      (remove-toc-property
@@ -205,12 +205,12 @@
 	     :close-form-handler
 	     (lambda(context)
 	       (declare (ignore context))
-	       (cl-html-readme-dsl::close-element tree-builder)))
+	       (cl-html-readme-dsl::close-form tree-builder)))
 	    ;; Close toc-root
-	    (cl-html-readme-dsl::close-element tree-builder))))))
+	    (cl-html-readme-dsl::close-form tree-builder))))))
 
 (defun expand-toc (doc)
-  "Replace toc element with toc-root. Returns a new documentation object."
+  "Replace toc form with toc-root. Returns a new documentation object."
   (let ((tree-builder (cl-html-readme-intermediate-dsl::make-tree-builder)))
     (walk-tree
      doc
@@ -220,14 +220,14 @@
        (if (toc-p form-symbol)
 	   (progn
 	     (write-toc doc form-properties tree-builder)
-	     :ignore-close-element)
+	     :ignore-close-form)
 	   (progn
-	     (cl-html-readme-dsl::open-element tree-builder form-symbol form-properties)
+	     (cl-html-readme-dsl::open-form tree-builder form-symbol form-properties)
 	     t)))
      :close-form-handler
      (lambda(context)
-       (if (not (eq context :ignore-close-element))
-	   (cl-html-readme-dsl::close-element tree-builder)))
+       (if (not (eq context :ignore-close-form))
+	   (cl-html-readme-dsl::close-form tree-builder)))
      :text-handler
      (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
     (cl-html-readme-dsl::get-tree tree-builder)))
@@ -256,11 +256,11 @@
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
 	 (if (getf form-properties :toc)
-	     (cl-html-readme-dsl::open-element tree-builder form-symbol (set-id form-properties))
-	     (cl-html-readme-dsl::open-element tree-builder form-symbol form-properties))
+	     (cl-html-readme-dsl::open-form tree-builder form-symbol (set-id form-properties))
+	     (cl-html-readme-dsl::open-form tree-builder form-symbol form-properties))
 	 nil)
        :close-form-handler
-       (lambda(context) (declare (ignore context)) (cl-html-readme-dsl::close-element tree-builder))
+       (lambda(context) (declare (ignore context)) (cl-html-readme-dsl::close-form tree-builder))
        :text-handler
        (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
       (cl-html-readme-dsl::get-tree tree-builder))))
@@ -271,7 +271,7 @@
 ;;
 
 (defun set-heading-indentation-levels (doc)
-  "Set indentation levels of heading elements. Returns a new documentation object."
+  "Set indentation levels of heading forms. Returns a new documentation object."
   (let ((level 0) (tree-builder (cl-html-readme-intermediate-dsl:make-tree-builder)))
     (labels ((set-indentation-level (properties)
 	       (let ((l (copy-list properties)))
@@ -284,19 +284,19 @@
 	 (declare (ignore content))
 	 (if (heading-p form-symbol)
 	     (progn
-	       (cl-html-readme-dsl::open-element
+	       (cl-html-readme-dsl::open-form
 		tree-builder form-symbol
 		(set-indentation-level form-properties))
 	       (setf level (+ 1 level))
 	       :decrement-level)
 	     (progn
-	       (cl-html-readme-dsl::open-element tree-builder form-symbol form-properties)
+	       (cl-html-readme-dsl::open-form tree-builder form-symbol form-properties)
 	       nil)))
        :close-form-handler
        (lambda(context)
 	 (if (eq context :decrement-level)
 	     (setf level (+ -1 level)))
-	 (cl-html-readme-dsl::close-element tree-builder))
+	 (cl-html-readme-dsl::close-form tree-builder))
        :text-handler
        (lambda(str) (cl-html-readme-dsl::add-text tree-builder str)))
       (cl-html-readme-dsl::get-tree tree-builder))))

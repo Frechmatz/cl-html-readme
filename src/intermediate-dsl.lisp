@@ -116,7 +116,7 @@
 
 (defclass tree-builder (cl-html-readme-dsl::tree-builder-v1) ())
 
-(defmethod cl-html-readme-dsl::open-element
+(defmethod cl-html-readme-dsl::open-form
     ((instance tree-builder) form-symbol form-properties)
   (validate-form form-symbol form-properties)
   (call-next-method))

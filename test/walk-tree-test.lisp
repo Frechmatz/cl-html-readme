@@ -6,20 +6,20 @@
     (cl-html-readme-public-dsl:walk-tree
      doc
      :open-form-handler
-     (lambda(element properties content)
+     (lambda(form-symbol form-properties content)
        (push
 	(list
-	 :action :open-element
-	 :form (string-downcase (symbol-name element))
-	 :form-properties properties
+	 :action :open-form
+	 :form (string-downcase (symbol-name form-symbol))
+	 :form-properties form-properties
 	 :content content)
 	recording)
-       (getf properties :cl-html-unit-test-open-element-return-context))
+       (getf form-properties :cl-html-unit-test-open-form-return-context))
      :close-form-handler
      (lambda(context)
        (push
 	(list
-	 :action :close-element
+	 :action :close-form
 	 :context context)
 	recording))
      :text-handler
@@ -42,7 +42,7 @@
 	(cond
 	  ((eq action :text)
 	   (assert-equal (getf expected-entry :text) (getf recorded-entry :text)))
-	  ((eq action :open-element)
+	  ((eq action :open-form)
 	   (assert-equal (getf expected-entry :form) (getf recorded-entry :form))
 	   (let ((recorded-properties (getf recorded-entry :form-properties))
 		 (expected-properties (getf expected-entry :form-properties)))
@@ -55,7 +55,7 @@
 	   (let ((compare-content-fn (getf expected-entry :compare-content)))
 	     (let ((test (funcall compare-content-fn (getf recorded-entry :content))))
 	       (assert-true test))))
-	  ((eq action :close-element)
+	  ((eq action :close-form)
 	   (assert-equal (getf expected-entry :context) (getf recorded-entry :context)))
 	  (t
 	   (error
@@ -80,11 +80,11 @@
        recording
        (list
 	(list :action :text :text "TEXT-1")
-	(list :action :open-element
+	(list :action :open-form
 	      :form "heading"
 	      :form-properties (list :id 1 :name "H1")
 	      :compare-content (lambda(content) (declare (ignore content)) t))
-	(list :action :close-element :context nil)
+	(list :action :close-form :context nil)
 	(list :action :text :text "TEXT-2")
 	(list :action :text :text "TEXT-3"))))))
 
@@ -94,34 +94,34 @@
       (assert-recording
        recording
        (list
-	(list :action :open-element
+	(list :action :open-form
 	      :form "heading"
 	      :form-properties (list :name "H1")
 	      :compare-content (lambda(content) (declare (ignore content)) t))
-	(list :action :open-element
+	(list :action :open-form
 	      :form "heading"
 	      :form-properties (list :name "H1.1")
 	      :compare-content (lambda(content) (declare (ignore content)) t))
-	(list :action :close-element :context nil)
-	(list :action :close-element :context nil))))))
+	(list :action :close-form :context nil)
+	(list :action :close-form :context nil))))))
 
 (define-test walk-tree-test-4 ()
   (let ((doc
 	  '((heading
 	     (:name "H1"
-	      :cl-html-unit-test-open-element-return-context "H1-CLOSE")))))
+	      :cl-html-unit-test-open-form-return-context "H1-CLOSE")))))
     (let ((recording (record-tree-walk doc)))
       (assert-recording
        recording
        (list
-	(list :action :open-element
+	(list :action :open-form
 	      :form "heading"
 	      :form-properties
 	      (list
 	       :name "H1"
-	       :cl-html-unit-test-open-element-return-context "H1-CLOSE")
+	       :cl-html-unit-test-open-form-return-context "H1-CLOSE")
 	      :compare-content (lambda(content) (declare (ignore content)) t))
-	(list :action :close-element :context "H1-CLOSE"))))))
+	(list :action :close-form :context "H1-CLOSE"))))))
 
 (define-test walk-tree-test-content-1 ()
   (let ((doc '("TEXT-1" (heading (:name "H1") "TEXT-2" "TEXT-3"))))
@@ -130,7 +130,7 @@
        recording
        (list
 	(list :action :text :text "TEXT-1")
-	(list :action :open-element
+	(list :action :open-form
 	      :form "heading"
 	      :form-properties (list :name "H1")
 	      :compare-content (lambda(content)
@@ -141,7 +141,7 @@
 				  (string= "TEXT-3" (second content)))))
 	(list :action :text :text "TEXT-2")
 	(list :action :text :text "TEXT-3")
-	(list :action :close-element :context nil))))))
+	(list :action :close-form :context nil))))))
 
 (define-test walk-tree-test-content-2 ()
   (let ((doc '("TEXT-1" (heading (:name "H1") "TEXT-2") "TEXT-3")))
@@ -150,7 +150,7 @@
        recording
        (list
 	(list :action :text :text "TEXT-1")
-	(list :action :open-element
+	(list :action :open-form
 	      :form "heading"
 	      :form-properties (list :name "H1")
 	      :compare-content (lambda(content)
@@ -159,7 +159,7 @@
 				  (= 1 (length content))
 				  (string= "TEXT-2" (first content)))))
 	(list :action :text :text "TEXT-2")
-	(list :action :close-element :context nil)
+	(list :action :close-form :context nil)
 	(list :action :text :text "TEXT-3"))))))
 
 (define-test walk-tree-test-content-3 ()
@@ -169,12 +169,12 @@
        recording
        (list
 	(list :action :text :text "TEXT-1")
-	(list :action :open-element
+	(list :action :open-form
 	      :form "heading"
 	      :form-properties (list :name "H1")
 	      :compare-content (lambda(content)
 				 ;;(format t "~%Content:~a~%" content)
 				 (not content)))
-	(list :action :close-element :context nil)
+	(list :action :close-form :context nil)
 	(list :action :text :text "TEXT-2"))))))
 

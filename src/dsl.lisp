@@ -78,8 +78,8 @@
 
 (defclass tree-builder () ())
 
-(defgeneric open-element (tree-builder form-symbol form-properties))
-(defgeneric close-element (tree-builder))
+(defgeneric open-form (tree-builder form-symbol form-properties))
+(defgeneric close-form (tree-builder))
 (defgeneric add-text (tree-builder text))
 (defgeneric get-tree (tree-builder))
 
@@ -126,7 +126,7 @@
     (setf (slot-value instance 'root-node) node)
     (setf (slot-value instance 'node-stack) (list node))))
 
-(defmethod open-element ((instance tree-builder-v1) form-symbol form-properties)
+(defmethod open-form ((instance tree-builder-v1) form-symbol form-properties)
   (let ((node (make-instance
 	       'dsl-form-node
 	       :form-symbol form-symbol
@@ -136,7 +136,7 @@
     (push-stack instance node))
   nil)
 
-(defmethod close-element ((instance tree-builder-v1))
+(defmethod close-form ((instance tree-builder-v1))
   (pop-stack instance)
   nil)
 
