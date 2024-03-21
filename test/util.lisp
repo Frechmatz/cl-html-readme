@@ -66,11 +66,11 @@
 	       (walk-tree
 		doc
 		:open-form-handler
-		(lambda(element-symbol element-properties content)
+		(lambda(form-symbol form-properties content)
 		  (declare (ignore content))
 		  (funcall print-space)
-		  (format buffer "(~a (" (format-item element-symbol))
-		  (print-plist-content element-properties)
+		  (format buffer "(~a (" (format-item form-symbol))
+		  (print-plist-content form-properties)
 		  (format buffer ")"))
 		:close-form-handler
 		(lambda(context)

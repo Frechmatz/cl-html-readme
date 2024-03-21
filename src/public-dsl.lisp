@@ -31,14 +31,14 @@
       (let ((name (symbol-name form-symbol)))
 	(find-if (lambda(e) (string= name (getf e :name))) *dsl-forms*))))
 
-(defun semantic-p (element)
-  (and (symbolp element) (string= "SEMANTIC" (symbol-name element))))
+(defun semantic-p (form-symbol)
+  (and (symbolp form-symbol) (string= "SEMANTIC" (symbol-name form-symbol))))
 
-(defun heading-p (element)
-  (and (symbolp element) (string= "HEADING" (symbol-name element))))
+(defun heading-p (form-symbol)
+  (and (symbolp form-symbol) (string= "HEADING" (symbol-name form-symbol))))
 
-(defun toc-p (element)
-  (and (symbolp element) (string= "TOC" (symbol-name element))))
+(defun toc-p (form-symbol)
+  (and (symbolp form-symbol) (string= "TOC" (symbol-name form-symbol))))
 
 ;;
 ;; Property list tooling
@@ -133,20 +133,20 @@
 
 (defun get-toc-headings (doc)
   "Returns a documentation object representing the toc heading tree"
-  (flet ((is-toc-heading (element-symbol element-properties)
-	   (and (heading-p element-symbol) (getf element-properties :toc))))
+  (flet ((is-toc-heading (form-symbol form-properties)
+	   (and (heading-p form-symbol) (getf form-properties :toc))))
     (let ((tree-builder (make-tree-builder)))
       (walk-tree
        doc
        :open-form-handler
-       (lambda(element-symbol element-properties content)
+       (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (is-toc-heading element-symbol element-properties)
+	 (if (is-toc-heading form-symbol form-properties)
 	     (progn
 	       (cl-html-readme-dsl::open-element
 		tree-builder
-		element-symbol
-		element-properties)
+		form-symbol
+		form-properties)
 	       t)
 	     nil))
        :close-form-handler
@@ -177,8 +177,8 @@
 	     toc-headings
 	     :text-handler (lambda(str) (declare (ignore str)) nil)
 	     :open-form-handler
-	     (lambda(element-symbol element-properties content)
-	       (declare (ignore element-symbol))
+	     (lambda(form-symbol form-properties content)
+	       (declare (ignore form-symbol))
 	       (if (not content)
 		   (progn
 		     ;; Heading does not have sub-headings. Render a plain toc-item.
@@ -189,7 +189,7 @@
 		       (concatenate
 			'list
 			toc-properties
-			element-properties)))
+			form-properties)))
 		     nil)
 		   (progn
 		     ;; Heading has sub-headings. Render a toc-container.
@@ -199,7 +199,7 @@
 		      (remove-toc-property
 		       (concatenate
 			'list
-			element-properties
+			form-properties
 			toc-properties)))
 		     nil)))
 	     :close-form-handler
@@ -215,14 +215,14 @@
     (walk-tree
      doc
      :open-form-handler
-     (lambda(element-symbol element-properties content)
+     (lambda(form-symbol form-properties content)
        (declare (ignore content))
-       (if (toc-p element-symbol)
+       (if (toc-p form-symbol)
 	   (progn
-	     (write-toc doc element-properties tree-builder)
+	     (write-toc doc form-properties tree-builder)
 	     :ignore-close-element)
 	   (progn
-	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
+	     (cl-html-readme-dsl::open-element tree-builder form-symbol form-properties)
 	     t)))
      :close-form-handler
      (lambda(context)
@@ -253,11 +253,11 @@
       (walk-tree
        doc
        :open-form-handler
-       (lambda(element-symbol element-properties content)
+       (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (getf element-properties :toc)
-	     (cl-html-readme-dsl::open-element tree-builder element-symbol (set-id element-properties))
-	     (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties))
+	 (if (getf form-properties :toc)
+	     (cl-html-readme-dsl::open-element tree-builder form-symbol (set-id form-properties))
+	     (cl-html-readme-dsl::open-element tree-builder form-symbol form-properties))
 	 nil)
        :close-form-handler
        (lambda(context) (declare (ignore context)) (cl-html-readme-dsl::close-element tree-builder))
@@ -280,17 +280,17 @@
       (cl-html-readme-intermediate-dsl:walk-tree
        doc
        :open-form-handler
-       (lambda(element-symbol element-properties content)
+       (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (heading-p element-symbol)
+	 (if (heading-p form-symbol)
 	     (progn
 	       (cl-html-readme-dsl::open-element
-		tree-builder element-symbol
-		(set-indentation-level element-properties))
+		tree-builder form-symbol
+		(set-indentation-level form-properties))
 	       (setf level (+ 1 level))
 	       :decrement-level)
 	     (progn
-	       (cl-html-readme-dsl::open-element tree-builder element-symbol element-properties)
+	       (cl-html-readme-dsl::open-element tree-builder form-symbol form-properties)
 	       nil)))
        :close-form-handler
        (lambda(context)

@@ -77,41 +77,41 @@
       (cl-html-readme-intermediate-dsl:walk-tree
        doc
        :open-form-handler
-       (lambda(element-symbol element-properties content)
+       (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
 	 (cond
 	   ;;
 	   ;; Heading
 	   ;;
-	   ((cl-html-readme-intermediate-dsl::heading-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::heading-p form-symbol)
 	    ;; <h{level} id={id} {render-hook}> {name} </h{level}>
 	    (newline)
 	    (format
 	     output-stream
 	     "<~a~a~a>~a</~a>"
-	     (format-heading element-properties)
-	     (format-id element-properties)
-	     (format-extra-attributes *get-heading-attributes* element-properties)
-	     (getf element-properties :name)
-	     (format-heading element-properties))
+	     (format-heading form-properties)
+	     (format-id form-properties)
+	     (format-extra-attributes *get-heading-attributes* form-properties)
+	     (getf form-properties :name)
+	     (format-heading form-properties))
 	    nil)
 	   ;;
 	   ;; Semantic
 	   ;;
-	   ((cl-html-readme-intermediate-dsl::semantic-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::semantic-p form-symbol)
 	    (newline)
 	    ;; <{name {render-hook}}>...</{name}>
 	    (format
 	     output-stream
 	     "<~a~a>"
-	     (getf element-properties :name)
-	     (format-extra-attributes *get-semantic-attributes* element-properties))
-	    (format nil "</~a>" (getf element-properties :name)))
+	     (getf form-properties :name)
+	     (format-extra-attributes *get-semantic-attributes* form-properties))
+	    (format nil "</~a>" (getf form-properties :name)))
 	   ;;
 	   ;; Toc-Root
 	   ;;
-	   ((cl-html-readme-intermediate-dsl::toc-root-p element-symbol)
-	    (setf toc-properties element-properties)
+	   ((cl-html-readme-intermediate-dsl::toc-root-p form-symbol)
+	    (setf toc-properties form-properties)
 	    (newline)
 	    ;; <ul {render-hook}>...</ul>
 	    (format
@@ -122,20 +122,20 @@
 	   ;;
 	   ;; Toc-Item
 	   ;;
-	   ((cl-html-readme-intermediate-dsl::toc-item-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::toc-item-p form-symbol)
 	    ;; <li {render-hook}><a href=#{id}> {name} </a> </li>
 	    (newline)
 	    (format
 	     output-stream
 	     "<li~a><a href=\"#~a\">~a</a></li>"
 	     (format-extra-attributes *get-toc-item-attributes* toc-properties)
-	     (getf element-properties :id)
-	     (getf element-properties :name))
+	     (getf form-properties :id)
+	     (getf form-properties :name))
 	    nil)
 	   ;;
 	   ;; Toc-Container
 	   ;;
-	   ((cl-html-readme-intermediate-dsl::toc-container-p element-symbol)
+	   ((cl-html-readme-intermediate-dsl::toc-container-p form-symbol)
 	    ;; <li {render-hook}> <a href=#{id}> {name} </a>
 	    ;; <ul {render-hook}>...</ul>
 	    ;; </li>
@@ -144,11 +144,11 @@
 	     output-stream
 	     "<li~a><a href=\"#~a\">~a</a><ul~a>"
 	     (format-extra-attributes *get-toc-item-attributes* toc-properties)
-	     (getf element-properties :id)
-	     (getf element-properties :name)
+	     (getf form-properties :id)
+	     (getf form-properties :name)
 	     (format-extra-attributes *get-toc-container-attributes* toc-properties))
 	    "</ul></li>")
-	   (t (error (format nil "Dont know how to serialize ~a" element-symbol)))))
+	   (t (error (format nil "Dont know how to serialize ~a" form-symbol)))))
        :close-form-handler
        (lambda(context)
 	 (if context

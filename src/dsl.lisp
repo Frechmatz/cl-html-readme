@@ -78,7 +78,7 @@
 
 (defclass tree-builder () ())
 
-(defgeneric open-element (tree-builder element-symbol element-properties))
+(defgeneric open-element (tree-builder form-symbol form-properties))
 (defgeneric close-element (tree-builder))
 (defgeneric add-text (tree-builder text))
 (defgeneric get-tree (tree-builder))
@@ -91,19 +91,19 @@
   ((node-stack :initform nil)
    (root-node :initform nil)))
 
-(defclass dsl-element-node ()
-  ((element-symbol :initarg :element-symbol)
-   (element-properties :initarg :element-properties)
+(defclass dsl-form-node ()
+  ((form-symbol :initarg :form-symbol)
+   (form-properties :initarg :form-properties)
    (content :initform (list))))
 
-(defun push-content (dsl-element-node item)
-  (assert (typep dsl-element-node 'dsl-element-node))
-  (let ((l (slot-value dsl-element-node 'content)))
-    (setf (slot-value dsl-element-node 'content) (push item l)))
+(defun push-content (dsl-form-node item)
+  (assert (typep dsl-form-node 'dsl-form-node))
+  (let ((l (slot-value dsl-form-node 'content)))
+    (setf (slot-value dsl-form-node 'content) (push item l)))
   nil)
     
 (defun push-stack (tree-builder-v1 item)
-  (assert (typep item 'dsl-element-node))
+  (assert (typep item 'dsl-form-node))
   (let ((l (slot-value tree-builder-v1 'node-stack)))
     (setf (slot-value tree-builder-v1 'node-stack) (push item l))))
 
@@ -112,7 +112,7 @@
     (if (not (< 1 (length stack)))
 	(error
 	 'dsl-tree-builder-error
-	 :format-control "Stack underflow. Unbalanced open/close-element calls."
+	 :format-control "Stack underflow. Unbalanced open/close-form calls."
 	 :format-arguments nil))
     (let ((r (rest stack)))
       (setf (slot-value tree-builder-v1 'node-stack) r))))
@@ -122,15 +122,15 @@
 
 (defmethod initialize-instance :after ((instance tree-builder-v1) &rest init-args)
   (declare (ignore init-args))
-  (let ((node (make-instance 'dsl-element-node :element-symbol 'root :element-properties nil)))
+  (let ((node (make-instance 'dsl-form-node :form-symbol 'root :form-properties nil)))
     (setf (slot-value instance 'root-node) node)
     (setf (slot-value instance 'node-stack) (list node))))
 
-(defmethod open-element ((instance tree-builder-v1) element-symbol element-properties)
+(defmethod open-element ((instance tree-builder-v1) form-symbol form-properties)
   (let ((node (make-instance
-	       'dsl-element-node
-	       :element-symbol element-symbol
-	       :element-properties element-properties))
+	       'dsl-form-node
+	       :form-symbol form-symbol
+	       :form-properties form-properties))
 	(stack-pointer (first (slot-value instance 'node-stack))))
     (push-content stack-pointer node)
     (push-stack instance node))
@@ -156,21 +156,21 @@
   (if (not (eq 1 (length (slot-value instance 'node-stack))))
       (error
        'dsl-tree-builder-error
-       :format-control "Pending open elements on stack"
+       :format-control "Pending open forms on stack"
        :format-arguments (list)))
   (labels ((process-node (node)
 	     (if (typep node 'dsl-text-node)
 		 (slot-value node 'text)
 		 (progn
-		   (assert (typep node 'dsl-element-node))
+		   (assert (typep node 'dsl-form-node))
 		   (let ((element nil))
 		     (dolist (content-node (slot-value node 'content))
 		       (push (process-node content-node) element))
-		     (push (slot-value node 'element-properties) element)
-		     (push (slot-value node 'element-symbol) element)
+		     (push (slot-value node 'form-properties) element)
+		     (push (slot-value node 'form-symbol) element)
 		     element)))))
     (let ((tree nil) (root-node (slot-value instance 'root-node)))
-      (assert (typep root-node 'dsl-element-node))
+      (assert (typep root-node 'dsl-form-node))
       (let ((content-nodes (slot-value root-node 'content)))
 	(dolist (node content-nodes)
 	  (push (process-node node) tree)))
