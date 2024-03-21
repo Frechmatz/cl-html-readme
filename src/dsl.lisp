@@ -82,7 +82,6 @@
 (defgeneric close-element (tree-builder))
 (defgeneric add-text (tree-builder text))
 (defgeneric get-tree (tree-builder))
-(defgeneric validate-element (tree-builder element-symbol element-properties))
 
 ;;
 ;; Version 1 of tree-builder
@@ -128,7 +127,6 @@
     (setf (slot-value instance 'node-stack) (list node))))
 
 (defmethod open-element ((instance tree-builder-v1) element-symbol element-properties)
-  (validate-element instance element-symbol element-properties)
   (let ((node (make-instance
 	       'dsl-element-node
 	       :element-symbol element-symbol
