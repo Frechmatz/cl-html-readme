@@ -61,8 +61,6 @@
 ;; DSL-Tree builder
 ;;
 
-(define-condition dsl-tree-builder-error (simple-error)())
-
 (defclass tree-builder () ())
 
 (defgeneric open-form (tree-builder form-symbol form-properties)
@@ -106,7 +104,7 @@
   (let ((stack (slot-value default-tree-builder 'node-stack)))
     (if (not (< 1 (length stack)))
 	(error
-	 'dsl-tree-builder-error
+	 'cl-html-readme:unbalanced-tree-error
 	 :format-control "Stack underflow. Unbalanced open/close-form calls."
 	 :format-arguments nil))
     (let ((r (rest stack)))
@@ -150,7 +148,7 @@
   "Generate resulting tree"
   (if (not (eq 1 (length (slot-value instance 'node-stack))))
       (error
-       'dsl-tree-builder-error
+       'cl-html-readme:unbalanced-tree-error
        :format-control "Pending open forms on stack"
        :format-arguments (list)))
   (labels ((process-node (node)

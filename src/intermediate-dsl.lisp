@@ -81,7 +81,7 @@
 	     "~%cl-html-readme-intermediate-dsl::validate-form failed. Missing mandatory property ~a~% in properties of form ~a"
 	     key form-symbol)
 	    (error
-	     'cl-html-readme-dsl::dsl-syntax-error
+	     'cl-html-readme:syntax-error
 	     :format-control "Mandatory property ~a missing for form ~a"
 	     :format-arguments (list key form-symbol)))))
     nil))

@@ -9,6 +9,7 @@
    :*get-toc-item-attributes*
    :*get-toc-container-attributes*
    :syntax-error
+   :unbalanced-tree-error
    :doc-to-html
    :read-stream
    :read-file
@@ -26,7 +27,6 @@
    :on-text
    :walk-tree
    ;; Tree-Builder
-   :dsl-tree-builder-error
    :tree-builder
    :default-tree-builder
    :open-form

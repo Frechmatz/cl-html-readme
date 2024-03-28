@@ -54,7 +54,7 @@
 		   (error (err)
 		     (setf catched-error err)))
 		 (assert-true catched-error)
-		 (assert-true (typep catched-error 'cl-html-readme-dsl:dsl-tree-builder-error)))))
+		 (assert-true (typep catched-error 'cl-html-readme:unbalanced-tree-error)))))
 
 (define-test test-tree-builder-invalid-text-1 ()
 	     (let ((builder (cl-html-readme-public-dsl:make-tree-builder)))
