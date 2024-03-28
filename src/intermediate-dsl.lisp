@@ -110,11 +110,22 @@
    'tree-walker-lambda
    :open-form-handler
    (lambda (form-symbol form-properties content)
-     ;; TODO Concept how to minimize costly validations
      (validate-form form-symbol form-properties)
-     (funcall open-form-handler form-symbol form-properties content))
-   :close-form-handler close-form-handler
-   :text-handler text-handler))
+     (if open-form-handler 
+	 (funcall open-form-handler form-symbol form-properties content)
+	 nil))
+   :close-form-handler
+   (if close-form-handler
+       close-form-handler
+       (lambda (context)
+	 (declare (ignore context))
+	 nil))
+   :text-handler
+   (if text-handler
+       text-handler
+       (lambda (text)
+	 (declare (ignore text))
+	 nil))))
 
 (defun walk-tree (documentation &key open-form-handler close-form-handler text-handler)
   "Traverse a documentation object"
