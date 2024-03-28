@@ -16,7 +16,23 @@
    :make-path))
 
 (defpackage :cl-html-readme-dsl
-  (:use :cl))
+  (:use :cl)
+  (:export
+   ;; Tree-Walker
+   :tree-walker
+   :default-tree-walker
+   :on-open-form
+   :on-close-form
+   :on-text
+   :walk-tree
+   ;; Tree-Builder
+   :dsl-tree-builder-error
+   :tree-builder
+   :default-tree-builder
+   :open-form
+   :close-form
+   :add-text
+   :get-tree))
 
 (defpackage :cl-html-readme-public-dsl
   (:use :cl)

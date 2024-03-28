@@ -7,25 +7,31 @@
 (defclass tree-walker () ()
   (:documentation "DSL traverser."))
 
+(defgeneric walk-tree (tree-walker tree)
+  (:documentation
+   "Traverse tree and invoke handlers."))
+
 (defgeneric on-open-form (tree-walker form-symbol form-properties content)
   (:documentation
-   "Called when a DSL special form is opened.
+   "Handler that is called when a DSL special form is opened.
     Returns a context that is passed to on-close-form"))
 
 (defgeneric on-close-form (tree-walker context)
   (:documentation
-   "Called when a previously opened DSL special form is closed."))
+   "Handler that is called when a previously opened DSL special form is closed."))
 
 (defgeneric on-text (tree-walker text)
   (:documentation
-   "Called for each text form."))
+   "Handler that is called for plain string occurences outside of DSL special form properties."))
 
-(defun walk-tree (instance tree) 
-  "DSL tree traversal. The function has the following arguments:
-   <ul>
-   <li>instance An instance of tree-walker./li>
-   <li>tree An object following the syntax of the DSL./li>
-   </ul>"
+;;
+;; Default implementation of tree-walker
+;;
+
+(defclass default-tree-walker (tree-walker) ()
+  (:documentation "An implementation of the tree-walker class."))
+
+(defmethod walk-tree ((instance default-tree-walker) tree)
   (labels ((walk-tree-impl (l)
 	     (if (not (listp l))
 		 (progn
@@ -52,25 +58,6 @@
     nil))
 
 ;;
-;; Tree-Walker implementation with lambda handlers
-;;
-
-(defclass tree-walker-lambda (tree-walker)
-  ((open-form-handler :initarg :open-form-handler)
-   (close-form-handler :initarg :close-form-handler)
-   (text-handler :initarg :text-handler))
-  (:documentation "DSL traverser with lambda callbacks."))
-
-(defmethod on-open-form ((instance tree-walker-lambda) form-symbol form-properties content)
-  (funcall (slot-value instance 'open-form-handler) form-symbol form-properties content))
-
-(defmethod on-close-form ((instance tree-walker-lambda) context)
-  (funcall (slot-value instance 'close-form-handler) context))
-
-(defmethod on-text ((instance tree-walker-lambda) text)
-  (funcall (slot-value instance 'text-handler) text))
-
-;;
 ;; DSL-Tree builder
 ;;
 
@@ -78,18 +65,26 @@
 
 (defclass tree-builder () ())
 
-(defgeneric open-form (tree-builder form-symbol form-properties))
-(defgeneric close-form (tree-builder))
-(defgeneric add-text (tree-builder text))
-(defgeneric get-tree (tree-builder))
+(defgeneric open-form (tree-builder form-symbol form-properties)
+  (:documentation "Open a DSL special form."))
+
+(defgeneric close-form (tree-builder)
+  (:documentation "Close a DSL special form."))
+
+(defgeneric add-text (tree-builder text)
+  (:documentation "Add a plain string."))
+
+(defgeneric get-tree (tree-builder)
+  (:documentation "Get the resulting tree."))
 
 ;;
-;; Version 1 of tree-builder
+;; Default implementation of tree-builder
 ;;
 
-(defclass tree-builder-v1 (tree-builder)
+(defclass default-tree-builder (tree-builder)
   ((node-stack :initform nil)
-   (root-node :initform nil)))
+   (root-node :initform nil))
+  (:documentation "An implementation of the tree-builder class."))
 
 (defclass dsl-form-node ()
   ((form-symbol :initarg :form-symbol)
@@ -102,31 +97,31 @@
     (setf (slot-value dsl-form-node 'content) (push item l)))
   nil)
     
-(defun push-stack (tree-builder-v1 item)
+(defun push-stack (default-tree-builder item)
   (assert (typep item 'dsl-form-node))
-  (let ((l (slot-value tree-builder-v1 'node-stack)))
-    (setf (slot-value tree-builder-v1 'node-stack) (push item l))))
+  (let ((l (slot-value default-tree-builder 'node-stack)))
+    (setf (slot-value default-tree-builder 'node-stack) (push item l))))
 
-(defun pop-stack (tree-builder-v1)
-  (let ((stack (slot-value tree-builder-v1 'node-stack)))
+(defun pop-stack (default-tree-builder)
+  (let ((stack (slot-value default-tree-builder 'node-stack)))
     (if (not (< 1 (length stack)))
 	(error
 	 'dsl-tree-builder-error
 	 :format-control "Stack underflow. Unbalanced open/close-form calls."
 	 :format-arguments nil))
     (let ((r (rest stack)))
-      (setf (slot-value tree-builder-v1 'node-stack) r))))
+      (setf (slot-value default-tree-builder 'node-stack) r))))
 
 (defclass dsl-text-node ()
   ((text :initarg :text)))
 
-(defmethod initialize-instance :after ((instance tree-builder-v1) &rest init-args)
+(defmethod initialize-instance :after ((instance default-tree-builder) &rest init-args)
   (declare (ignore init-args))
   (let ((node (make-instance 'dsl-form-node :form-symbol 'root :form-properties nil)))
     (setf (slot-value instance 'root-node) node)
     (setf (slot-value instance 'node-stack) (list node))))
 
-(defmethod open-form ((instance tree-builder-v1) form-symbol form-properties)
+(defmethod open-form ((instance default-tree-builder) form-symbol form-properties)
   (let ((node (make-instance
 	       'dsl-form-node
 	       :form-symbol form-symbol
@@ -136,11 +131,11 @@
     (push-stack instance node))
   nil)
 
-(defmethod close-form ((instance tree-builder-v1))
+(defmethod close-form ((instance default-tree-builder))
   (pop-stack instance)
   nil)
 
-(defmethod add-text ((instance tree-builder-v1) text)
+(defmethod add-text ((instance default-tree-builder) text)
   (if (not (stringp text))
       (error
        'cl-html-readme:syntax-error
@@ -151,7 +146,7 @@
     (push-content stack-pointer node))
   nil)
 
-(defmethod get-tree ((instance tree-builder-v1))
+(defmethod get-tree ((instance default-tree-builder))
   "Generate resulting tree"
   (if (not (eq 1 (length (slot-value instance 'node-stack))))
       (error
