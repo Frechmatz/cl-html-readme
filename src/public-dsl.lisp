@@ -92,8 +92,8 @@
 ;; Tree-Walker
 ;;
 
-(defun make-tree-walker (&key open-form-handler close-form-handler text-handler)
-  "Instantiates a validating tree-walker"
+(defun walk-tree (documentation &key open-form-handler close-form-handler text-handler)
+  "Validating traversal of a documentation object"
   (let ((validating-open-form-handler
 	  (if open-form-handler
 	      (lambda (form-symbol form-properties content)
@@ -103,20 +103,13 @@
 		(declare (ignore content))
 		(validate-form form-symbol form-properties)
 		nil))))
-    (make-instance
-     'cl-html-readme-dsl:default-tree-walker
-     :open-form-handler validating-open-form-handler
-     :close-form-handler close-form-handler
-     :text-handler text-handler)))
-
-(defun walk-tree (documentation &key open-form-handler close-form-handler text-handler)
-  "Validating traversal of a documentation object"
-  (let ((walker
-	  (make-tree-walker
-	   :open-form-handler open-form-handler
-	   :close-form-handler close-form-handler
-	   :text-handler text-handler)))
-    (cl-html-readme-dsl:walk-tree walker documentation)))
+    (let ((walker
+	    (make-instance
+	     'cl-html-readme-dsl:default-tree-walker
+	     :open-form-handler validating-open-form-handler
+	     :close-form-handler close-form-handler
+	     :text-handler text-handler)))
+      (cl-html-readme-dsl:walk-tree walker documentation))))
 
 ;;
 ;; Tree-Builder
@@ -313,6 +306,8 @@
 ;;
 
 (defun compile-documentation (documentation)
+  ;; Initial validation
+  (walk-tree documentation :open-form-handler nil :close-form-handler nil :text-handler nil)
   (setf documentation (set-heading-ids documentation))
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
