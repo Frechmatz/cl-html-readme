@@ -9,21 +9,6 @@
       (setf push-key (not push-key)))
     keys))
 
-(defclass tree-walker-lambda (cl-html-readme-dsl:default-tree-walker)
-  ((open-form-handler :initarg :open-form-handler)
-   (close-form-handler :initarg :close-form-handler)
-   (text-handler :initarg :text-handler))
-  (:documentation "DSL traverser with lambda callbacks."))
-
-(defmethod cl-html-readme-dsl:on-open-form ((instance tree-walker-lambda) form-symbol form-properties content)
-  (funcall (slot-value instance 'open-form-handler) form-symbol form-properties content))
-
-(defmethod cl-html-readme-dsl:on-close-form ((instance tree-walker-lambda) context)
-  (funcall (slot-value instance 'close-form-handler) context))
-
-(defmethod cl-html-readme-dsl:on-text ((instance tree-walker-lambda) text)
-  (funcall (slot-value instance 'text-handler) text))
-
 (defun doc-to-string (doc &key (string-enclosure-character "'"))
   "Deterministic stringification of a documentation object.
    Does not apply validation.
@@ -32,9 +17,10 @@
    Assumes that the tree walker has been tested."
   (labels
       ((walk-tree (tree &key open-form-handler close-form-handler text-handler)
-	 (let ((walker
+	 "Non-Validating tree traversal"
+	 (let ((walker 
 		 (make-instance
-		  'tree-walker-lambda
+		  'cl-html-readme-dsl:default-tree-walker
 		  :open-form-handler open-form-handler
 		  :close-form-handler close-form-handler
 		  :text-handler text-handler)))

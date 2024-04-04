@@ -22,9 +22,6 @@
    ;; Tree-Walker
    :tree-walker
    :default-tree-walker
-   :on-open-form
-   :on-close-form
-   :on-text
    :walk-tree
    ;; Tree-Builder
    :tree-builder

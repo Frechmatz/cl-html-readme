@@ -4,25 +4,46 @@
 ;; DSL-Tree Walker
 ;;
 
-(defclass tree-walker () ()
-  (:documentation "DSL traverser."))
+(defclass tree-walker ()
+  ((open-form-handler
+    :initarg :open-form-handler
+    :documentation
+    "Handler that is called when a DSL special form is opened.
+     (lambda (form-symbol form-properties content))
+    Returns a context that is passed to on-close-form")
+   (close-form-handler
+    :initarg :close-form-handler
+    :documentation
+    "Handler that is called when a previously opened DSL special form is closed.
+     (lambda (context))")
+   (text-handler
+    :initarg :text-handler
+    :documentation
+    "Handler that is called for plain string occurences outside of DSL special form properties.
+    (lambda (context))"))
+  (:documentation "DSL traverser. All handlers are optional."))
 
 (defgeneric walk-tree (tree-walker tree)
   (:documentation
    "Traverse tree and invoke handlers."))
 
-(defgeneric on-open-form (tree-walker form-symbol form-properties content)
-  (:documentation
-   "Handler that is called when a DSL special form is opened.
-    Returns a context that is passed to on-close-form"))
-
-(defgeneric on-close-form (tree-walker context)
-  (:documentation
-   "Handler that is called when a previously opened DSL special form is closed."))
-
-(defgeneric on-text (tree-walker text)
-  (:documentation
-   "Handler that is called for plain string occurences outside of DSL special form properties."))
+(defmethod initialize-instance :after ((instance tree-walker) &key)
+  "Initialize nil callback handlers with default implementations."
+  (with-slots (open-form-handler close-form-handler text-handler) instance
+    (if (not open-form-handler)
+	(setf open-form-handler
+	      (lambda (form-symbol form-properties content)
+		(declare (ignore form-symbol form-properties content)))))
+    (if (not close-form-handler)
+	(setf close-form-handler
+	      (lambda (context)
+		(declare (ignore context))
+		nil)))
+    (if (not text-handler)
+	(setf text-handler
+	      (lambda (text)
+		(declare (ignore text))
+		nil)))))
 
 ;;
 ;; Default implementation of tree-walker
@@ -32,30 +53,30 @@
   (:documentation "An implementation of the tree-walker class."))
 
 (defmethod walk-tree ((instance default-tree-walker) tree)
-  (labels ((walk-tree-impl (l)
-	     (if (not (listp l))
-		 (progn
-		   (if (not (stringp l))
-		       (error
-			'cl-html-readme:syntax-error
-			:format-control "Item must be a string: ~a"
-			:format-arguments (list l)))
-		   (on-text instance l))
-		 (progn
-		   (let* ((form-symbol (first l))
-			  (form-properties (second l)))
-		     (let* ((content (rest (rest l)))
-			    (context (on-open-form
-				      instance 
-				      form-symbol
-				      form-properties
-				      content)))
-		       (dolist (item content)
-			 (walk-tree-impl item))
-		       (on-close-form instance context)))))))
-    (dolist (item tree)
-      (walk-tree-impl item))
-    nil))
+  (with-slots (open-form-handler close-form-handler text-handler) instance
+    (labels ((walk-tree-impl (l)
+	       (if (not (listp l))
+		   (progn
+		     (if (not (stringp l))
+			 (error
+			  'cl-html-readme:syntax-error
+			  :format-control "Item must be a string: ~a"
+			  :format-arguments (list l)))
+		     (funcall text-handler l))
+		   (progn
+		     (let* ((form-symbol (first l))
+			    (form-properties (second l)))
+		       (let* ((content (rest (rest l)))
+			      (context (funcall open-form-handler
+					form-symbol
+					form-properties
+					content)))
+			 (dolist (item content)
+			   (walk-tree-impl item))
+			 (funcall close-form-handler context)))))))
+      (dolist (item tree)
+	(walk-tree-impl item))
+      nil)))
 
 ;;
 ;; DSL-Tree builder
