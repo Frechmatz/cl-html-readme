@@ -57,30 +57,20 @@
 	nil
 	(string= (symbol-name form-symbol) (getf form-definition :name)))))
 
+(defun signal-syntax-error (format-control format-arguments)
+  (apply #'format t (concatenate 'string "~%" format-control "~%") format-arguments)
+  (error
+   'cl-html-readme:syntax-error
+   :format-control format-control
+   :format-arguments format-arguments))
+
 (defmethod validate-special-form((instance specialized-dsl) form-symbol form-properties)
   (let ((form-definition (get-special-form-definition instance form-symbol)))
     (if (not form-definition)
-	(progn
-	  (format
-	   t
-	   "~%Undefined DSL form '~a'~%"
-	   form-symbol)
-	  (error
-	   'cl-html-readme:syntax-error
-	   :format-control
-	   "Undefined DSL form '~a'"
-	   :format-arguments (list form-symbol))))
+	(signal-syntax-error "Undefined DSL form '~a'" (list form-symbol)))
     (dolist (key (getf form-definition :mandatory-properties))
       (if (not (getf form-properties key))
-	  (progn
-	    (format
-	     t
-	     "~%validate-special-form failed. Missing mandatory property ~a~% in properties of form ~a"
-	     key form-symbol)
-	    (error
-	     'cl-html-readme:syntax-error
-	     :format-control "Mandatory property ~a missing for form ~a"
-	     :format-arguments (list key form-symbol)))))
+	  (signal-syntax-error "Mandatory property ~a missing in form ~a" (list key form-symbol))))
     nil))
 
 
