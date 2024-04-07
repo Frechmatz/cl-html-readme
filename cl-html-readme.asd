@@ -12,6 +12,7 @@
 		:components ((:file "packages")
 			     (:file "conditions")
 			     (:file "dsl")
+			     (:file "specialized-dsl")
 			     (:file "intermediate-dsl")
 			     (:file "public-dsl")
 			     (:file "readme-util")

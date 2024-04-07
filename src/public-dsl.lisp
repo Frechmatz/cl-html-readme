@@ -20,29 +20,22 @@
 ;; <string> ::= A string literal
 ;;
 
-(defparameter *dsl-forms*
-  '((:name "SEMANTIC"
-     :mandatory-properties (:name)
-     :optional-properties (:app))
-    (:name "HEADING"
-     :mandatory-properties (:name)
-     :optional-properties (:app))
-    (:name "TOC"
-     :mandatory-properties ()
-     :optional-properties (:app))))
-
-(defun get-dsl-form (form-symbol)
-  (if (not (symbolp form-symbol))
-      nil
-      (let ((name (symbol-name form-symbol)))
-	(find-if (lambda(e) (string= name (getf e :name))) *dsl-forms*))))
+(defparameter *dsl-definition*
+  (progn
+    (let ((instance (make-instance 'cl-html-readme-specialized-dsl:specialized-dsl)))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'semantic (list :name) (list :app))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'heading (list :name) (list :app))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'toc nil (list :app))
+      instance)))
 
 (defun is-special-form (form-symbol expected-form-symbol)
-  (let ((form-definition (get-dsl-form expected-form-symbol)))
-    (if (not form-definition)
-	nil
-	(string= (symbol-name form-symbol) (getf form-definition :name)))))
+  (cl-html-readme-specialized-dsl:is-special-form *dsl-definition* form-symbol expected-form-symbol))
 
+(defun validate-form (form-symbol form-properties)
+  (cl-html-readme-specialized-dsl:validate-special-form *dsl-definition* form-symbol form-properties))
 
 ;;
 ;; Property list tooling
@@ -67,30 +60,6 @@
 	    (push (getf plist key) result)
 	    (push key result))))
     result))
-
-;;
-;; Validation
-
-(defun validate-form (form-symbol form-properties)
-  (let ((form-definition (get-dsl-form form-symbol)))
-    (if (not form-definition)
-	(progn
-	  (format
-	   t
-	   "~%cl-html-readme-public-dsl: Unknown DSL form '~a'~%"
-	   form-symbol)
-	  (error
-	   'cl-html-readme:syntax-error
-	   :format-control
-	   "cl-html-readme-public-dsl: Unknown DSL form '~a'"
-	   :format-arguments (list form-symbol))))
-    (dolist (key (getf form-definition :mandatory-properties))
-      (if (not (getf form-properties key))
-	  (error
-	   'cl-html-readme:syntax-error
-	   :format-control "Mandatory property ~a missing for form ~a"
-	   :format-arguments (list key form-symbol))))
-    nil))
 
 ;;
 ;; Tree-Walker

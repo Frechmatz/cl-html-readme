@@ -28,64 +28,26 @@
 ;; <string> ::= A string literal
 ;;
 
-(defparameter *dsl-forms*
-  '((:name "SEMANTIC"
-     :mandatory-properties (:name)
-          :optional-properties (:app))
-    (:name "HEADING"
-     :mandatory-properties (:name :indentation-level)
-     :optional-properties (:app))
-    (:name "TOC-ROOT"
-     :mandatory-properties ()
-     :optional-properties (:app))
-    (:name "TOC-ITEM"
-     :mandatory-properties (:name)
-     :optional-properties (:app))
-    (:name "TOC-CONTAINER"
-     :mandatory-properties (:name)
-     :optional-properties (:app))))
-
-(defun get-dsl-form (form-symbol)
-  (if (not (symbolp form-symbol))
-      nil
-      (let ((name (symbol-name form-symbol)))
-	(find-if (lambda(e) (string= name (getf e :name))) *dsl-forms*))))
+(defparameter *dsl-definition*
+  (progn
+    (let ((instance (make-instance 'cl-html-readme-specialized-dsl:specialized-dsl)))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'semantic (list :name) (list :app))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'heading (list :name :indentation-level) (list :app))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'toc-root nil (list :app))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'toc-item (list :name) (list :app))
+      (cl-html-readme-specialized-dsl:register-special-form
+       instance 'toc-container (list :name) (list :app))
+      instance)))
 
 (defun is-special-form (form-symbol expected-form-symbol)
-  (let ((form-definition (get-dsl-form expected-form-symbol)))
-    (if (not form-definition)
-	nil
-	(string= (symbol-name form-symbol) (getf form-definition :name)))))
-
-;;
-;; Validation
-;;
+  (cl-html-readme-specialized-dsl:is-special-form *dsl-definition* form-symbol expected-form-symbol))
 
 (defun validate-form (form-symbol form-properties)
-  (let ((form-definition (get-dsl-form form-symbol)))
-    (if (not form-definition)
-	(progn
-	  (format
-	   t
-	   "~%cl-html-readme-intermediate-dsl: Unknown DSL form '~a'~%"
-	   form-symbol)
-	  (error
-	   'cl-html-readme:syntax-error
-	   :format-control
-	   "cl-html-readme-intermediate-dsl: Unknown DSL form '~a'"
-	   :format-arguments (list form-symbol))))
-    (dolist (key (getf form-definition :mandatory-properties))
-      (if (not (getf form-properties key))
-	  (progn
-	    (format
-	     t
-	     "~%cl-html-readme-intermediate-dsl::validate-form failed. Missing mandatory property ~a~% in properties of form ~a"
-	     key form-symbol)
-	    (error
-	     'cl-html-readme:syntax-error
-	     :format-control "Mandatory property ~a missing for form ~a"
-	     :format-arguments (list key form-symbol)))))
-    nil))
+  (cl-html-readme-specialized-dsl:validate-special-form *dsl-definition* form-symbol form-properties))
 
 ;;
 ;; Tree-Walker

@@ -31,6 +31,15 @@
    :add-text
    :get-tree))
 
+(defpackage :cl-html-readme-specialized-dsl
+  (:use :cl)
+  (:export
+   :specialized-dsl
+   :register-special-form
+   :validate-special-form
+   :is-special-form
+   :get-special-form-definition))
+
 (defpackage :cl-html-readme-public-dsl
   (:use :cl)
   (:export
