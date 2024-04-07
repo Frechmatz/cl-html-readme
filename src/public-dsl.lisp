@@ -37,14 +37,12 @@
       (let ((name (symbol-name form-symbol)))
 	(find-if (lambda(e) (string= name (getf e :name))) *dsl-forms*))))
 
-(defun semantic-p (form-symbol)
-  (and (symbolp form-symbol) (string= "SEMANTIC" (symbol-name form-symbol))))
+(defun is-special-form (form-symbol expected-form-symbol)
+  (let ((form-definition (get-dsl-form expected-form-symbol)))
+    (if (not form-definition)
+	nil
+	(string= (symbol-name form-symbol) (getf form-definition :name)))))
 
-(defun heading-p (form-symbol)
-  (and (symbolp form-symbol) (string= "HEADING" (symbol-name form-symbol))))
-
-(defun toc-p (form-symbol)
-  (and (symbolp form-symbol) (string= "TOC" (symbol-name form-symbol))))
 
 ;;
 ;; Property list tooling
@@ -178,7 +176,7 @@
 (defun get-toc-headings (doc)
   "Returns a documentation object representing the toc heading tree"
   (flet ((is-toc-heading (form-symbol form-properties)
-	   (and (heading-p form-symbol) (getf form-properties :toc))))
+	   (and (is-special-form form-symbol 'heading) (getf form-properties :toc))))
     (let ((tree-builder (make-non-validating-tree-builder)))
       (walk-non-validating-tree
        doc
@@ -261,7 +259,7 @@
      :open-form-handler
      (lambda(form-symbol form-properties content)
        (declare (ignore content))
-       (if (toc-p form-symbol)
+       (if (is-special-form form-symbol 'toc)
 	   (progn
 	     (write-toc doc form-properties tree-builder)
 	     :ignore-close-form)
@@ -328,7 +326,7 @@
        :open-form-handler
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (heading-p form-symbol)
+	 (if (is-special-form form-symbol 'heading)
 	     (progn
 	       (cl-html-readme-dsl:open-form
 		tree-builder form-symbol

@@ -37,11 +37,13 @@
    :walk-tree
    :make-tree-builder
    :compile-documentation
-   :validate))
+   :validate
+   :is-special-form))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
   (:export
    :walk-tree
    :make-tree-builder
-   :validate))
+   :validate
+   :is-special-form))

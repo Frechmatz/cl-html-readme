@@ -51,20 +51,11 @@
       (let ((name (symbol-name form-symbol)))
 	(find-if (lambda(e) (string= name (getf e :name))) *dsl-forms*))))
 
-(defun semantic-p (form-symbol)
-  (and (symbolp form-symbol) (string= "SEMANTIC" (symbol-name form-symbol))))
-
-(defun heading-p (form-symbol)
-  (and (symbolp form-symbol) (string= "HEADING" (symbol-name form-symbol))))
-
-(defun toc-root-p (form-symbol)
-  (and (symbolp form-symbol) (string= "TOC-ROOT" (symbol-name form-symbol))))
-
-(defun toc-item-p (form-symbol)
-  (and (symbolp form-symbol) (string= "TOC-ITEM" (symbol-name form-symbol))))
-
-(defun toc-container-p (form-symbol)
-  (and (symbolp form-symbol) (string= "TOC-CONTAINER" (symbol-name form-symbol))))
+(defun is-special-form (form-symbol expected-form-symbol)
+  (let ((form-definition (get-dsl-form expected-form-symbol)))
+    (if (not form-definition)
+	nil
+	(string= (symbol-name form-symbol) (getf form-definition :name)))))
 
 ;;
 ;; Validation
