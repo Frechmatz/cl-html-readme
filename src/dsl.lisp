@@ -1,7 +1,19 @@
 (in-package :cl-html-readme-dsl)
 
 ;;
-;; DSL-Tree Walker
+;; Shared Low-Level DSL
+;;
+;; <documentation> ::= ({ <string> | <special-form> })
+;;
+;; <special-form> ::= (symbol <form-properties> { <string> | <special-form> })
+;;
+;; <form-properties> ::= A list
+;;
+;; <string> ::= A string literal
+;;
+
+;;
+;; Tree Traversal
 ;;
 
 (defclass tree-walker ()
@@ -79,7 +91,7 @@
       nil)))
 
 ;;
-;; DSL-Tree builder
+;; Tree Builder
 ;;
 
 (defclass tree-builder () ())
