@@ -36,10 +36,12 @@
   (:export
    :walk-tree
    :make-tree-builder
-   :compile-documentation))
+   :compile-documentation
+   :validate))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
   (:export
    :walk-tree
-   :make-tree-builder))
+   :make-tree-builder
+   :validate))

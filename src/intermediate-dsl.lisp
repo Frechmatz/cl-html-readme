@@ -15,25 +15,35 @@
 ;;
 ;; <toc-container> ::= (toc-container <toc-container-properties> { <toc-item> | <toc-container> })
 ;;
-;; <semantic-properties> ::= (:name <string> {:<keyword> <value>})
+;; <semantic-properties> ::= (:name <string> [:app <object>])
 ;;
-;; <heading-properties> ::= (:name <string> [:toc t | nil] {:<keyword> <value>})
+;; <heading-properties> ::= (:name <string> :indentation-level <integer> [:toc t | nil] [:app <object>])
 ;;
-;; <toc-item-properties> ::= (:name <string> {:<keyword> <value>})
+;; <toc-item-properties> ::= (:name <string> [:app <object>])
 ;;
-;; <toc-container-properties> ::= (:name <string> {:<keyword> <value>})
+;; <toc-container-properties> ::= (:name <string> [:app <object>])
 ;;
-;; <toc-root-properties> ::= ({:<keyword> <value>})
+;; <toc-root-properties> ::= ([:app <object>])
 ;;
 ;; <string> ::= A string literal
 ;;
 
 (defparameter *dsl-forms*
-  '((:name "SEMANTIC" :mandatory-properties (:name))
-    (:name "HEADING" :mandatory-properties (:name))
-    (:name "TOC-ROOT" :mandatory-properties ())
-    (:name "TOC-ITEM" :mandatory-properties (:name))
-    (:name "TOC-CONTAINER" :mandatory-properties (:name))))
+  '((:name "SEMANTIC"
+     :mandatory-properties (:name)
+          :optional-properties (:app))
+    (:name "HEADING"
+     :mandatory-properties (:name :indentation-level)
+     :optional-properties (:app))
+    (:name "TOC-ROOT"
+     :mandatory-properties ()
+     :optional-properties (:app))
+    (:name "TOC-ITEM"
+     :mandatory-properties (:name)
+     :optional-properties (:app))
+    (:name "TOC-CONTAINER"
+     :mandatory-properties (:name)
+     :optional-properties (:app))))
 
 (defun get-dsl-form (form-symbol)
   (if (not (symbolp form-symbol))
@@ -125,3 +135,14 @@
   (let ((builder (make-instance 'tree-builder)))
     builder))
 
+;;
+;; Documentation validation
+;;
+
+(defun validate (documentation)
+  "Validate a documentation object against the intermediate DSL."
+  (walk-tree
+   documentation
+   :open-form-handler nil
+   :close-form-handler nil
+   :text-handler nil))

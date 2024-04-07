@@ -66,7 +66,7 @@
 	     (if (getf properties :id)
 		 (format nil " id=\"~a\"" (getf properties :id)) ""))
 	   (format-heading (properties)
-	     (let ((level (getf properties :level)))
+	     (let ((level (getf properties :indentation-level)))
 	       (if (<= level 5)
 		   (format nil "h~a" (+ 1 level))
 		   (format nil "h6"))))

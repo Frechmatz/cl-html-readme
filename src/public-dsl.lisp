@@ -11,19 +11,25 @@
 ;;
 ;; <toc> ::= (toc <toc-properties>)
 ;;
-;; <semantic-properties> ::= (:name <string> {:<keyword> <value>})
+;; <semantic-properties> ::= (:name <string> [:app <object>])
 ;;
-;; <heading-properties> ::= (:name <string> [:toc t | nil] {:<keyword> <value>})
+;; <heading-properties> ::= (:name <string> [:toc t | nil] [:app <object>])
 ;;
-;; <toc-properties> ::= ({:<keyword> <value>})
+;; <toc-properties> ::= ([:app <object>])
 ;;
 ;; <string> ::= A string literal
 ;;
 
 (defparameter *dsl-forms*
-  '((:name "SEMANTIC" :mandatory-properties (:name))
-    (:name "HEADING" :mandatory-properties (:name))
-    (:name "TOC" :mandatory-properties ())))
+  '((:name "SEMANTIC"
+     :mandatory-properties (:name)
+     :optional-properties (:app))
+    (:name "HEADING"
+     :mandatory-properties (:name)
+     :optional-properties (:app))
+    (:name "TOC"
+     :mandatory-properties ()
+     :optional-properties (:app))))
 
 (defun get-dsl-form (form-symbol)
   (if (not (symbolp form-symbol))
@@ -126,6 +132,18 @@
   "Instantiates a validating tree-builder"
   (let ((builder (make-instance 'tree-builder)))
     builder))
+
+;;
+;; Documentation validation
+;;
+
+(defun validate (documentation)
+  "Validate a documentation object against the public DSL."
+  (walk-tree
+   documentation
+   :open-form-handler nil
+   :close-form-handler nil
+   :text-handler nil))
 
 ;;
 ;; Compilation helper functions
@@ -303,7 +321,7 @@
 	(tree-builder (make-non-validating-tree-builder)))
     (labels ((set-indentation-level (properties)
 	       (let ((l (copy-list properties)))
-		 (setf (getf l :level) level)
+		 (setf (getf l :indentation-level) level)
 		 l)))
       (walk-non-validating-tree
        doc
@@ -337,25 +355,15 @@
   "Compile a documentation object that follows the syntax of the public DSL to
    the intermediate DSL represention. The intermediate representation is parsed by
    the HTML backend to generate to final HTML output."
-  ;; Validate against public DSL
-  (walk-tree
-   documentation
-   :open-form-handler nil
-   :close-form-handler nil
-   :text-handler nil)
+  (validate documentation)
   ;; Compile to intermediate representation
-  ;; Assumes that the documentation object follows the DSL syntax
   (setf documentation (set-heading-ids documentation))
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
-  ;; During the compilation phases several temporary representations of the
-  ;; documentation object have been created that do not necessarily follow the syntax
-  ;; of the intermediate DSL. Therefore apply a final validation before returning
-  ;; the oject to the (HTML rendering) backend.
-  (cl-html-readme-intermediate-dsl:walk-tree
-   documentation
-   :open-form-handler nil
-   :close-form-handler nil
-   :text-handler nil)
+  ;; During the compilation phases temporary representations of the
+  ;; final documentation object are created that do not necessarily follow the syntax
+  ;; of the intermediate DSL. Therefore before returning the documentation oject
+  ;; validate it to catch any compilation related issues.
+  (cl-html-readme-intermediate-dsl:validate documentation)
   documentation)
 
