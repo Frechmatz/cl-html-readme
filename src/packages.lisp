@@ -16,6 +16,13 @@
    :read-string
    :make-path))
 
+(defpackage :cl-html-readme-plist-util
+  (:use :cl)
+  (:export
+   :get-property-list-keys
+   :filter-property-list-entries
+   :has-property))
+  
 (defpackage :cl-html-readme-dsl
   (:use :cl)
   (:export
@@ -31,14 +38,15 @@
    :add-text
    :get-tree))
 
-(defpackage :cl-html-readme-specialized-dsl
+(defpackage :cl-html-readme-dsl-util
   (:use :cl)
   (:export
    :specialized-dsl
    :register-special-form
    :validate-special-form
+   :is-supported-special-form-property
    :is-special-form
-   :get-special-form-definition))
+   :signal-syntax-error))
 
 (defpackage :cl-html-readme-public-dsl
   (:use :cl)
@@ -47,7 +55,8 @@
    :make-tree-builder
    :compile-documentation
    :validate
-   :is-special-form))
+   :is-special-form
+   :is-supported-special-form-property))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
@@ -55,4 +64,5 @@
    :walk-tree
    :make-tree-builder
    :validate
-   :is-special-form))
+   :is-special-form
+   :is-supported-special-form-property))

@@ -20,46 +20,41 @@
 ;; <string> ::= A string literal
 ;;
 
+(defclass dsl (cl-html-readme-dsl-util:specialized-dsl) ())
+
+(defmethod cl-html-readme-dsl-util:signal-syntax-error
+    ((instance dsl) format-control format-arguments)
+  (apply #'format t (concatenate 'string "~%" format-control "~%") format-arguments)
+  (error
+   'cl-html-readme:syntax-error
+   :format-control format-control
+   :format-arguments format-arguments))
+
 (defparameter *dsl-definition*
   (progn
-    (let ((instance (make-instance 'cl-html-readme-specialized-dsl:specialized-dsl)))
-      (cl-html-readme-specialized-dsl:register-special-form
+    (let ((instance (make-instance 'dsl)))
+      ;; semantic
+      (cl-html-readme-dsl-util:register-special-form
        instance 'semantic (list :name) (list :app))
-      (cl-html-readme-specialized-dsl:register-special-form
-       instance 'heading (list :name) (list :app))
-      (cl-html-readme-specialized-dsl:register-special-form
+      ;; heading
+      (cl-html-readme-dsl-util:register-special-form
+       instance 'heading (list :name) (list :app :toc))
+      ;; toc
+      (cl-html-readme-dsl-util:register-special-form
        instance 'toc nil (list :app))
       instance)))
 
 (defun is-special-form (form-symbol expected-form-symbol)
-  (cl-html-readme-specialized-dsl:is-special-form *dsl-definition* form-symbol expected-form-symbol))
+  (cl-html-readme-dsl-util:is-special-form *dsl-definition* form-symbol expected-form-symbol))
 
 (defun validate-form (form-symbol form-properties)
-  (cl-html-readme-specialized-dsl:validate-special-form *dsl-definition* form-symbol form-properties))
+  (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 
-;;
-;; Property list tooling
-;;
-
-(defun get-property-list-keys (plist)
-  "Get the keys of a property list"
-  (let ((keys nil) (push-key t))
-    (dolist (item plist)
-      (if push-key
-	  (push item keys))
-      (setf push-key (not push-key)))
-    keys))
-
-(defun filter-property-list-entries (plist &key key-blacklist)
-  "Filter entries of a property list"
-  (let ((keys (get-property-list-keys plist))
-	(result nil))
-    (dolist (key keys)
-      (if (not (find key key-blacklist))
-	  (progn
-	    (push (getf plist key) result)
-	    (push key result))))
-    result))
+(defun is-supported-special-form-property (form-symbol property-keyword)
+  (cl-html-readme-dsl-util:is-supported-special-form-property
+   *dsl-definition*
+   form-symbol
+   property-keyword))
 
 ;;
 ;; Tree-Walker
@@ -106,11 +101,13 @@
 
 (defun validate (documentation)
   "Validate a documentation object against the public DSL."
+  (format t "~%Validating against public DSL...")
   (walk-tree
    documentation
    :open-form-handler nil
    :close-form-handler nil
-   :text-handler nil))
+   :text-handler nil)
+  (format t "~%Validation against public DSL has succeeded"))
 
 ;;
 ;; Compilation helper functions
@@ -174,7 +171,9 @@
   "Extracts toc and writes toc-root, toc-container, toc-item forms into the builder.
   - toc-properties: The properties of the corresponding toc-form"
   (flet ((remove-toc-property (properties)
-	   (filter-property-list-entries properties :key-blacklist (list :toc))))
+	   (cl-html-readme-plist-util:filter-property-list-entries
+	    properties
+	    (lambda(keyword) (not (eq keyword :toc))))))
     (let ((toc-headings (get-toc-headings doc)))
       (if toc-headings
 	  (progn
@@ -220,6 +219,7 @@
 	    ;; Close toc-root
 	    (cl-html-readme-dsl:close-form tree-builder))))))
 
+;; TODO Validate that each heading element has an :id property
 (defun expand-toc (doc)
   "Replace toc form with toc-root. Returns a new documentation object."
   (let ((tree-builder (make-non-validating-tree-builder)))
@@ -248,7 +248,7 @@
 ;;
 
 (defun set-heading-ids (doc)
-  "Assign ids to toc-headings. Returns a new documentation object."
+  "Assign an id to all heading elements. Returns a new documentation object."
   (let ((id-store nil)
 	(tree-builder (make-non-validating-tree-builder)))
     (labels ((make-id (name &key (counter 0))
@@ -267,7 +267,7 @@
        :open-form-handler
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (getf form-properties :toc)
+	 (if (is-special-form form-symbol 'heading)
 	     (cl-html-readme-dsl:open-form tree-builder form-symbol (set-id form-properties))
 	     (cl-html-readme-dsl:open-form tree-builder form-symbol form-properties))
 	 nil)
@@ -297,6 +297,7 @@
 	 (declare (ignore content))
 	 (if (is-special-form form-symbol 'heading)
 	     (progn
+	       (format t "~%set-heading-indentation-levels::Found heading")
 	       (cl-html-readme-dsl:open-form
 		tree-builder form-symbol
 		(set-indentation-level form-properties))
@@ -315,6 +316,80 @@
       (cl-html-readme-dsl:get-tree tree-builder))))
 
 ;;
+;;
+;;
+
+(defun clean-heading-ids (doc)
+  "Remove ids of heading forms that are not marked as toc relevant"
+  (let ((tree-builder (make-non-validating-tree-builder)))
+    (walk-non-validating-tree
+     doc
+     :open-form-handler
+     (lambda(form-symbol form-properties content)
+       (declare (ignore content))
+       (if (not (is-special-form form-symbol 'heading))
+	   ;; Not a heading element => Pass through
+	   (cl-html-readme-dsl:open-form
+	    tree-builder
+	    form-symbol
+	    form-properties)
+	   (progn
+	     (if (cl-html-readme-plist-util:has-property form-properties :toc)
+		 (progn
+		   ;; Heading element which is toc relevant => Pass through
+		   (cl-html-readme-dsl:open-form
+		    tree-builder
+		    form-symbol
+		    form-properties))
+		 (progn
+		   ;; Heading element that is not toc relevant => Remove :id property
+		   (cl-html-readme-dsl:open-form
+		    tree-builder
+		    form-symbol
+		    (cl-html-readme-plist-util:filter-property-list-entries
+		     form-properties
+		     (lambda (keyword)
+		       (not (eq :id keyword))))))))))
+     :close-form-handler
+     (lambda(context) (declare (ignore context)) (cl-html-readme-dsl:close-form tree-builder))
+     :text-handler
+     (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
+    (cl-html-readme-dsl:get-tree tree-builder)))
+
+
+;;
+;; Final form property clean up and validation
+;;
+
+(defun clean-and-validate (doc)
+  "Walk tree, and clean up
+   <ul>
+     <li>Remove all properties that are not supported by dsl-intermediate</li>
+     <li>Remove ids of headings that are not marked as toc relevant</li>
+   </ul>"
+  (let ((tree-builder (cl-html-readme-intermediate-dsl:make-tree-builder)))
+    (walk-non-validating-tree
+     doc
+     :open-form-handler
+     (lambda(form-symbol form-properties content)
+       (declare (ignore content))
+       (cl-html-readme-dsl:open-form
+	tree-builder
+	form-symbol
+	(cl-html-readme-plist-util:filter-property-list-entries
+	 form-properties
+	 (lambda (keyword)
+	   (cl-html-readme-intermediate-dsl:is-supported-special-form-property
+	    form-symbol
+	    keyword))))
+       nil)
+     :close-form-handler
+     (lambda(context) (declare (ignore context)) (cl-html-readme-dsl:close-form tree-builder))
+     :text-handler
+     (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
+    (cl-html-readme-dsl:get-tree tree-builder)))
+
+;;
 ;; Compilation of public DSL to intermediate DSL
 ;;
 
@@ -322,15 +397,17 @@
   "Compile a documentation object that follows the syntax of the public DSL to
    the intermediate DSL represention. The intermediate representation is parsed by
    the HTML backend to generate to final HTML output."
+  (format t "~%Compiling public-dsl to intermediate-dsl...")
   (validate documentation)
-  ;; Compile to intermediate representation
+  ;; Compile (to a non-validating temporary representation)
   (setf documentation (set-heading-ids documentation))
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
-  ;; During the compilation phases temporary representations of the
-  ;; final documentation object are created that do not necessarily follow the syntax
-  ;; of the intermediate DSL. Therefore before returning the documentation oject
-  ;; validate it to catch any compilation related issues.
-  (cl-html-readme-intermediate-dsl:validate documentation)
+  (setf documentation (clean-heading-ids documentation))
+  ;; Final clean-up and validation
+  (format t "~%Cleaning up properties and validating against intermediate DSL...")
+  (setf documentation (clean-and-validate documentation))
+  (format t "~%Compilation to intermediate-dsl and validation has succeeded~%")
   documentation)
+
 

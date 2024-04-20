@@ -104,7 +104,7 @@
     (let ((updated-doc (cl-html-readme-public-dsl::set-heading-ids doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :id "H1"))
-	      (heading (:name "H2"))
+	      (heading (:name "H2" :id "H2"))
 	      (heading (:name "H3" :toc t :id "H3")))))
       (let ((doc-str (doc-to-string updated-doc))
 	    (expected-doc-str (doc-to-string expected-doc)))
@@ -129,14 +129,14 @@
   (let ((cl-html-readme:*get-heading-attributes*
 	  (lambda (properties)
             (list
-             :class (getf properties :class)
+             :class (cl-html-readme-test::get-app-property properties :class)
 	     :style "STYLE"
 	     :a nil
 	     :b (list "")
 	     :c :KEYWORD
 	     :d ""
-	     :e (getf properties :style)))))
-    (let ((doc '((heading (:name "H1" :class "CLASS" :style "")))))
+	     :e (cl-html-readme-test::get-app-property properties :style)))))
+    (let ((doc '((heading (:name "H1" :app (:class "CLASS" :style ""))))))
       (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
 	    (expected-html "<h1 class=\"CLASS\" style=\"STYLE\">H1</h1>"))
 	(assert-equal expected-html rendered-html)))))
@@ -150,14 +150,14 @@
   (let ((cl-html-readme:*get-semantic-attributes*
 	  (lambda (properties)
             (list
-             :class (getf properties :class)
+             :class (cl-html-readme-test::get-app-property properties :class)
 	     :style "STYLE"
 	     :a nil
 	     :b (list "")
 	     :c :KEYWORD
 	     :d ""
-	     :e (getf properties :style)))))
-    (let ((doc '((semantic (:name "article" :class "CLASS" :style "")))))
+	     :e (cl-html-readme-test::get-app-property properties :style)))))
+    (let ((doc '((semantic (:name "article" :app (:class "CLASS" :style ""))))))
       (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
 	    (expected-html "<article class=\"CLASS\" style=\"STYLE\"></article>"))
 	(assert-equal expected-html rendered-html)))))
@@ -167,7 +167,7 @@
 ;;
 
 (define-test test-html-rendering-toc-hook-1 ()
-  (let ((doc '((toc (:root "ROOT" :container "CONTAINER" :item "ITEM"))
+  (let ((doc '((toc (:app (:root "ROOT" :container "CONTAINER" :item "ITEM")))
 	       (heading (:name "H1" :toc t)
 		(heading (:name "H1.1" :toc t))
 		(heading (:name "H1.2" :toc t)
@@ -176,19 +176,15 @@
     (let ((cl-html-readme:*get-toc-root-attributes*
 	    (lambda (properties)
               (list
-               :class (getf properties :root))))
+               :class (cl-html-readme-test::get-app-property properties :root))))
 	  (cl-html-readme:*get-toc-container-attributes*
 	    (lambda (properties)
               (list
-               :class (getf properties :container))))
+               :class (cl-html-readme-test::get-app-property properties :container))))
 	  (cl-html-readme:*get-toc-item-attributes*
 	    (lambda (properties)
               (list
-               :class (getf properties :item)))))
-      ;;
-      ;; This stuff is horror :(
-      ;; Lets do it for the sake of having a test
-      ;,
+               :class (cl-html-readme-test::get-app-property properties :item)))))
       (let ((rendered-html
 	      (cl-html-readme-test::doc-to-html doc))
 	    (expected-html

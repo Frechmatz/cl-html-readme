@@ -5,11 +5,11 @@
 
 (defun example ()
   (let ((documentation
-	  `((heading (:name "Header" :toc t :class "heading-class")))))
+	  `((heading (:name "Header" :toc t :app (:class "heading-class"))))))
     (let ((cl-html-readme:*get-heading-attributes*
 	    (lambda (properties)
 	      (list
-	       :class (getf properties :class)
+	       :class (getf (getf properties :app) :class)
 	       :a nil
 	       :b (list "")
 	       :c ""))))

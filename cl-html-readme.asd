@@ -11,8 +11,9 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "conditions")
+			     (:file "plist-util")
 			     (:file "dsl")
-			     (:file "specialized-dsl")
+			     (:file "dsl-util")
 			     (:file "intermediate-dsl")
 			     (:file "public-dsl")
 			     (:file "readme-util")

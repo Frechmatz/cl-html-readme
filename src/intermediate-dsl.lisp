@@ -28,27 +28,50 @@
 ;; <string> ::= A string literal
 ;;
 
+
+(defclass dsl (cl-html-readme-dsl-util:specialized-dsl) ())
+
+(defmethod cl-html-readme-dsl-util:signal-syntax-error
+    ((instance dsl)
+     format-control format-arguments)
+  (apply #'format t (concatenate 'string "~%" format-control "~%") format-arguments)
+  (error
+   'cl-html-readme:syntax-error
+   :format-control format-control
+   :format-arguments format-arguments))
+  
 (defparameter *dsl-definition*
   (progn
-    (let ((instance (make-instance 'cl-html-readme-specialized-dsl:specialized-dsl)))
-      (cl-html-readme-specialized-dsl:register-special-form
+    (let ((instance (make-instance 'dsl)))
+      ;; semantic
+      (cl-html-readme-dsl-util:register-special-form
        instance 'semantic (list :name) (list :app))
-      (cl-html-readme-specialized-dsl:register-special-form
-       instance 'heading (list :name :indentation-level) (list :app))
-      (cl-html-readme-specialized-dsl:register-special-form
+      ;; heading
+      (cl-html-readme-dsl-util:register-special-form
+       instance 'heading (list :name :indentation-level) (list :app :id))
+      ;; toc-root
+      (cl-html-readme-dsl-util:register-special-form
        instance 'toc-root nil (list :app))
-      (cl-html-readme-specialized-dsl:register-special-form
-       instance 'toc-item (list :name) (list :app))
-      (cl-html-readme-specialized-dsl:register-special-form
-       instance 'toc-container (list :name) (list :app))
+      ;; toc-item
+      (cl-html-readme-dsl-util:register-special-form
+       instance 'toc-item (list :name :id) (list :app))
+      ;; toc-container
+      (cl-html-readme-dsl-util:register-special-form
+       instance 'toc-container (list :name :id) (list :app))
       instance)))
 
 (defun is-special-form (form-symbol expected-form-symbol)
-  (cl-html-readme-specialized-dsl:is-special-form *dsl-definition* form-symbol expected-form-symbol))
+  (cl-html-readme-dsl-util:is-special-form *dsl-definition* form-symbol expected-form-symbol))
 
 (defun validate-form (form-symbol form-properties)
-  (cl-html-readme-specialized-dsl:validate-special-form *dsl-definition* form-symbol form-properties))
+  (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 
+(defun is-supported-special-form-property (form-symbol property-keyword)
+  (cl-html-readme-dsl-util:is-supported-special-form-property
+   *dsl-definition*
+   form-symbol
+   property-keyword))
+  
 ;;
 ;; Tree-Walker
 ;;
@@ -94,8 +117,10 @@
 
 (defun validate (documentation)
   "Validate a documentation object against the intermediate DSL."
+  (format t "~%Validating against intermediate DSL...")
   (walk-tree
    documentation
    :open-form-handler nil
    :close-form-handler nil
-   :text-handler nil))
+   :text-handler nil)
+  (format t "~%Validation against intermediate DSL has succeeded"))

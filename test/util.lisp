@@ -9,6 +9,17 @@
       (setf push-key (not push-key)))
     keys))
 
+
+(defun walk-tree (tree &key open-form-handler close-form-handler text-handler)
+  "Non-Validating tree traversal"
+  (let ((walker 
+	  (make-instance
+	   'cl-html-readme-dsl:default-tree-walker
+	   :open-form-handler open-form-handler
+	   :close-form-handler close-form-handler
+	   :text-handler text-handler)))
+    (cl-html-readme-dsl:walk-tree walker tree)))
+
 (defun doc-to-string (doc &key (string-enclosure-character "'"))
   "Deterministic stringification of a documentation object.
    Does not apply validation.
@@ -16,16 +27,7 @@
    same structure as defined by cl-html-readme-dsl.
    Assumes that the tree walker has been tested."
   (labels
-      ((walk-tree (tree &key open-form-handler close-form-handler text-handler)
-	 "Non-Validating tree traversal"
-	 (let ((walker 
-		 (make-instance
-		  'cl-html-readme-dsl:default-tree-walker
-		  :open-form-handler open-form-handler
-		  :close-form-handler close-form-handler
-		  :text-handler text-handler)))
-	   (cl-html-readme-dsl:walk-tree walker tree)))
-       (format-item (item)
+      ((format-item (item)
 	 "Format an item. Formats a list as nil when it is empty and t when it is not empty"
 	 (cond
 	   ((keywordp item)
@@ -97,3 +99,10 @@
 	    (declare (ignore stream))
 	    nil)))
     (cl-html-readme:doc-to-html nil doc)))
+
+(defun get-app-property (properties app-property)
+  (let ((app-properties (getf properties :app)))
+    (if app-properties
+	(getf app-properties app-property)
+	nil)))
+
