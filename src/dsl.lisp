@@ -7,10 +7,123 @@
 ;;
 ;; <special-form> ::= (symbol <form-properties> { <string> | <special-form> })
 ;;
-;; <form-properties> ::= A list
+;; <form-properties> ::= A property list
 ;;
 ;; <string> ::= A string literal
 ;;
+
+
+(define-condition syntax-error (simple-error)()
+  (:documentation "Signalled when a documentation object does not conform to the DSL specification,    e.g. undefined DSL special forms, missing mandatory DSL special form properties,
+   unsupported DSL special form properties."))
+
+(defun signal-simple-error (error)
+  "Helper function to signal an error with logging."
+  (format
+   t
+   "~%~a: format-control: '~a' format-arguments: '~a'"
+   error
+   (simple-condition-format-control error)
+   (simple-condition-format-arguments error))
+  (error error))
+
+;;
+;;
+;;
+
+(defclass special-form-validator ()
+  ()
+  (:documentation "Special form validator"))
+
+(defgeneric validate (special-form-validator form-properties)
+  (:documentation "Validate properties. In case of error returns a property
+   list with :format-control and :format-arguments properties"))
+
+(defmethod validate ((instance special-form-validator) form-properties)
+  (declare (ignore form-properties))
+  ;; All good :) 
+  nil)
+
+;;
+;;
+;;
+
+;; (defclass default-special-form-validator (special-form-validator)
+;;   ((properties :initarg :properties) ;; ((:name (:mandatory t) (:id (:mandatory t))))
+;;    (mandatory-property-keys :initform nil)
+;;    (optional-property-keys :initform nil)))
+
+;; (defmethod initialize-instance :after ((instance default-special-form-validator) &key)
+;;   (with-slots (properties mandatory-properties optional-properties) instance
+    
+
+;;
+;;
+;;
+
+(defparameter *default-special-form-validator* (make-instance 'special-form-validator))
+
+;;
+;;
+;;
+
+(defclass dsl ()
+  ()
+  (:documentation "DSL"))
+
+(defgeneric get-special-form-validator (dsl form-symbol)
+  (:documentation ""))
+
+(defgeneric validate-special-form (dsl form-symbol form-properties)
+  (:documentation ""))
+
+(defgeneric validate-text-node (dsl text)
+  (:documentation ""))
+
+(defmethod get-special-form-validator ((instance dsl) form-symbol)
+  (declare (ignore form-symbol))
+  *default-special-form-validator*)
+
+(defmethod validate-special-form
+    ((instance dsl) form-symbol form-properties)
+  ;; For now hard coded error signalling
+  ;; Otherwise in the case of not signalling an error
+  ;; components like tree-builder and tree-walker
+  ;; might crash 
+  (if (not (symbolp form-symbol))
+      (signal-simple-error
+       (make-instance
+	'syntax-error
+	:format-control "Not a symbol: ~a"
+	:format-arguments (list form-symbol))))
+  (if (not (listp form-properties))
+      (signal-simple-error
+       (make-instance
+	'syntax-error
+	:format-control "Properties of special form '~a' are not a list: ~a"
+	:format-arguments (list form-symbol form-properties))))
+  (let ((validator (get-special-form-validator instance form-symbol)))
+    (if (not validator)
+	(signal-simple-error
+	 (make-instance
+	  'syntax-error
+	  :format-control  "Unsupported special form '~a'"
+	  :format-arguments (list form-symbol))))
+    (let ((validation-result (validate validator form-properties)))
+      (if (and (listp validation-result) (< 0 (length validation-result)))
+	(signal-simple-error
+	 (make-instance
+	  'syntax-error
+	  :format-control (getf validation-result :format-control)
+	  :format-arguments (getf validation-result :format-arguments)))))))
+
+(defmethod validate-text-node ((instance dsl) text)
+  (if (not (stringp text))
+      (signal-simple-error
+       (make-instance
+	'syntax-error
+	:format-control "Text node must be a string: ~a"
+	:format-arguments (list text)))))
 
 ;;
 ;; Tree Traversal
