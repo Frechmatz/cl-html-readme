@@ -44,7 +44,6 @@
    :specialized-dsl
    :register-special-form
    :validate-special-form
-   :is-supported-special-form-property
    :is-special-form
    :signal-syntax-error))
 
@@ -55,8 +54,7 @@
    :make-tree-builder
    :compile-documentation
    :validate
-   :is-special-form
-   :is-supported-special-form-property))
+   :is-special-form))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
@@ -64,5 +62,4 @@
    :walk-tree
    :make-tree-builder
    :validate
-   :is-special-form
-   :is-supported-special-form-property))
+   :is-special-form))

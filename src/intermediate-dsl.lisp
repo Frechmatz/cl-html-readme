@@ -66,12 +66,6 @@
 (defun validate-form (form-symbol form-properties)
   (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 
-(defun is-supported-special-form-property (form-symbol property-keyword)
-  (cl-html-readme-dsl-util:is-supported-special-form-property
-   *dsl-definition*
-   form-symbol
-   property-keyword))
-  
 ;;
 ;; Tree-Walker
 ;;
@@ -117,10 +111,8 @@
 
 (defun validate (documentation)
   "Validate a documentation object against the intermediate DSL."
-  (format t "~%Validating against intermediate DSL...")
   (walk-tree
    documentation
    :open-form-handler nil
    :close-form-handler nil
-   :text-handler nil)
-  (format t "~%Validation against intermediate DSL has succeeded"))
+   :text-handler nil))
