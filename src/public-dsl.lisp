@@ -44,9 +44,6 @@
        instance 'toc nil (list :app))
       instance)))
 
-(defun is-special-form (form-symbol expected-form-symbol)
-  (cl-html-readme-dsl-util:is-special-form *dsl-definition* form-symbol expected-form-symbol))
-
 (defun validate-form (form-symbol form-properties)
   (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 
@@ -134,7 +131,8 @@
 (defun get-toc-headings (doc)
   "Returns a documentation object representing the toc heading tree"
   (flet ((is-toc-heading (form-symbol form-properties)
-	   (and (is-special-form form-symbol 'heading) (getf form-properties :toc))))
+	   (and (cl-html-readme-dsl:equal-symbol form-symbol 'heading)
+		(getf form-properties :toc))))
     (let ((tree-builder (make-non-validating-tree-builder)))
       (walk-non-validating-tree
        doc
@@ -222,7 +220,7 @@
      :open-form-handler
      (lambda(form-symbol form-properties content)
        (declare (ignore content))
-       (if (not (is-special-form form-symbol 'heading))
+       (if (not (cl-html-readme-dsl:equal-symbol form-symbol 'heading))
 	   ;; Not a heading element => Pass through
 	   (cl-html-readme-dsl:open-form
 	    tree-builder
@@ -268,7 +266,7 @@
        :open-form-handler
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (is-special-form form-symbol 'heading)
+	 (if (cl-html-readme-dsl:equal-symbol form-symbol 'heading)
 	     (cl-html-readme-dsl:open-form tree-builder form-symbol (set-id form-properties))
 	     (cl-html-readme-dsl:open-form tree-builder form-symbol form-properties))
 	 nil)
@@ -287,7 +285,7 @@
      :open-form-handler
      (lambda(form-symbol form-properties content)
        (declare (ignore content))
-       (if (is-special-form form-symbol 'toc)
+       (if (cl-html-readme-dsl:equal-symbol form-symbol 'toc)
 	   (progn
 	     (write-toc enriched-doc form-properties tree-builder)
 	     :ignore-close-form)
@@ -320,7 +318,7 @@
        :open-form-handler
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (is-special-form form-symbol 'heading)
+	 (if (cl-html-readme-dsl:equal-symbol form-symbol 'heading)
 	     (progn
 	       (cl-html-readme-dsl:open-form
 		tree-builder form-symbol

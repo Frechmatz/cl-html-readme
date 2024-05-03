@@ -147,13 +147,10 @@
 (defmethod make-validation-util ((instance dsl))
   *default-validation-util*)
 
-;; Shall replace cl-html-readme-dsl-util::is-special-form
-;; TODO After migration to DSL-NG rethink the purpose of this function.
 (defun equal-symbol (x y)
   "Returns t if both symbols have the same name according to the symbol-to-name conversion
    internally applied by DSL."
   (string= (get-symbol-name x) (get-symbol-name y)))
-
 
 ;;
 ;; Internal validation functions

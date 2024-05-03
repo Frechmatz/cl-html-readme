@@ -60,9 +60,6 @@
        instance 'toc-container (list :name :id) (list :app))
       instance)))
 
-(defun is-special-form (form-symbol expected-form-symbol)
-  (cl-html-readme-dsl-util:is-special-form *dsl-definition* form-symbol expected-form-symbol))
-
 (defun validate-form (form-symbol form-properties)
   (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 

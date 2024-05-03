@@ -55,7 +55,6 @@
    :specialized-dsl
    :register-special-form
    :validate-special-form
-   :is-special-form
    :signal-syntax-error))
 
 (defpackage :cl-html-readme-public-dsl
@@ -64,13 +63,11 @@
    :walk-tree
    :make-tree-builder
    :compile-documentation
-   :validate
-   :is-special-form))
+   :validate))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
   (:export
    :walk-tree
    :make-tree-builder
-   :validate
-   :is-special-form))
+   :validate))

@@ -39,16 +39,6 @@
 	     :all-allowed-properties (concatenate 'list mandatory-properties optional-properties))))
       (setf (slot-value specialized-dsl 'special-forms) (push form special-forms)))))
 
-(defun is-special-form (specialized-dsl
-			form-symbol
-			expected-form-symbol)
-  "Returns t if a given form-symbol matches a certain form-symbol exposed by the DSL.
-    <p>Example: <code>(is-special-form instance form-symbol 'heading)</code></p>"
-  (let ((form-definition (get-special-form-definition specialized-dsl expected-form-symbol)))
-    (if (not form-definition)
-	nil
-	(string= (symbol-name form-symbol) (getf form-definition :name)))))
-
 (defun is-supported-special-form-property
     (specialized-dsl form-symbol property-keyword)
   "Returns t if given keyword is a supported property of the special form represented

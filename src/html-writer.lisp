@@ -83,7 +83,7 @@
 	   ;;
 	   ;; Heading
 	   ;;
-	   ((cl-html-readme-intermediate-dsl:is-special-form form-symbol 'heading)
+	   ((cl-html-readme-dsl:equal-symbol form-symbol 'heading)
 	    ;; <h{level} id={id} {render-hook}> {name} </h{level}>
 	    (newline)
 	    (format
@@ -98,7 +98,7 @@
 	   ;;
 	   ;; Semantic
 	   ;;
-	   ((cl-html-readme-intermediate-dsl:is-special-form 'semantic form-symbol)
+	   ((cl-html-readme-dsl:equal-symbol 'semantic form-symbol)
 	    (newline)
 	    ;; <{name {render-hook}}>...</{name}>
 	    (format
@@ -110,7 +110,7 @@
 	   ;;
 	   ;; Toc-Root
 	   ;;
-	   ((cl-html-readme-intermediate-dsl:is-special-form form-symbol 'toc-root)
+	   ((cl-html-readme-dsl:equal-symbol form-symbol 'toc-root)
 	    (setf toc-properties form-properties)
 	    (newline)
 	    ;; <ul {render-hook}>...</ul>
@@ -122,7 +122,7 @@
 	   ;;
 	   ;; Toc-Item
 	   ;;
-	   ((cl-html-readme-intermediate-dsl:is-special-form form-symbol 'toc-item)
+	   ((cl-html-readme-dsl:equal-symbol form-symbol 'toc-item)
 	    ;; <li {render-hook}><a href=#{id}> {name} </a> </li>
 	    (newline)
 	    (format
@@ -135,7 +135,7 @@
 	   ;;
 	   ;; Toc-Container
 	   ;;
-	   ((cl-html-readme-intermediate-dsl:is-special-form form-symbol 'toc-container)
+	   ((cl-html-readme-dsl:equal-symbol form-symbol 'toc-container)
 	    ;; <li {render-hook}> <a href=#{id}> {name} </a>
 	    ;; <ul {render-hook}>...</ul>
 	    ;; </li>
