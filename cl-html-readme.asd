@@ -10,7 +10,6 @@
   :components ((:module "src"
 		:serial t
 		:components ((:file "packages")
-			     (:file "conditions")
 			     (:file "plist-util")
 			     (:file "dsl")
 			     (:file "dsl-util")

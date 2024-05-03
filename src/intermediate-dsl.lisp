@@ -36,7 +36,7 @@
      format-control format-arguments)
   (apply #'format t (concatenate 'string "~%" format-control "~%") format-arguments)
   (error
-   'cl-html-readme:syntax-error
+   'cl-html-readme-dsl:syntax-error
    :format-control format-control
    :format-arguments format-arguments))
   

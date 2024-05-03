@@ -17,6 +17,10 @@
   (:documentation "Signalled when a documentation object does not conform to the DSL specification,    e.g. undefined DSL special forms, missing mandatory DSL special form properties,
    unsupported DSL special form properties."))
 
+(define-condition unbalanced-tree-error (simple-error)()
+  (:documentation "Signalled when a documentation object to be programmatically build has opened a DSL special form but not closed it or a DSL special form is being closed but has not been opened."))
+
+
 ;;
 ;; Validation util
 ;;
@@ -253,7 +257,7 @@
 		   (progn
 		     (if (not (stringp l))
 			 (error
-			  'cl-html-readme:syntax-error
+			  'syntax-error
 			  :format-control "Item must be a string: ~a"
 			  :format-arguments (list l)))
 		     (funcall text-handler l))
@@ -319,7 +323,7 @@
   (let ((stack (slot-value default-tree-builder 'node-stack)))
     (if (not (< 1 (length stack)))
 	(error
-	 'cl-html-readme:unbalanced-tree-error
+	 'unbalanced-tree-error
 	 :format-control "Stack underflow. Unbalanced open/close-form calls."
 	 :format-arguments nil))
     (let ((r (rest stack)))
@@ -351,7 +355,7 @@
 (defmethod add-text ((instance default-tree-builder) text)
   (if (not (stringp text))
       (error
-       'cl-html-readme:syntax-error
+       'syntax-error
        :format-control "Text must be a string: ~a"
        :format-arguments (list text)))
   (let ((node (make-instance 'dsl-text-node :text text))
@@ -363,7 +367,7 @@
   "Generate resulting tree"
   (if (not (eq 1 (length (slot-value instance 'node-stack))))
       (error
-       'cl-html-readme:unbalanced-tree-error
+       'unbalanced-tree-error
        :format-control "Pending open forms on stack"
        :format-arguments (list)))
   (labels ((process-node (node)

@@ -8,8 +8,6 @@
    :*get-toc-root-attributes*
    :*get-toc-item-attributes*
    :*get-toc-container-attributes*
-   :syntax-error
-   :unbalanced-tree-error
    :doc-to-html
    :read-stream
    :read-file
@@ -28,6 +26,7 @@
   (:export
    ;; Next generation
    :syntax-error
+   :unbalanced-tree-error
    :validation-util
    :reject
    :property-validator
