@@ -20,6 +20,48 @@
 ;; <string> ::= A string literal
 ;;
 
+
+;;
+;; DSL-NG
+;;
+
+(defclass dsl-ng (cl-html-readme-dsl:dsl) ())
+
+(defparameter *semantic-validator*
+  (make-instance
+   'cl-html-readme-dsl:default-property-validator
+   :properties '((:indicator :name :mandatory :t)
+		 (:indicator :app))))
+
+(defparameter *heading-validator*
+  (make-instance
+   'cl-html-readme-dsl:default-property-validator
+   :properties '((:indicator :name :mandatory :t)
+		 (:indicator :toc)
+		 (:indicator :app))))
+   
+(defparameter *toc-validator*
+  (make-instance
+   'cl-html-readme-dsl:default-property-validator
+   :properties '((:indicator :app))))
+
+(defmethod cl-html-readme-dsl:get-special-form-validator
+    ((instance dsl-ng) form-name)
+  (cond
+    ((string= "SEMANTIC" form-name)
+     *semantic-validator*)
+    ((string= "HEADING" form-name)
+     *heading-validator*)
+    ((string= "TOC" form-name)
+     *toc-validator*)
+    (t nil)))
+
+(defparameter *dsl-ng* (make-instance 'dsl-ng))
+
+;;
+;;
+;;
+
 (defclass dsl (cl-html-readme-dsl-util:specialized-dsl) ())
 
 (defmethod cl-html-readme-dsl-util:signal-syntax-error
@@ -53,22 +95,12 @@
 
 (defun walk-tree (documentation &key open-form-handler close-form-handler text-handler)
   "Validating traversal of a documentation object"
-  (let ((validating-open-form-handler
-	  (if open-form-handler
-	      (lambda (form-symbol form-properties content)
-		(validate-form form-symbol form-properties)
-		(funcall open-form-handler form-symbol form-properties content))
-	      (lambda (form-symbol form-properties content)
-		(declare (ignore content))
-		(validate-form form-symbol form-properties)
-		nil))))
-    (let ((walker
-	    (make-instance
-	     'cl-html-readme-dsl:default-tree-walker
-	     :open-form-handler validating-open-form-handler
-	     :close-form-handler close-form-handler
-	     :text-handler text-handler)))
-      (cl-html-readme-dsl:walk-tree walker documentation))))
+  (cl-html-readme-dsl:walk-tree-ng
+   *dsl-ng*
+   documentation
+   :open-form-handler open-form-handler
+   :close-form-handler close-form-handler
+   :text-handler text-handler))
 
 ;;
 ;; Tree-Builder
@@ -111,18 +143,12 @@
   (make-instance 'cl-html-readme-dsl:default-tree-builder))
 
 (defun walk-non-validating-tree (documentation &key open-form-handler close-form-handler text-handler)
-  "Internal helper function to traverse a tree that follows the syntax as defined by
-   cl-html-readme-dsl but does not apply any additional validations.
-   During the compilation from public to intermediate, temporary objects
-   are created and traversed that neither follow the syntax of the public DSL nor the syntax of
-   the intermediate DSL."
-  (let ((walker
-	  (make-instance
-	   'cl-html-readme-dsl:default-tree-walker
-	   :open-form-handler open-form-handler
-	   :close-form-handler close-form-handler
-	   :text-handler text-handler)))
-    (cl-html-readme-dsl:walk-tree walker documentation)))
+  (cl-html-readme-dsl:walk-tree-ng
+   (cl-html-readme-dsl:instance)
+   documentation
+   :open-form-handler open-form-handler
+   :close-form-handler close-form-handler
+   :text-handler text-handler))
 
 ;;
 ;; TOC Processing
