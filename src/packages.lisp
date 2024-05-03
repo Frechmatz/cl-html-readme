@@ -26,6 +26,16 @@
 (defpackage :cl-html-readme-dsl
   (:use :cl)
   (:export
+   ;; Next generation
+   :syntax-error
+   :validation-util
+   :reject
+   :property-validator
+   :validate
+   :default-property-validator
+   :dsl
+   :get-special-form-validator
+   :make-validation-util
    ;; Tree-Walker
    :tree-walker
    :default-tree-walker
