@@ -144,6 +144,11 @@
 (defgeneric make-validation-util (dsl)
   (:documentation "Create an instance of validation-util."))
 
+(defgeneric walk-tree-ng (dsl documentation
+			  &key open-form-handler close-form-handler text-handler
+			  &allow-other-keys)
+  (:documentation "Traversal of a documentation object"))
+
 (defmethod get-special-form-validator ((instance dsl) form-name)
   (declare (ignore form-name))
   *default-property-validator*)
@@ -197,6 +202,42 @@
       (signal-fatal-error
 	"FATAL ERROR: Text node must be a string: ~a"
 	(list text))))
+
+;;
+;; Tree traversal NG
+;;
+
+(defmethod walk-tree-ng
+    ((instance dsl) documentation
+     &key open-form-handler close-form-handler text-handler &allow-other-keys)
+  (labels
+      ((walk-tree-impl (l)
+	 (if (not (listp l))
+	     (progn
+	       (validate-text-node instance l)
+	       (if text-handler (funcall text-handler l)))
+	     (progn
+	       (let ((form-symbol (first l))
+		     (form-properties (second l))
+		     (content (rest (rest l))))
+		 (validate-special-form
+		  instance
+		  form-symbol
+		  form-properties)
+		 (let ((context
+			 (if open-form-handler
+			     (funcall open-form-handler
+				      form-symbol
+				      form-properties
+				      content)
+			     nil)))
+		   (dolist (item content)
+		     (walk-tree-impl item))
+		   (if close-form-handler
+		       (funcall close-form-handler context))))))))
+    (dolist (item documentation)
+      (walk-tree-impl item))
+    nil))
 
 ;;
 ;; Tree Traversal
@@ -387,4 +428,13 @@
 	(dolist (node content-nodes)
 	  (push (process-node node) tree)))
       tree)))
+
+;;
+;;
+;;
+
+(defparameter *instance* (make-instance 'dsl))
+
+(defun instance()
+  *instance*)
 
