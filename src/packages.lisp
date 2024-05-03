@@ -36,7 +36,7 @@
    :dsl
    :get-special-form-validator
    :make-validation-util
-   :is-special-form
+   :equal-symbol
    ;; Tree-Walker
    :tree-walker
    :default-tree-walker

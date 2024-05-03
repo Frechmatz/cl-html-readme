@@ -105,6 +105,7 @@
 	   validation-util 
 	   "~a Mandatory property '~a' missing in form '~a'"
 	   (list (class-of instance) key form-properties))))
+    ;; TODO Add iterator function to cl-html-readme-plist-util
     (dolist (key (cl-html-readme-plist-util:get-property-list-keys form-properties))
       (if (not (find key all))
 	  (reject
@@ -124,7 +125,7 @@
 ;; 
 ;;
 
-(defun get-form-name (form-symbol)
+(defun get-symbol-name (form-symbol)
   (string-upcase (symbol-name form-symbol)))
 
 (defclass dsl ()
@@ -146,11 +147,13 @@
 (defmethod make-validation-util ((instance dsl))
   *default-validation-util*)
 
-(defun is-special-form (dsl form-symbol)
-  "Returns t if <code>form-symbol</code> represents a form that has a validator."
-  (if (get-special-form-validator dsl (get-form-name form-symbol))
-      t
-      nil))
+;; Shall replace cl-html-readme-dsl-util::is-special-form
+;; TODO After migration to DSL-NG rethink the purpose of this function.
+(defun equal-symbol (x y)
+  "Returns t if both symbols have the same name according to the symbol-to-name conversion
+   internally applied by DSL."
+  (string= (get-symbol-name x) (get-symbol-name y)))
+
 
 ;;
 ;; Internal validation functions
@@ -182,7 +185,7 @@
 	 "FATAL ERROR: Unsupported special form '~a'"
 	 (list form-symbol))))
   (validate
-   (get-special-form-validator dsl (get-form-name form-symbol))
+   (get-special-form-validator dsl (get-symbol-name form-symbol))
    (make-validation-util dsl)
    form-properties))
 
