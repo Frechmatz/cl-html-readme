@@ -65,7 +65,7 @@
 (defclass default-property-validator (property-validator)
   ((properties
     :initarg :properties
-    :documentation "list (:id :mandatory)")
+    :documentation "list (:indicator :mandatory)")
    (mandatory
     :initform nil
     :documentation "List of keywords")
@@ -124,23 +124,33 @@
 ;; 
 ;;
 
+(defun get-form-name (form-symbol)
+  (string-upcase (symbol-name form-symbol)))
+
 (defclass dsl ()
   ()
   (:documentation "DSL"))
 
-(defgeneric get-special-form-validator (dsl form-symbol)
+(defgeneric get-special-form-validator (dsl form-name)
   (:documentation "Returns an instance of property-validator or nil of the form-symbol
-   is not supported by the DSL."))
+   is not supported by the DSL. The function has the following parameters:
+   <ul><li>form-name Name of the special form converted to upper-case</li></ul>"))
 
 (defgeneric make-validation-util (dsl)
   (:documentation "Create an instance of validation-util."))
 
-(defmethod get-special-form-validator ((instance dsl) form-symbol)
-  (declare (ignore form-symbol))
+(defmethod get-special-form-validator ((instance dsl) form-name)
+  (declare (ignore form-name))
   *default-property-validator*)
 
 (defmethod make-validation-util ((instance dsl))
   *default-validation-util*)
+
+(defun is-special-form (dsl form-symbol)
+  "Returns t if <code>form-symbol</code> represents a form that has a validator."
+  (if (get-special-form-validator dsl (get-form-name form-symbol))
+      t
+      nil))
 
 ;;
 ;; Internal validation functions
@@ -172,7 +182,7 @@
 	 "FATAL ERROR: Unsupported special form '~a'"
 	 (list form-symbol))))
   (validate
-   (get-special-form-validator dsl form-symbol)
+   (get-special-form-validator dsl (get-form-name form-symbol))
    (make-validation-util dsl)
    form-properties))
 
