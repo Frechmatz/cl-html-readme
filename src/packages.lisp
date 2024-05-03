@@ -36,6 +36,8 @@
    :get-special-form-validator
    :make-validation-util
    :equal-symbol
+   :walk-tree-ng
+   :instance
    ;; Tree-Walker
    :tree-walker
    :default-tree-walker
