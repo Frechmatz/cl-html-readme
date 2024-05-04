@@ -58,6 +58,10 @@
 
 (defparameter *dsl-ng* (make-instance 'dsl-ng))
 
+(defun instance ()
+  *dsl-ng*)
+
+
 ;;
 ;;
 ;;
@@ -90,19 +94,6 @@
   (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 
 ;;
-;; Tree-Walker
-;;
-
-(defun walk-tree (documentation &key open-form-handler close-form-handler text-handler)
-  "Validating traversal of a documentation object"
-  (cl-html-readme-dsl:walk-tree-ng
-   *dsl-ng*
-   documentation
-   :open-form-handler open-form-handler
-   :close-form-handler close-form-handler
-   :text-handler text-handler))
-
-;;
 ;; Tree-Builder
 ;;
 
@@ -119,18 +110,6 @@
     builder))
 
 ;;
-;; Documentation validation
-;;
-
-(defun validate (documentation)
-  "Validate a documentation object against the public DSL."
-  (walk-tree
-   documentation
-   :open-form-handler nil
-   :close-form-handler nil
-   :text-handler nil))
-
-;;
 ;; Compilation helper functions
 ;;
 
@@ -142,14 +121,6 @@
    the intermediate DSL."
   (make-instance 'cl-html-readme-dsl:default-tree-builder))
 
-(defun walk-non-validating-tree (documentation &key open-form-handler close-form-handler text-handler)
-  (cl-html-readme-dsl:walk-tree-ng
-   (cl-html-readme-dsl:instance)
-   documentation
-   :open-form-handler open-form-handler
-   :close-form-handler close-form-handler
-   :text-handler text-handler))
-
 ;;
 ;; TOC Processing
 ;;
@@ -160,7 +131,8 @@
 	   (and (cl-html-readme-dsl:equal-symbol form-symbol 'heading)
 		(getf form-properties :toc))))
     (let ((tree-builder (make-non-validating-tree-builder)))
-      (walk-non-validating-tree
+      (cl-html-readme-dsl:walk-tree-ng
+       (cl-html-readme-dsl:instance)
        doc
        :open-form-handler
        (lambda(form-symbol form-properties content)
@@ -199,7 +171,8 @@
 	     'toc-root
 	     toc-properties)
 	    ;; Render toc content
-	    (walk-non-validating-tree
+	    (cl-html-readme-dsl:walk-tree-ng
+	     (cl-html-readme-dsl:instance)
 	     toc-headings
 	     :text-handler (lambda(str) (declare (ignore str)) nil)
 	     :open-form-handler
@@ -241,7 +214,8 @@
    <li>Remove toc indicator from all headings</li>
    <ul>"
   (let ((tree-builder (make-non-validating-tree-builder)))
-    (walk-non-validating-tree
+    (cl-html-readme-dsl:walk-tree-ng
+     (cl-html-readme-dsl:instance)
      doc
      :open-form-handler
      (lambda(form-symbol form-properties content)
@@ -287,7 +261,8 @@
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :id) (make-id (getf l :name)))
 		 l)))
-      (walk-non-validating-tree
+      (cl-html-readme-dsl:walk-tree-ng
+       (cl-html-readme-dsl:instance)
        doc
        :open-form-handler
        (lambda(form-symbol form-properties content)
@@ -306,7 +281,8 @@
   "Replace toc form with toc-root. Returns a new documentation object."
   (let ((enriched-doc (set-heading-ids doc))
 	(tree-builder (make-non-validating-tree-builder)))
-    (walk-non-validating-tree
+    (cl-html-readme-dsl:walk-tree-ng
+     (cl-html-readme-dsl:instance)
      enriched-doc
      :open-form-handler
      (lambda(form-symbol form-properties content)
@@ -326,7 +302,6 @@
      (lambda(str) (cl-html-readme-dsl:add-text tree-builder str)))
     (clean-headings (cl-html-readme-dsl:get-tree tree-builder))))
 
-
 ;;
 ;; Heading-Indentation
 ;;
@@ -339,7 +314,8 @@
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :indentation-level) level)
 		 l)))
-      (walk-non-validating-tree
+      (cl-html-readme-dsl:walk-tree-ng
+       (cl-html-readme-dsl:instance)
        doc
        :open-form-handler
        (lambda(form-symbol form-properties content)
@@ -372,7 +348,7 @@
    the intermediate DSL represention. The intermediate representation is parsed by
    the HTML backend to generate to final HTML output."
   ;; Validate against public-dsl
-  (validate documentation)
+  (cl-html-readme-dsl:validate-documentation (instance) documentation)
   ;; Compile to intermediate-dsl. Temporary documentation objects may not validate
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))

@@ -161,6 +161,15 @@
    internally applied by DSL."
   (string= (get-symbol-name x) (get-symbol-name y)))
 
+(defun validate-documentation (dsl documentation)
+  "Validate a documentation object against the DSL."
+  (walk-tree-ng
+   dsl
+   documentation
+   :open-form-handler nil
+   :close-form-handler nil
+   :text-handler nil))
+
 ;;
 ;; Internal validation functions
 ;;

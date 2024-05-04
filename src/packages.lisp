@@ -38,6 +38,7 @@
    :equal-symbol
    :walk-tree-ng
    :instance
+   :validate-documentation
    ;; Tree-Walker
    :tree-walker
    :default-tree-walker
@@ -61,10 +62,9 @@
 (defpackage :cl-html-readme-public-dsl
   (:use :cl)
   (:export
-   :walk-tree
+   :instance
    :make-tree-builder
-   :compile-documentation
-   :validate))
+   :compile-documentation))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
