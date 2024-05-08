@@ -43,7 +43,7 @@
    :open-form
    :close-form
    :add-text
-   :get-tree))
+   :to-tree))
 
 (defpackage :cl-html-readme-dsl
   (:use :cl)

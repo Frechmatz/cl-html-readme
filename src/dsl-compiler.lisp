@@ -32,7 +32,7 @@
        (lambda(str)
 	 (declare (ignore str))
 	 nil))
-      (cl-html-readme-base-dsl:get-tree tree-builder))))
+      (cl-html-readme-base-dsl:to-tree tree-builder))))
 
 (defun write-toc (doc toc-properties tree-builder)
   "Extracts toc and writes toc-root, toc-container, toc-item forms into the builder.
@@ -123,7 +123,7 @@
      (lambda(context) (declare (ignore context)) (cl-html-readme-base-dsl:close-form tree-builder))
      :text-handler
      (lambda(str) (cl-html-readme-base-dsl:add-text tree-builder str)))
-    (cl-html-readme-base-dsl:get-tree tree-builder)))
+    (cl-html-readme-base-dsl:to-tree tree-builder)))
 
 (defun set-heading-ids (doc)
   "Helper function which assigns an id to all heading elements. Returns a new documentation object."
@@ -154,7 +154,7 @@
        (lambda(context) (declare (ignore context)) (cl-html-readme-base-dsl:close-form tree-builder))
        :text-handler
        (lambda(str) (cl-html-readme-base-dsl:add-text tree-builder str)))
-      (cl-html-readme-base-dsl:get-tree tree-builder))))
+      (cl-html-readme-base-dsl:to-tree tree-builder))))
 
 (defun expand-toc (doc)
   "Replace toc form with toc-root. Returns a new documentation object."
@@ -179,7 +179,7 @@
 	   (cl-html-readme-base-dsl:close-form tree-builder)))
      :text-handler
      (lambda(str) (cl-html-readme-base-dsl:add-text tree-builder str)))
-    (clean-headings (cl-html-readme-base-dsl:get-tree tree-builder))))
+    (clean-headings (cl-html-readme-base-dsl:to-tree tree-builder))))
 
 ;;
 ;; Heading-Indentation
@@ -216,7 +216,7 @@
 	 (cl-html-readme-base-dsl:close-form tree-builder))
        :text-handler
        (lambda(str) (cl-html-readme-base-dsl:add-text tree-builder str)))
-      (cl-html-readme-base-dsl:get-tree tree-builder))))
+      (cl-html-readme-base-dsl:to-tree tree-builder))))
 
 ;;
 ;; Compilation of DSL to target DSL

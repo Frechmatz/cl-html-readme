@@ -282,7 +282,7 @@
 (defgeneric add-text (tree-builder text)
   (:documentation "Add a plain string."))
 
-(defgeneric get-tree (tree-builder)
+(defgeneric to-tree (tree-builder)
   (:documentation "Get the resulting tree."))
 
 ;;
@@ -357,7 +357,7 @@
     (push-content stack-pointer node))
   nil)
 
-(defmethod get-tree ((instance default-tree-builder))
+(defmethod to-tree ((instance default-tree-builder))
   "Generate resulting tree"
   (if (not (eq 1 (length (slot-value instance 'node-stack))))
       (error
