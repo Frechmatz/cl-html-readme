@@ -12,7 +12,7 @@
 (defun doc-to-string (doc &key (string-enclosure-character "'"))
   "Deterministic stringification of a documentation object.
    Does not apply validation.
-   Assumes that public and intermediate documentation represention share the
+   Assumes that public and target documentation represention share the
    same structure as defined by cl-html-readme-base-dsl.
    Assumes that the tree walker has been tested."
   (labels

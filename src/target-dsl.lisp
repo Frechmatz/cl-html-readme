@@ -1,7 +1,8 @@
-(in-package :cl-html-readme-intermediate-dsl)
+(in-package :cl-html-readme-target-dsl)
 
 ;;
-;; Intermediate DSL of cl-html-readme
+;; Target DSL of cl-html-readme representing the format of the documentation that is passed
+;; to the HTML rendering backend.
 ;;
 ;; <documentation> ::= ({ <string> | <semantic> | <heading> | <toc> | <toc-root> })
 ;;
@@ -34,14 +35,14 @@
 (defparameter *semantic-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-intermediate-dsl:*semantic-validator*"
+   :name "cl-html-readme-target-dsl:*semantic-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-intermediate-dsl:*heading-validator*"
+   :name "cl-html-readme-target-dsl:*heading-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :indentation-level :mandatory :t)
 		 (:indicator :id)
@@ -50,13 +51,13 @@
 (defparameter *toc-root-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-intermediate-dsl:*toc-root-validator*"
+   :name "cl-html-readme-target-dsl:*toc-root-validator*"
    :properties '((:indicator :app))))
 
 (defparameter *toc-container-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-intermediate-dsl:*toc-container-validator*"
+   :name "cl-html-readme-target-dsl:*toc-container-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :id :mandatory :t)
 		 (:indicator :app))))
@@ -64,7 +65,7 @@
 (defparameter *toc-item-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-intermediate-dsl:*toc-item-validator*"
+   :name "cl-html-readme-target-dsl:*toc-item-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :id :mandatory :t)
 		 (:indicator :app))))

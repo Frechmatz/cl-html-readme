@@ -12,7 +12,7 @@
 		:components ((:file "packages")
 			     (:file "plist-util")
 			     (:file "base-dsl")
-			     (:file "intermediate-dsl")
+			     (:file "target-dsl")
 			     (:file "dsl")
 			     (:file "dsl-compiler")
 			     (:file "readme-util")

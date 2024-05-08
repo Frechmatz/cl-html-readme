@@ -24,6 +24,8 @@
 (defpackage :cl-html-readme-base-dsl
   (:use :cl)
   (:export
+   :dsl
+   :instance
    :syntax-error
    :unbalanced-tree-error
    :validation-util
@@ -31,12 +33,10 @@
    :property-validator
    :validate
    :default-property-validator
-   :dsl
    :get-special-form-validator
    :make-validation-util
    :equal-symbol
    :walk-tree-ng
-   :instance
    :validate-documentation
    ;; Builder
    :make-builder
@@ -50,7 +50,7 @@
   (:export
    :instance))
 
-(defpackage :cl-html-readme-intermediate-dsl
+(defpackage :cl-html-readme-target-dsl
   (:use :cl)
   (:export
    :instance))

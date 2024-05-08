@@ -59,7 +59,7 @@
     (get-output-stream-string string-output-stream)))
 
 (defun serialize (output-stream doc)
-  "Render documentation object in intermediate representation to HTML"
+  "Render documentation object. The object is supposed to follow the syntax of cl-html-readme-target-dsl."
   (labels ((newline ()
 	     (funcall *print-newline* output-stream))
 	   (format-id (properties)
@@ -75,7 +75,7 @@
 	      (funcall fn properties))))
     (let ((toc-properties nil))
       (cl-html-readme-base-dsl:walk-tree-ng
-       (cl-html-readme-intermediate-dsl:instance)
+       (cl-html-readme-target-dsl:instance)
        doc
        :open-form-handler
        (lambda(form-symbol form-properties content)
@@ -168,9 +168,8 @@
   "Renders a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream nil or a stream into which the resulting HTML is written.</li>
-       <li>documentation A documentation object following the syntax of the DSL.</li>
+       <li>documentation A documentation object following the syntax as defined by the package of the cl-html-readme-dsl.</li>
    </ul>"
-  ;; Compile to intermediate representation
   (let ((compiled (cl-html-readme-dsl-compiler:compile-documentation documentation)))
     (if output-stream
 	(progn
