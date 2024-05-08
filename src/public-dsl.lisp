@@ -30,12 +30,14 @@
 (defparameter *semantic-validator*
   (make-instance
    'cl-html-readme-dsl:default-property-validator
+   :name "cl-html-readme-public-dsl:*semantic-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
    'cl-html-readme-dsl:default-property-validator
+   :name "cl-html-readme-public-dsl:*heading-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :toc)
 		 (:indicator :app))))
@@ -43,6 +45,7 @@
 (defparameter *toc-validator*
   (make-instance
    'cl-html-readme-dsl:default-property-validator
+   :name "cl-html-readme-public-dsl:*toc-validator*"
    :properties '((:indicator :app))))
 
 (defmethod cl-html-readme-dsl:get-special-form-validator
@@ -353,7 +356,7 @@
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
   ;; Validate against intermediate-dsl
-  (cl-html-readme-intermediate-dsl:validate documentation)
+  (cl-html-readme-dsl:validate-documentation (cl-html-readme-intermediate-dsl:instance) documentation)
   documentation)
 
 

@@ -74,7 +74,8 @@
 	     (format-extra-attributes-impl
 	      (funcall fn properties))))
     (let ((toc-properties nil))
-      (cl-html-readme-intermediate-dsl:walk-tree
+      (cl-html-readme-dsl:walk-tree-ng
+       (cl-html-readme-intermediate-dsl:instance)
        doc
        :open-form-handler
        (lambda(form-symbol form-properties content)

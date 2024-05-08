@@ -69,6 +69,6 @@
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
   (:export
-   :walk-tree
+   :instance
    :make-tree-builder
    :validate))
