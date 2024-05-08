@@ -55,7 +55,7 @@
 		 (format buffer "~a" (format-item (getf plist key))))))
 	   (print-doc-content ()
 	     (let ((print-space (make-space-printer)))
-	       (cl-html-readme-base-dsl:walk-tree-ng
+	       (cl-html-readme-base-dsl:walk
 		(cl-html-readme-base-dsl:instance)
 		doc
 		:open-form-handler

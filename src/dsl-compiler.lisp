@@ -10,7 +10,7 @@
 	   (and (cl-html-readme-base-dsl:equal-symbol form-symbol 'heading)
 		(getf form-properties :toc))))
     (let ((tree-builder (cl-html-readme-base-dsl:make-builder (cl-html-readme-base-dsl:instance))))
-      (cl-html-readme-base-dsl:walk-tree-ng
+      (cl-html-readme-base-dsl:walk
        (cl-html-readme-base-dsl:instance)
        doc
        :open-form-handler
@@ -50,7 +50,7 @@
 	     'toc-root
 	     toc-properties)
 	    ;; Render toc content
-	    (cl-html-readme-base-dsl:walk-tree-ng
+	    (cl-html-readme-base-dsl:walk
 	     (cl-html-readme-base-dsl:instance)
 	     toc-headings
 	     :text-handler (lambda(str) (declare (ignore str)) nil)
@@ -93,7 +93,7 @@
    <li>Remove toc indicator from all headings</li>
    <ul>"
   (let ((tree-builder (cl-html-readme-base-dsl:make-builder (cl-html-readme-base-dsl:instance))))
-    (cl-html-readme-base-dsl:walk-tree-ng
+    (cl-html-readme-base-dsl:walk
      (cl-html-readme-base-dsl:instance)
      doc
      :open-form-handler
@@ -140,7 +140,7 @@
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :id) (make-id (getf l :name)))
 		 l)))
-      (cl-html-readme-base-dsl:walk-tree-ng
+      (cl-html-readme-base-dsl:walk
        (cl-html-readme-base-dsl:instance)
        doc
        :open-form-handler
@@ -160,7 +160,7 @@
   "Replace toc form with toc-root. Returns a new documentation object."
   (let ((enriched-doc (set-heading-ids doc))
 	(tree-builder (cl-html-readme-base-dsl:make-builder (cl-html-readme-base-dsl:instance))))
-    (cl-html-readme-base-dsl:walk-tree-ng
+    (cl-html-readme-base-dsl:walk
      (cl-html-readme-base-dsl:instance)
      enriched-doc
      :open-form-handler
@@ -193,7 +193,7 @@
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :indentation-level) level)
 		 l)))
-      (cl-html-readme-base-dsl:walk-tree-ng
+      (cl-html-readme-base-dsl:walk
        (cl-html-readme-base-dsl:instance)
        doc
        :open-form-handler

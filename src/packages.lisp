@@ -36,7 +36,7 @@
    :get-special-form-validator
    :make-validation-util
    :equal-symbol
-   :walk-tree-ng
+   :walk
    :validate-documentation
    ;; Builder
    :make-builder

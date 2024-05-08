@@ -3,7 +3,7 @@
 (defun record-tree-walk (doc)
   "Records handler invocations of the tree-walker and returns the recording."
   (let ((recording nil))
-    (cl-html-readme-base-dsl:walk-tree-ng
+    (cl-html-readme-base-dsl:walk
      (cl-html-readme-base-dsl:instance)
      doc
      :open-form-handler

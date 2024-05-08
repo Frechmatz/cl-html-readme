@@ -151,7 +151,7 @@
 (defgeneric make-validation-util (dsl)
   (:documentation "Create an instance of validation-util."))
 
-(defgeneric walk-tree-ng (dsl documentation
+(defgeneric walk (dsl documentation
 			  &key open-form-handler close-form-handler text-handler
 			  &allow-other-keys)
   (:documentation "Traversal of a documentation object. The function has the following parameters:
@@ -182,7 +182,7 @@
 
 (defun validate-documentation (dsl documentation)
   "Validate a documentation object against the DSL."
-  (walk-tree-ng
+  (walk
    dsl
    documentation
    :open-form-handler nil
@@ -235,7 +235,7 @@
 ;; Tree traversal NG
 ;;
 
-(defmethod walk-tree-ng
+(defmethod walk
     ((instance dsl) documentation
      &key open-form-handler close-form-handler text-handler &allow-other-keys)
   (labels
