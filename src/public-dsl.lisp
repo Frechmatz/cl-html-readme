@@ -21,11 +21,7 @@
 ;;
 
 
-;;
-;; DSL-NG
-;;
-
-(defclass dsl-ng (cl-html-readme-dsl:dsl) ())
+(defclass dsl (cl-html-readme-dsl:dsl) ())
 
 (defparameter *semantic-validator*
   (make-instance
@@ -49,7 +45,7 @@
    :properties '((:indicator :app))))
 
 (defmethod cl-html-readme-dsl:get-special-form-validator
-    ((instance dsl-ng) form-name)
+    ((instance dsl) form-name)
   (cond
     ((string= "SEMANTIC" form-name)
      *semantic-validator*)
@@ -59,42 +55,10 @@
      *toc-validator*)
     (t nil)))
 
-(defparameter *dsl-ng* (make-instance 'dsl-ng))
+(defparameter *dsl* (make-instance 'dsl))
 
 (defun instance ()
-  *dsl-ng*)
-
-
-;;
-;;
-;;
-
-(defclass dsl (cl-html-readme-dsl-util:specialized-dsl) ())
-
-(defmethod cl-html-readme-dsl-util:signal-syntax-error
-    ((instance dsl) format-control format-arguments)
-  (apply #'format t (concatenate 'string "~%" format-control "~%") format-arguments)
-  (error
-   'cl-html-readme-dsl:syntax-error
-   :format-control format-control
-   :format-arguments format-arguments))
-
-(defparameter *dsl-definition*
-  (progn
-    (let ((instance (make-instance 'dsl)))
-      ;; semantic
-      (cl-html-readme-dsl-util:register-special-form
-       instance 'semantic (list :name) (list :app))
-      ;; heading
-      (cl-html-readme-dsl-util:register-special-form
-       instance 'heading (list :name) (list :app :toc))
-      ;; toc
-      (cl-html-readme-dsl-util:register-special-form
-       instance 'toc nil (list :app))
-      instance)))
-
-(defun validate-form (form-symbol form-properties)
-  (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
+  *dsl*)
 
 ;;
 ;; TOC Processing

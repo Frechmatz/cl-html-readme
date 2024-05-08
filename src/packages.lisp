@@ -24,7 +24,6 @@
 (defpackage :cl-html-readme-dsl
   (:use :cl)
   (:export
-   ;; Next generation
    :syntax-error
    :unbalanced-tree-error
    :validation-util
@@ -39,7 +38,7 @@
    :walk-tree-ng
    :instance
    :validate-documentation
-   ;; Tree-Builder
+   ;; Builder
    :make-builder
    :open-form
    :close-form
