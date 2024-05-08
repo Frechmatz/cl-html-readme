@@ -1,4 +1,4 @@
-(in-package :cl-html-readme-dsl)
+(in-package :cl-html-readme-base-dsl)
 
 ;;
 ;; Shared Low-Level DSL

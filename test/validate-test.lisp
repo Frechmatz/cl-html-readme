@@ -6,7 +6,7 @@
 
 (defun validation-test-try-walk-public-dsl (doc)
   "Helper function to try to traverse a documentation object following the syntax of the public DSL"
-  (cl-html-readme-dsl:walk-tree-ng
+  (cl-html-readme-base-dsl:walk-tree-ng
    (cl-html-readme-public-dsl:instance)
    doc
    :open-form-handler
@@ -51,7 +51,7 @@
       (error (err)
 	(setf catched-error err)))
     (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:syntax-error))))
+    (assert-true (typep catched-error 'cl-html-readme-base-dsl:syntax-error))))
 
 (define-test validation-test-4 ()
   "Unknown special form of DSL"
@@ -62,7 +62,7 @@
       (error (err)
 	(setf catched-error err)))
     (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:syntax-error))))
+    (assert-true (typep catched-error 'cl-html-readme-base-dsl:syntax-error))))
 
 (define-test validation-test-5 ()
   "Text cannot be a keyword"
@@ -73,7 +73,7 @@
       (error (err)
 	(setf catched-error err)))
     (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:syntax-error))))
+    (assert-true (typep catched-error 'cl-html-readme-base-dsl:syntax-error))))
 
 (define-test validation-test-6 ()
   "Missing mandatory :name property"
@@ -84,4 +84,4 @@
       (error (err)
 	(setf catched-error err)))
     (assert-true catched-error)
-    (assert-true (typep catched-error 'cl-html-readme-dsl:syntax-error))))
+    (assert-true (typep catched-error 'cl-html-readme-base-dsl:syntax-error))))

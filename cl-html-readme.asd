@@ -11,7 +11,7 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "plist-util")
-			     (:file "dsl")
+			     (:file "base-dsl")
 			     (:file "intermediate-dsl")
 			     (:file "public-dsl")
 			     (:file "public-dsl-compiler")

@@ -29,18 +29,18 @@
 ;;
 
 
-(defclass dsl (cl-html-readme-dsl:dsl) ())
+(defclass dsl (cl-html-readme-base-dsl:dsl) ())
 
 (defparameter *semantic-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-intermediate-dsl:*semantic-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-intermediate-dsl:*heading-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :indentation-level :mandatory :t)
@@ -49,13 +49,13 @@
    
 (defparameter *toc-root-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-intermediate-dsl:*toc-root-validator*"
    :properties '((:indicator :app))))
 
 (defparameter *toc-container-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-intermediate-dsl:*toc-container-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :id :mandatory :t)
@@ -63,13 +63,13 @@
 
 (defparameter *toc-item-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-intermediate-dsl:*toc-item-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :id :mandatory :t)
 		 (:indicator :app))))
 
-(defmethod cl-html-readme-dsl:get-special-form-validator
+(defmethod cl-html-readme-base-dsl:get-special-form-validator
     ((instance dsl) form-name)
   (cond
     ((string= "SEMANTIC" form-name)

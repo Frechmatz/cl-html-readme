@@ -13,7 +13,7 @@
   "Deterministic stringification of a documentation object.
    Does not apply validation.
    Assumes that public and intermediate documentation represention share the
-   same structure as defined by cl-html-readme-dsl.
+   same structure as defined by cl-html-readme-base-dsl.
    Assumes that the tree walker has been tested."
   (labels
       ((format-item (item)
@@ -55,8 +55,8 @@
 		 (format buffer "~a" (format-item (getf plist key))))))
 	   (print-doc-content ()
 	     (let ((print-space (make-space-printer)))
-	       (cl-html-readme-dsl:walk-tree-ng
-		(cl-html-readme-dsl:instance)
+	       (cl-html-readme-base-dsl:walk-tree-ng
+		(cl-html-readme-base-dsl:instance)
 		doc
 		:open-form-handler
 		(lambda(form-symbol form-properties content)

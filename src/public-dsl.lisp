@@ -21,18 +21,18 @@
 ;;
 
 
-(defclass dsl (cl-html-readme-dsl:dsl) ())
+(defclass dsl (cl-html-readme-base-dsl:dsl) ())
 
 (defparameter *semantic-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-public-dsl:*semantic-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-public-dsl:*heading-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :toc)
@@ -40,11 +40,11 @@
    
 (defparameter *toc-validator*
   (make-instance
-   'cl-html-readme-dsl:default-property-validator
+   'cl-html-readme-base-dsl:default-property-validator
    :name "cl-html-readme-public-dsl:*toc-validator*"
    :properties '((:indicator :app))))
 
-(defmethod cl-html-readme-dsl:get-special-form-validator
+(defmethod cl-html-readme-base-dsl:get-special-form-validator
     ((instance dsl) form-name)
   (cond
     ((string= "SEMANTIC" form-name)

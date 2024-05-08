@@ -21,7 +21,7 @@
    :filter-property-list-entries
    :has-property))
   
-(defpackage :cl-html-readme-dsl
+(defpackage :cl-html-readme-base-dsl
   (:use :cl)
   (:export
    :syntax-error
