@@ -9,17 +9,6 @@
       (setf push-key (not push-key)))
     keys))
 
-
-(defun walk-tree (tree &key open-form-handler close-form-handler text-handler)
-  "Non-Validating tree traversal"
-  (let ((walker 
-	  (make-instance
-	   'cl-html-readme-dsl:default-tree-walker
-	   :open-form-handler open-form-handler
-	   :close-form-handler close-form-handler
-	   :text-handler text-handler)))
-    (cl-html-readme-dsl:walk-tree walker tree)))
-
 (defun doc-to-string (doc &key (string-enclosure-character "'"))
   "Deterministic stringification of a documentation object.
    Does not apply validation.
@@ -66,7 +55,8 @@
 		 (format buffer "~a" (format-item (getf plist key))))))
 	   (print-doc-content ()
 	     (let ((print-space (make-space-printer)))
-	       (walk-tree
+	       (cl-html-readme-dsl:walk-tree-ng
+		(cl-html-readme-dsl:instance)
 		doc
 		:open-form-handler
 		(lambda(form-symbol form-properties content)

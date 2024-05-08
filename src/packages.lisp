@@ -39,10 +39,6 @@
    :walk-tree-ng
    :instance
    :validate-documentation
-   ;; Tree-Walker
-   :tree-walker
-   :default-tree-walker
-   :walk-tree
    ;; Tree-Builder
    :tree-builder
    :default-tree-builder
