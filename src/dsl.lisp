@@ -67,7 +67,10 @@
 ;;
 
 (defclass default-property-validator (property-validator)
-  ((properties
+  ((name
+    :initarg :name
+    :documentation "Name of the validator")
+   (properties
     :initarg :properties
     :documentation "list (:indicator :mandatory)")
    (mandatory
@@ -102,20 +105,20 @@
       properties))))
 
 (defmethod validate ((instance default-property-validator) validation-util form-properties)
-  (with-slots (mandatory optional all) instance
+  (with-slots (mandatory optional all name) instance
     (dolist (key mandatory)
       (if (not (getf form-properties key))
 	  (reject
 	   validation-util 
-	   "~a Mandatory property '~a' missing in form '~a'"
-	   (list (class-of instance) key form-properties))))
+	   "~a '~a' Mandatory property '~a' missing in form-properties:~%'~a'"
+	   (list (class-of instance) name key form-properties))))
     ;; TODO Add iterator function to cl-html-readme-plist-util
     (dolist (key (cl-html-readme-plist-util:get-property-list-keys form-properties))
       (if (not (find key all))
 	  (reject
 	   validation-util
-	   "~a Property '~a' not supported in form '~a'"
-	   (list (class-of instance) key form-properties)))))
+	   "~a '~a' Property '~a' not supported in form-properties: ~%'~a'"
+	   (list (class-of instance) name key form-properties)))))
   nil)
 
 ;;
