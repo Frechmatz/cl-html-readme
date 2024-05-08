@@ -97,34 +97,6 @@
   (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 
 ;;
-;; Tree-Builder
-;;
-
-(defclass tree-builder (cl-html-readme-dsl:default-tree-builder) ())
-
-(defmethod cl-html-readme-dsl:open-form
-    ((instance tree-builder) form-symbol form-properties)
-  (validate-form form-symbol form-properties)
-  (call-next-method))
-
-(defun make-tree-builder ()
-  "Instantiates a validating tree-builder"
-  (let ((builder (make-instance 'tree-builder)))
-    builder))
-
-;;
-;; Compilation helper functions
-;;
-
-(defun make-non-validating-tree-builder ()
-  "Internal helper function to instantiate a tree builder that follows the syntax as defined
-   by cl-html-readme-dsl but does not apply any additional validations.
-   During the compilation from public to intermediate, temporary objects
-   are created that neither follow the syntax of the public DSL nor the syntax of
-   the intermediate DSL."
-  (make-instance 'cl-html-readme-dsl:default-tree-builder))
-
-;;
 ;; TOC Processing
 ;;
 
@@ -133,7 +105,7 @@
   (flet ((is-toc-heading (form-symbol form-properties)
 	   (and (cl-html-readme-dsl:equal-symbol form-symbol 'heading)
 		(getf form-properties :toc))))
-    (let ((tree-builder (make-non-validating-tree-builder)))
+    (let ((tree-builder (cl-html-readme-dsl:make-builder (cl-html-readme-dsl:instance))))
       (cl-html-readme-dsl:walk-tree-ng
        (cl-html-readme-dsl:instance)
        doc
@@ -216,7 +188,7 @@
    <li>Remove ids of heading forms that are not marked as toc relevant<li>
    <li>Remove toc indicator from all headings</li>
    <ul>"
-  (let ((tree-builder (make-non-validating-tree-builder)))
+  (let ((tree-builder (cl-html-readme-dsl:make-builder (cl-html-readme-dsl:instance))))
     (cl-html-readme-dsl:walk-tree-ng
      (cl-html-readme-dsl:instance)
      doc
@@ -252,7 +224,7 @@
 (defun set-heading-ids (doc)
   "Helper function which assigns an id to all heading elements. Returns a new documentation object."
   (let ((id-store nil)
-	(tree-builder (make-non-validating-tree-builder)))
+	(tree-builder (cl-html-readme-dsl:make-builder (cl-html-readme-dsl:instance))))
     (labels ((make-id (name &key (counter 0))
 	       (let ((id (if (eq 0 counter) name (format nil "~a-~a" name counter))))
 		 (if (find id id-store :test #'string=)
@@ -283,7 +255,7 @@
 (defun expand-toc (doc)
   "Replace toc form with toc-root. Returns a new documentation object."
   (let ((enriched-doc (set-heading-ids doc))
-	(tree-builder (make-non-validating-tree-builder)))
+	(tree-builder (cl-html-readme-dsl:make-builder (cl-html-readme-dsl:instance))))
     (cl-html-readme-dsl:walk-tree-ng
      (cl-html-readme-dsl:instance)
      enriched-doc
@@ -312,7 +284,7 @@
 (defun set-heading-indentation-levels (doc)
   "Set indentation levels of heading forms. Returns a new documentation object."
   (let ((level 0)
-	(tree-builder (make-non-validating-tree-builder)))
+	(tree-builder (cl-html-readme-dsl:make-builder (cl-html-readme-dsl:instance))))
     (labels ((set-indentation-level (properties)
 	       (let ((l (copy-list properties)))
 		 (setf (getf l :indentation-level) level)

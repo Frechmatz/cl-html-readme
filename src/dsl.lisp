@@ -135,6 +135,10 @@
 (defun get-symbol-name (form-symbol)
   (string-upcase (symbol-name form-symbol)))
 
+;;
+;;
+;;
+
 (defclass dsl ()
   ()
   (:documentation "DSL"))
@@ -160,6 +164,9 @@
    <li>text-handler: A function that is called for plain string occurences outside of
     DSL special form properties. Can be nil. <code>(lambda (text))</code></li>
   </ul>"))
+
+(defgeneric make-builder (dsl)
+  (:documentation "Returns a tree builder instance"))
 
 (defmethod get-special-form-validator ((instance dsl) form-name)
   (declare (ignore form-name))
@@ -283,7 +290,8 @@
 ;;
 
 (defclass default-tree-builder (tree-builder)
-  ((node-stack :initform nil)
+  ((dsl :initarg :dsl :documentation "An instance of class Dsl")
+   (node-stack :initform nil)
    (root-node :initform nil))
   (:documentation "An implementation of the tree-builder class."))
 
@@ -323,6 +331,7 @@
     (setf (slot-value instance 'node-stack) (list node))))
 
 (defmethod open-form ((instance default-tree-builder) form-symbol form-properties)
+  (validate-special-form (slot-value instance 'dsl) form-symbol form-properties)
   (let ((node (make-instance
 	       'dsl-form-node
 	       :form-symbol form-symbol
@@ -337,6 +346,7 @@
   nil)
 
 (defmethod add-text ((instance default-tree-builder) text)
+  (validate-text-node (slot-value instance 'dsl) text)
   (if (not (stringp text))
       (error
        'syntax-error
@@ -371,6 +381,13 @@
 	(dolist (node content-nodes)
 	  (push (process-node node) tree)))
       tree)))
+
+;;
+;;
+;;
+
+(defmethod make-builder ((instance dsl))
+  (make-instance 'default-tree-builder :dsl instance))
 
 ;;
 ;;

@@ -133,19 +133,3 @@
 (defun validate-form (form-symbol form-properties)
   (cl-html-readme-dsl-util:validate-special-form *dsl-definition* form-symbol form-properties))
 
-;;
-;; Tree-Builder
-;;
-
-(defclass tree-builder (cl-html-readme-dsl:default-tree-builder) ())
-
-(defmethod cl-html-readme-dsl:open-form
-    ((instance tree-builder) form-symbol form-properties)
-  (validate-form form-symbol form-properties)
-  (call-next-method))
-
-(defun make-tree-builder ()
-  "Instantiates a validating tree-builder"
-  (let ((builder (make-instance 'tree-builder)))
-    builder))
-

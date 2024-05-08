@@ -40,8 +40,7 @@
    :instance
    :validate-documentation
    ;; Tree-Builder
-   :tree-builder
-   :default-tree-builder
+   :make-builder
    :open-form
    :close-form
    :add-text
@@ -59,12 +58,9 @@
   (:use :cl)
   (:export
    :instance
-   :make-tree-builder
    :compile-documentation))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
   (:export
-   :instance
-   :make-tree-builder
-   :validate))
+   :instance))
