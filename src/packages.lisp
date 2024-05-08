@@ -55,7 +55,7 @@
   (:export
    :instance))
 
-(defpackage :cl-html-readme-public-dsl-compiler
+(defpackage :cl-html-readme-dsl-compiler
   (:use :cl)
   (:export
    :compile-documentation))

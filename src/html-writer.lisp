@@ -171,7 +171,7 @@
        <li>documentation A documentation object following the syntax of the DSL.</li>
    </ul>"
   ;; Compile to intermediate representation
-  (let ((compiled (cl-html-readme-public-dsl-compiler:compile-documentation documentation)))
+  (let ((compiled (cl-html-readme-dsl-compiler:compile-documentation documentation)))
     (if output-stream
 	(progn
 	  (serialize output-stream compiled))

@@ -1,4 +1,4 @@
-(in-package :cl-html-readme-public-dsl-compiler)
+(in-package :cl-html-readme-dsl-compiler)
 
 ;;
 ;; TOC Processing
