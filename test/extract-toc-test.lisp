@@ -130,7 +130,7 @@
 	(assert-equal expected-toc-str toc-str)))))
 
 (define-test test-write-toc-4 ()
-  (let ((tree-builder (cl-html-readme-base-dsl:make-builder (cl-html-readme-public-dsl:instance)))
+  (let ((tree-builder (cl-html-readme-base-dsl:make-builder (cl-html-readme-dsl:instance)))
 	(doc '((heading (:name "H1"))
 	       (heading (:name "H2"))
 	       (heading (:name "H3")))))

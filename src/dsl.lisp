@@ -1,4 +1,4 @@
-(in-package :cl-html-readme-public-dsl)
+(in-package :cl-html-readme-dsl)
 
 ;;
 ;; Public DSL of cl-html-readme:
@@ -26,14 +26,14 @@
 (defparameter *semantic-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-public-dsl:*semantic-validator*"
+   :name "cl-html-readme-dsl:*semantic-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-public-dsl:*heading-validator*"
+   :name "cl-html-readme-dsl:*heading-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :toc)
 		 (:indicator :app))))
@@ -41,7 +41,7 @@
 (defparameter *toc-validator*
   (make-instance
    'cl-html-readme-base-dsl:default-property-validator
-   :name "cl-html-readme-public-dsl:*toc-validator*"
+   :name "cl-html-readme-dsl:*toc-validator*"
    :properties '((:indicator :app))))
 
 (defmethod cl-html-readme-base-dsl:get-special-form-validator

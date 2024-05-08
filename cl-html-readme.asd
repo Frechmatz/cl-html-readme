@@ -13,7 +13,7 @@
 			     (:file "plist-util")
 			     (:file "base-dsl")
 			     (:file "intermediate-dsl")
-			     (:file "public-dsl")
+			     (:file "dsl")
 			     (:file "public-dsl-compiler")
 			     (:file "readme-util")
 			     (:file "html-writer"))))

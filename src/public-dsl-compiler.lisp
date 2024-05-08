@@ -219,15 +219,15 @@
       (cl-html-readme-base-dsl:get-tree tree-builder))))
 
 ;;
-;; Compilation of public DSL to intermediate DSL
+;; Compilation of DSL to intermediate DSL
 ;;
 
 (defun compile-documentation (documentation)
-  "Compile a documentation object that follows the syntax of the public DSL to
+  "Compile a documentation object that follows the syntax of the DSL to
    the intermediate DSL represention. The intermediate representation is parsed by
    the HTML backend to generate to final HTML output."
-  ;; Validate against public-dsl
-  (cl-html-readme-base-dsl:validate-documentation (cl-html-readme-public-dsl:instance) documentation)
+  ;; Validate against dsl
+  (cl-html-readme-base-dsl:validate-documentation (cl-html-readme-dsl:instance) documentation)
   ;; Compile to intermediate-dsl. Temporary documentation objects may not validate
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))

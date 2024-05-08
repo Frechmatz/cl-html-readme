@@ -7,7 +7,7 @@
 (defun validation-test-try-walk-public-dsl (doc)
   "Helper function to try to traverse a documentation object following the syntax of the public DSL"
   (cl-html-readme-base-dsl:walk-tree-ng
-   (cl-html-readme-public-dsl:instance)
+   (cl-html-readme-dsl:instance)
    doc
    :open-form-handler
    (lambda(form-symbol form-properties content)

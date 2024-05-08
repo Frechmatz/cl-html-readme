@@ -45,7 +45,7 @@
    :add-text
    :get-tree))
 
-(defpackage :cl-html-readme-public-dsl
+(defpackage :cl-html-readme-dsl
   (:use :cl)
   (:export
    :instance))
