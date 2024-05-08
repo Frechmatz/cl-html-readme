@@ -45,21 +45,17 @@
    :add-text
    :get-tree))
 
-(defpackage :cl-html-readme-dsl-util
-  (:use :cl)
-  (:export
-   :specialized-dsl
-   :register-special-form
-   :validate-special-form
-   :signal-syntax-error))
-
 (defpackage :cl-html-readme-public-dsl
   (:use :cl)
   (:export
-   :instance
-   :compile-documentation))
+   :instance))
 
 (defpackage :cl-html-readme-intermediate-dsl
   (:use :cl)
   (:export
    :instance))
+
+(defpackage :cl-html-readme-public-dsl-compiler
+  (:use :cl)
+  (:export
+   :compile-documentation))

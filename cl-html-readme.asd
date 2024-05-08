@@ -14,6 +14,7 @@
 			     (:file "dsl")
 			     (:file "intermediate-dsl")
 			     (:file "public-dsl")
+			     (:file "public-dsl-compiler")
 			     (:file "readme-util")
 			     (:file "html-writer"))))
   :in-order-to ((test-op (test-op "cl-html-readme/test"))))

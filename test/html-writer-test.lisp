@@ -9,7 +9,7 @@
   (let ((doc '((heading (:name "H1" :toc t))
 	       (heading (:name "H2" :toc t))
 	       (heading (:name "H3" :toc t)))))
-    (let ((updated-doc (cl-html-readme-public-dsl::set-heading-indentation-levels doc))
+    (let ((updated-doc (cl-html-readme-public-dsl-compiler::set-heading-indentation-levels doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :indentation-level 0))
 	      (heading (:name "H2" :toc t :indentation-level 0))
@@ -24,7 +24,7 @@
 		(heading (:name "H1.2" :toc t)
 		 (heading (:name "H1.2.1" :toc t))))
 	       (heading (:name "H2" :toc t)))))
-    (let ((updated-doc (cl-html-readme-public-dsl::set-heading-indentation-levels doc))
+    (let ((updated-doc (cl-html-readme-public-dsl-compiler::set-heading-indentation-levels doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :indentation-level 0)
 	       (heading (:name "H1.1" :toc t :indentation-level 1))
@@ -43,7 +43,7 @@
   (let ((doc '((heading (:name "H1" :toc t))
 	       (heading (:name "H2" :toc t))
 	       (heading (:name "H3" :toc t)))))
-    (let ((updated-doc (cl-html-readme-public-dsl::set-heading-ids doc))
+    (let ((updated-doc (cl-html-readme-public-dsl-compiler::set-heading-ids doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :id "H1"))
 	      (heading (:name "H2" :toc t :id "H2"))
@@ -57,7 +57,7 @@
   (let ((doc '((heading (:name "H1" :toc t)
 		(heading (:name "H1.1" :toc t)))
 	       (heading (:name "H2" :toc t)))))
-    (let ((updated-doc (cl-html-readme-public-dsl::set-heading-ids doc))
+    (let ((updated-doc (cl-html-readme-public-dsl-compiler::set-heading-ids doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :id "H1")
 	       (heading (:name "H1.1" :toc t :id "H1.1")))
@@ -72,7 +72,7 @@
 	       (heading (:name "H1" :toc t))
 	       (heading (:name "H1" :toc t))
 	       (heading (:name "H2" :toc t)))))
-    (let ((updated-doc (cl-html-readme-public-dsl::set-heading-ids doc))
+    (let ((updated-doc (cl-html-readme-public-dsl-compiler::set-heading-ids doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :id "H1"))
 	      (heading (:name "H1" :toc t :id "H1-1"))
@@ -87,7 +87,7 @@
   (let ((doc '((heading (:name "H1" :toc t :id "XXX"))
 	       (heading (:name "H1" :toc t :id "YYY"))
 	       (heading (:name "H2" :toc t)))))
-    (let ((updated-doc (cl-html-readme-public-dsl::set-heading-ids doc))
+    (let ((updated-doc (cl-html-readme-public-dsl-compiler::set-heading-ids doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :id "H1"))
 	      (heading (:name "H1" :toc t :id "H1-1"))
@@ -101,7 +101,7 @@
   (let ((doc '((heading (:name "H1" :toc t))
 	       (heading (:name "H2"))
 	       (heading (:name "H3" :toc t)))))
-    (let ((updated-doc (cl-html-readme-public-dsl::set-heading-ids doc))
+    (let ((updated-doc (cl-html-readme-public-dsl-compiler::set-heading-ids doc))
 	  (expected-doc
 	    '((heading (:name "H1" :toc t :id "H1"))
 	      (heading (:name "H2" :id "H2"))
