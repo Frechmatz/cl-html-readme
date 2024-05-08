@@ -12,7 +12,6 @@
 		:components ((:file "packages")
 			     (:file "plist-util")
 			     (:file "dsl")
-			     (:file "dsl-util")
 			     (:file "intermediate-dsl")
 			     (:file "public-dsl")
 			     (:file "readme-util")
