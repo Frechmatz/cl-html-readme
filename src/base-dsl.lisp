@@ -25,14 +25,10 @@
 ;; Validation util
 ;;
 
-(defclass validation-util ()
-  ()
-  (:documentation "Validation utility"))
+(defclass default-validation-util (cl-html-readme-validation:validation-util)
+  ())
 
-(defgeneric reject (validation-util format-control format-arguments)
-  (:documentation "Error handler"))
-
-(defmethod reject ((instance validation-util) format-control format-arguments)
+(defmethod cl-html-readme-validation:reject ((instance default-validation-util) format-control format-arguments)
   (let ((error (make-instance
 		'syntax-error
 		:format-control format-control
@@ -40,93 +36,21 @@
     (format t "~%Error: ~a~%" error)
     (error error)))
 
+(defparameter *default-validation-util* (make-instance 'default-validation-util))
+
 ;;
-;; Property validator
+;; Pass-Through property validator
 ;;
 
-(defclass property-validator ()
-  ()
-  (:documentation "Property validator"))
-
-(defgeneric validate (property-validator validation-util form-properties)
-  (:documentation "Validate properties. The function has the following parameters:
-    <ul>
-    <li>validation-util Error handler. An instance of <code>validation-util</code></li>
-    <li>form-properties The properties to be validated.</li>"))
-
-(defclass all-good-property-validator (property-validator)
+(defclass all-good-property-validator (cl-html-readme-validation:validator)
   ()
   (:documentation "A validator that does not apply any checks"))
 
-(defmethod validate ((instance all-good-property-validator) validation-util form-properties)
-  (declare (ignore validation-util form-properties))
+(defmethod cl-html-readme-validation:validate ((instance all-good-property-validator) validation-util object)
+  (declare (ignore validation-util object))
   nil)
-
-;;
-;;
-;;
-
-(defclass default-property-validator (property-validator)
-  ((name
-    :initarg :name
-    :documentation "Name of the validator")
-   (properties
-    :initarg :properties
-    :documentation "list (:indicator :mandatory)")
-   (mandatory
-    :initform nil
-    :documentation "List of keywords")
-   (optional
-    :initform nil
-    :documentation "List of keywords")  
-   (all
-    :initform nil
-    :documentation "List of keywords"))  
-  (:documentation "Property validator"))
-
-(defmethod initialize-instance :after ((instance default-property-validator) &key)
-  (with-slots (properties mandatory optional all) instance
-    (setf
-     mandatory
-     (mapcar
-      (lambda (p)
-	(getf p :indicator))
-      (remove-if (lambda (p) (not (getf p :mandatory))) properties)))
-    (setf
-     optional
-     (mapcar
-      (lambda (p) (getf p :indicator))
-      (remove-if (lambda (p) (getf p :mandatory)) properties)))
-    (setf
-     all
-     (mapcar
-      (lambda (p)
-	(getf p :indicator))
-      properties))))
-
-(defmethod validate ((instance default-property-validator) validation-util form-properties)
-  (with-slots (mandatory optional all name) instance
-    (dolist (key mandatory)
-      (if (not (getf form-properties key))
-	  (reject
-	   validation-util 
-	   "~a '~a' Mandatory property '~a' missing in form-properties:~%'~a'"
-	   (list (class-of instance) name key form-properties))))
-    ;; TODO Add iterator function to cl-html-readme-plist-util
-    (dolist (key (cl-html-readme-plist-util:get-property-list-keys form-properties))
-      (if (not (find key all))
-	  (reject
-	   validation-util
-	   "~a '~a' Property '~a' not supported in form-properties: ~%'~a'"
-	   (list (class-of instance) name key form-properties)))))
-  nil)
-
-;;
-;;
-;;
 
 (defparameter *default-property-validator* (make-instance 'all-good-property-validator))
-(defparameter *default-validation-util* (make-instance 'validation-util))
 
 ;;
 ;; 
@@ -218,7 +142,7 @@
 	(signal-fatal-error
 	 "FATAL ERROR: Unsupported special form '~a'"
 	 (list form-symbol))))
-  (validate
+  (cl-html-readme-validation:validate
    (get-special-form-validator dsl (get-symbol-name form-symbol))
    (make-validation-util dsl)
    form-properties))

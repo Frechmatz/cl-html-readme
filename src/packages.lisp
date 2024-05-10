@@ -20,7 +20,16 @@
    :get-property-list-keys
    :filter-property-list-entries
    :has-property))
-  
+
+(defpackage :cl-html-readme-validation
+  (:use :cl)
+  (:export
+   :validation-util
+   :reject
+   :validator
+   :validate
+   :property-list-validator))
+
 (defpackage :cl-html-readme-base-dsl
   (:use :cl)
   (:export

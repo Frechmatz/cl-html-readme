@@ -11,6 +11,7 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "plist-util")
+			     (:file "validation")
 			     (:file "base-dsl")
 			     (:file "target-dsl")
 			     (:file "dsl")
