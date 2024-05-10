@@ -53,6 +53,24 @@
 (defparameter *default-property-validator* (make-instance 'default-property-validator))
 
 ;;
+;; Tree Builder
+;;
+
+(defclass tree-builder () ())
+
+(defgeneric open-form (tree-builder form-symbol form-properties)
+  (:documentation "Open a DSL special form."))
+
+(defgeneric close-form (tree-builder)
+  (:documentation "Close a DSL special form."))
+
+(defgeneric add-text (tree-builder text)
+  (:documentation "Add a plain string."))
+
+(defgeneric to-tree (tree-builder)
+  (:documentation "Get the resulting tree."))
+
+;;
 ;; 
 ;;
 
@@ -90,7 +108,7 @@
   </ul>"))
 
 (defgeneric make-builder (dsl)
-  (:documentation "Returns a tree builder instance"))
+  (:documentation "Returns a fresh instance of tree-builder"))
 
 (defmethod get-special-form-validator ((instance dsl) form-name)
   (declare (ignore form-name))
@@ -190,24 +208,6 @@
     (dolist (item documentation)
       (walk-tree-impl item))
     nil))
-
-;;
-;; Tree Builder
-;;
-
-(defclass tree-builder () ())
-
-(defgeneric open-form (tree-builder form-symbol form-properties)
-  (:documentation "Open a DSL special form."))
-
-(defgeneric close-form (tree-builder)
-  (:documentation "Close a DSL special form."))
-
-(defgeneric add-text (tree-builder text)
-  (:documentation "Add a plain string."))
-
-(defgeneric to-tree (tree-builder)
-  (:documentation "Get the resulting tree."))
 
 ;;
 ;; Default implementation of tree-builder

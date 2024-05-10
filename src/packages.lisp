@@ -48,6 +48,7 @@
    :walk
    :validate-documentation
    ;; Builder
+   :tree-builder
    :make-builder
    :open-form
    :close-form
