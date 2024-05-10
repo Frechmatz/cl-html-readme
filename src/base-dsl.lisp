@@ -13,6 +13,10 @@
 ;;
 
 
+;;
+;; Conditions
+;;
+
 (define-condition syntax-error (simple-error)()
   (:documentation "Signalled when a documentation object does not conform to the DSL specification,    e.g. undefined DSL special forms, missing mandatory DSL special form properties,
    unsupported DSL special form properties."))
@@ -22,38 +26,7 @@
 
 
 ;;
-;; Validation util
-;;
-
-(defclass default-validation-util (cl-html-readme-validation:validation-util)
-  ())
-
-(defmethod cl-html-readme-validation:reject ((instance default-validation-util) format-control format-arguments)
-  (let ((error (make-instance
-		'syntax-error
-		:format-control format-control
-		:format-arguments format-arguments)))
-    (format t "~%Error: ~a~%" error)
-    (error error)))
-
-(defparameter *default-validation-util* (make-instance 'default-validation-util))
-
-;;
-;; Pass-Through property validator
-;;
-
-(defclass default-property-validator (cl-html-readme-validation:validator)
-  ()
-  (:documentation "A validator that does not apply any checks"))
-
-(defmethod cl-html-readme-validation:validate ((instance default-property-validator) validation-util object)
-  (declare (ignore validation-util object))
-  nil)
-
-(defparameter *default-property-validator* (make-instance 'default-property-validator))
-
-;;
-;; Tree Builder
+;; Tree Builder Interface
 ;;
 
 (defclass tree-builder () ())
@@ -71,14 +44,7 @@
   (:documentation "Get the resulting tree."))
 
 ;;
-;; 
-;;
-
-(defun get-symbol-name (form-symbol)
-  (string-upcase (symbol-name form-symbol)))
-
-;;
-;;
+;; DSL
 ;;
 
 (defclass dsl ()
@@ -86,16 +52,18 @@
   (:documentation "DSL"))
 
 (defgeneric get-special-form-validator (dsl form-symbol)
-  (:documentation "Returns an instance of property-validator or nil of the form-symbol
-   is not supported by the DSL. The function has the following parameters:
+  (:documentation "Returns an instance of cl-html-readme-validation:property-validator or
+   nil of the form-symbol is not supported by the DSL. The function has the
+   following parameters:
    <ul><li>form-symbol A symbol</li></ul>"))
 
 (defgeneric make-validation-util (dsl)
-  (:documentation "Create an instance of validation-util."))
+  (:documentation "Creates an instance of cl-html-readme-validation:validation-util."))
 
-(defgeneric walk (dsl documentation
-			  &key open-form-handler close-form-handler text-handler
-			  &allow-other-keys)
+(defgeneric walk (dsl
+		  documentation
+		  &key open-form-handler close-form-handler text-handler
+		  &allow-other-keys)
   (:documentation "Traversal of a documentation object. The function has the following parameters:
    <ul>
    <li>open-form-handler: A function that is called when a DSL special form is opened. Can be nil.
@@ -108,26 +76,13 @@
   </ul>"))
 
 (defgeneric make-builder (dsl)
-  (:documentation "Returns a fresh instance of tree-builder"))
-
-(defmethod get-special-form-validator ((instance dsl) form-symbol)
-  (declare (ignore form-symbol))
-  *default-property-validator*)
-
-(defmethod make-validation-util ((instance dsl))
-  *default-validation-util*)
-
-(defun validate-documentation (dsl documentation)
-  "Validate a documentation object against the DSL."
-  (walk
-   dsl
-   documentation
-   :open-form-handler nil
-   :close-form-handler nil
-   :text-handler nil))
+  (:documentation "Creates an instance of tree-builder"))
 
 ;;
-;; Internal validation functions
+;; Non-overloadable internal validation functions which
+;; apply low-level validation to ensure that an object follows
+;; the base syntax and then forward to an instance of DSL for
+;; further validation
 ;;
 
 (defun signal-fatal-error (format-control format-arguments)
@@ -154,55 +109,20 @@
     (if (not validator)
 	(signal-fatal-error
 	 "FATAL ERROR: Unsupported special form '~a'"
-	 (list form-symbol))))
-  (cl-html-readme-validation:validate
-   (get-special-form-validator dsl form-symbol)
-   (make-validation-util dsl)
-   form-properties))
+	 (list form-symbol)))
+    ;; TODO Consider deferred instantiation of validation-util
+    (cl-html-readme-validation:validate
+     validator
+     (make-validation-util dsl)
+     form-properties)))
 
-(defun validate-text-node (dsl text)
+(defun validate-text (dsl text)
   "Validate if the given text node is a string"
   (declare (ignore dsl))
   (if (not (stringp text))
       (signal-fatal-error
 	"FATAL ERROR: Text node must be a string: ~a"
 	(list text))))
-
-;;
-;; Tree traversal NG
-;;
-
-(defmethod walk
-    ((instance dsl) documentation
-     &key open-form-handler close-form-handler text-handler &allow-other-keys)
-  (labels
-      ((walk-tree-impl (l)
-	 (if (not (listp l))
-	     (progn
-	       (validate-text-node instance l)
-	       (if text-handler (funcall text-handler l)))
-	     (progn
-	       (let ((form-symbol (first l))
-		     (form-properties (second l))
-		     (content (rest (rest l))))
-		 (validate-special-form
-		  instance
-		  form-symbol
-		  form-properties)
-		 (let ((context
-			 (if open-form-handler
-			     (funcall open-form-handler
-				      form-symbol
-				      form-properties
-				      content)
-			     nil)))
-		   (dolist (item content)
-		     (walk-tree-impl item))
-		   (if close-form-handler
-		       (funcall close-form-handler context))))))))
-    (dolist (item documentation)
-      (walk-tree-impl item))
-    nil))
 
 ;;
 ;; Default implementation of tree-builder
@@ -265,7 +185,7 @@
   nil)
 
 (defmethod add-text ((instance default-tree-builder) text)
-  (validate-text-node (slot-value instance 'dsl) text)
+  (validate-text (slot-value instance 'dsl) text)
   (if (not (stringp text))
       (error
        'syntax-error
@@ -302,18 +222,92 @@
       tree)))
 
 ;;
+;; Default implementation of cl-html-readme-validation:validation-util
 ;;
+
+(defclass default-validation-util (cl-html-readme-validation:validation-util)
+  ())
+
+(defmethod cl-html-readme-validation:reject ((instance default-validation-util) format-control format-arguments)
+  (let ((error (make-instance
+		'syntax-error
+		:format-control format-control
+		:format-arguments format-arguments)))
+    (format t "~%Error: ~a~%" error)
+    (error error)))
+
 ;;
+;; Default implementation of cl-html-readme-validation:property-validator
+;;
+
+(defclass default-property-validator (cl-html-readme-validation:validator)
+  ()
+  (:documentation "A validator that does not apply any checks"))
+
+(defmethod cl-html-readme-validation:validate ((instance default-property-validator) validation-util object)
+  (declare (ignore validation-util object))
+  nil)
+
+;;
+;; DSL implementation
+;;
+
+(defparameter *default-validation-util* (make-instance 'default-validation-util))
+(defparameter *default-property-validator* (make-instance 'default-property-validator))
 
 (defmethod make-builder ((instance dsl))
   (make-instance 'default-tree-builder :dsl instance))
 
-;;
-;;
-;;
+(defmethod get-special-form-validator ((instance dsl) form-symbol)
+  (declare (ignore form-symbol))
+  *default-property-validator*)
+
+(defmethod make-validation-util ((instance dsl))
+  *default-validation-util*)
+
+(defmethod walk
+    ((instance dsl) documentation
+     &key open-form-handler close-form-handler text-handler &allow-other-keys)
+  (labels
+      ((walk-tree-impl (l)
+	 (if (not (listp l))
+	     (progn
+	       (validate-text instance l)
+	       (if text-handler (funcall text-handler l)))
+	     (progn
+	       (let ((form-symbol (first l))
+		     (form-properties (second l))
+		     (content (rest (rest l))))
+		 (validate-special-form
+		  instance
+		  form-symbol
+		  form-properties)
+		 (let ((context
+			 (if open-form-handler
+			     (funcall open-form-handler
+				      form-symbol
+				      form-properties
+				      content)
+			     nil)))
+		   (dolist (item content)
+		     (walk-tree-impl item))
+		   (if close-form-handler
+		       (funcall close-form-handler context))))))))
+    (dolist (item documentation)
+      (walk-tree-impl item))
+    nil))
 
 (defparameter *instance* (make-instance 'dsl))
 
 (defun instance()
   *instance*)
+
+(defun validate-documentation (dsl documentation)
+  "Validate a documentation object against the DSL."
+  (walk
+   dsl
+   documentation
+   :open-form-handler nil
+   :close-form-handler nil
+   :text-handler nil))
 
