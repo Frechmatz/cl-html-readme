@@ -84,7 +84,7 @@
 	   ;;
 	   ;; Heading
 	   ;;
-	   ((cl-html-readme-base-dsl:equal-symbol form-symbol 'heading)
+	   ((string= "HEADING" (string-upcase (symbol-name form-symbol)))
 	    ;; <h{level} id={id} {render-hook}> {name} </h{level}>
 	    (newline)
 	    (format
@@ -99,7 +99,7 @@
 	   ;;
 	   ;; Semantic
 	   ;;
-	   ((cl-html-readme-base-dsl:equal-symbol 'semantic form-symbol)
+	   ((string= "SEMANTIC" (string-upcase (symbol-name form-symbol)))
 	    (newline)
 	    ;; <{name {render-hook}}>...</{name}>
 	    (format
@@ -111,7 +111,7 @@
 	   ;;
 	   ;; Toc-Root
 	   ;;
-	   ((cl-html-readme-base-dsl:equal-symbol form-symbol 'toc-root)
+	   ((string= "TOC-ROOT" (string-upcase (symbol-name form-symbol)))
 	    (setf toc-properties form-properties)
 	    (newline)
 	    ;; <ul {render-hook}>...</ul>
@@ -123,7 +123,7 @@
 	   ;;
 	   ;; Toc-Item
 	   ;;
-	   ((cl-html-readme-base-dsl:equal-symbol form-symbol 'toc-item)
+	   ((string= "TOC-ITEM" (string-upcase (symbol-name form-symbol)))
 	    ;; <li {render-hook}><a href=#{id}> {name} </a> </li>
 	    (newline)
 	    (format
@@ -136,7 +136,7 @@
 	   ;;
 	   ;; Toc-Container
 	   ;;
-	   ((cl-html-readme-base-dsl:equal-symbol form-symbol 'toc-container)
+	   ((string= "TOC-CONTAINER" (string-upcase (symbol-name form-symbol)))
 	    ;; <li {render-hook}> <a href=#{id}> {name} </a>
 	    ;; <ul {render-hook}>...</ul>
 	    ;; </li>

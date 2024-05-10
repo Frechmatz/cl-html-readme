@@ -7,7 +7,7 @@
 (defun get-toc-headings (doc)
   "Returns a documentation object representing the toc heading tree"
   (flet ((is-toc-heading (form-symbol form-properties)
-	   (and (cl-html-readme-base-dsl:equal-symbol form-symbol 'heading)
+	   (and (string= "HEADING" (string-upcase (symbol-name form-symbol)))
 		(getf form-properties :toc))))
     (let ((tree-builder (cl-html-readme-base-dsl:make-builder (cl-html-readme-base-dsl:instance))))
       (cl-html-readme-base-dsl:walk
@@ -99,7 +99,7 @@
      :open-form-handler
      (lambda(form-symbol form-properties content)
        (declare (ignore content))
-       (if (not (cl-html-readme-base-dsl:equal-symbol form-symbol 'heading))
+       (if (not (string= "HEADING" (string-upcase (symbol-name form-symbol))))
 	   ;; Not a heading element => Pass through
 	   (cl-html-readme-base-dsl:open-form
 	    tree-builder
@@ -146,7 +146,7 @@
        :open-form-handler
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (cl-html-readme-base-dsl:equal-symbol form-symbol 'heading)
+	 (if (string= "HEADING" (string-upcase (symbol-name form-symbol)))
 	     (cl-html-readme-base-dsl:open-form tree-builder form-symbol (set-id form-properties))
 	     (cl-html-readme-base-dsl:open-form tree-builder form-symbol form-properties))
 	 nil)
@@ -166,7 +166,7 @@
      :open-form-handler
      (lambda(form-symbol form-properties content)
        (declare (ignore content))
-       (if (cl-html-readme-base-dsl:equal-symbol form-symbol 'toc)
+       (if (string= "TOC" (string-upcase (symbol-name form-symbol)))
 	   (progn
 	     (write-toc enriched-doc form-properties tree-builder)
 	     :ignore-close-form)
@@ -199,7 +199,7 @@
        :open-form-handler
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (if (cl-html-readme-base-dsl:equal-symbol form-symbol 'heading)
+	 (if (string= "HEADING" (string-upcase (symbol-name form-symbol)))
 	     (progn
 	       (cl-html-readme-base-dsl:open-form
 		tree-builder form-symbol

@@ -44,7 +44,6 @@
    :default-property-validator
    :get-special-form-validator
    :make-validation-util
-   :equal-symbol
    :walk
    :validate-documentation
    ;; Builder

@@ -85,10 +85,10 @@
   ()
   (:documentation "DSL"))
 
-(defgeneric get-special-form-validator (dsl form-name)
+(defgeneric get-special-form-validator (dsl form-symbol)
   (:documentation "Returns an instance of property-validator or nil of the form-symbol
    is not supported by the DSL. The function has the following parameters:
-   <ul><li>form-name Name of the special form converted to upper-case</li></ul>"))
+   <ul><li>form-symbol A symbol</li></ul>"))
 
 (defgeneric make-validation-util (dsl)
   (:documentation "Create an instance of validation-util."))
@@ -110,17 +110,12 @@
 (defgeneric make-builder (dsl)
   (:documentation "Returns a fresh instance of tree-builder"))
 
-(defmethod get-special-form-validator ((instance dsl) form-name)
-  (declare (ignore form-name))
+(defmethod get-special-form-validator ((instance dsl) form-symbol)
+  (declare (ignore form-symbol))
   *default-property-validator*)
 
 (defmethod make-validation-util ((instance dsl))
   *default-validation-util*)
-
-(defun equal-symbol (x y)
-  "Returns t if both symbols have the same name according to the symbol-to-name conversion
-   internally applied by DSL."
-  (string= (get-symbol-name x) (get-symbol-name y)))
 
 (defun validate-documentation (dsl documentation)
   "Validate a documentation object against the DSL."
@@ -161,7 +156,7 @@
 	 "FATAL ERROR: Unsupported special form '~a'"
 	 (list form-symbol))))
   (cl-html-readme-validation:validate
-   (get-special-form-validator dsl (get-symbol-name form-symbol))
+   (get-special-form-validator dsl form-symbol)
    (make-validation-util dsl)
    form-properties))
 

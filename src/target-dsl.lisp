@@ -71,19 +71,20 @@
 		 (:indicator :app))))
 
 (defmethod cl-html-readme-base-dsl:get-special-form-validator
-    ((instance dsl) form-name)
-  (cond
-    ((string= "SEMANTIC" form-name)
-     *semantic-validator*)
-    ((string= "HEADING" form-name)
-     *heading-validator*)
-    ((string= "TOC-ROOT" form-name)
-     *toc-root-validator*)
-    ((string= "TOC-CONTAINER" form-name)
-     *toc-container-validator*)
-    ((string= "TOC-ITEM" form-name)
-     *toc-item-validator*)
-    (t nil)))
+    ((instance dsl) form-symbol)
+  (let ((form-name (string-upcase (symbol-name form-symbol))))
+    (cond
+      ((string= "SEMANTIC" form-name)
+       *semantic-validator*)
+      ((string= "HEADING" form-name)
+       *heading-validator*)
+      ((string= "TOC-ROOT" form-name)
+       *toc-root-validator*)
+      ((string= "TOC-CONTAINER" form-name)
+       *toc-container-validator*)
+      ((string= "TOC-ITEM" form-name)
+       *toc-item-validator*)
+      (t nil))))
 
 (defparameter *dsl* (make-instance 'dsl))
 
