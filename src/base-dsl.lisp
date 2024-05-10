@@ -42,15 +42,15 @@
 ;; Pass-Through property validator
 ;;
 
-(defclass all-good-property-validator (cl-html-readme-validation:validator)
+(defclass default-property-validator (cl-html-readme-validation:validator)
   ()
   (:documentation "A validator that does not apply any checks"))
 
-(defmethod cl-html-readme-validation:validate ((instance all-good-property-validator) validation-util object)
+(defmethod cl-html-readme-validation:validate ((instance default-property-validator) validation-util object)
   (declare (ignore validation-util object))
   nil)
 
-(defparameter *default-property-validator* (make-instance 'all-good-property-validator))
+(defparameter *default-property-validator* (make-instance 'default-property-validator))
 
 ;;
 ;; 
