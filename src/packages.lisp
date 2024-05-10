@@ -17,8 +17,8 @@
 (defpackage :cl-html-readme-plist-util
   (:use :cl)
   (:export
-   :get-property-list-keys
-   :filter-property-list-entries))
+   :filter-properties
+   :with-properties))
 
 (defpackage :cl-html-readme-validation
   (:use :cl)

@@ -4,23 +4,27 @@
 ;; Property list tooling
 ;;
 
-(defun get-property-list-keys (plist)
-  "Get the keys of a property list"
-  (let ((keys nil) (push-key t))
+(defun with-properties (plist callback-fn)
+  "Iterate over properties and call handler with key and value."
+  (let ((accept-key t) (key nil))
     (dolist (item plist)
-      (if push-key
-	  (push item keys))
-      (setf push-key (not push-key)))
-    keys))
-
-(defun filter-property-list-entries (plist filter-fn)
-  "Filter entries of a property list.
-   filter-fn: A function that is called with a property keyword. If the function returns nil the property will be omitted from the resulting property list."
-  (let ((keys (get-property-list-keys plist))
-	(result nil))
-    (dolist (key keys)
-      (if (funcall filter-fn key)
+      (if accept-key
+	  (setf key item)
 	  (progn
-	    (push (getf plist key) result)
-	    (push key result))))
+	    (funcall callback-fn key item)
+	    (setf key nil)))
+      (setf accept-key (not accept-key)))))
+
+(defun filter-properties (plist filter-fn)
+  "Filter entries of a property list.
+   filter-fn: A function that is called with a property keyword. If the function returns nil
+   then the property will be omitted from the resulting property list."
+  (let ((result nil))
+    (with-properties
+      plist
+      (lambda (key value)
+	(if (funcall filter-fn key)
+	    (progn
+	      (push value result)
+	      (push key result)))))
     result))

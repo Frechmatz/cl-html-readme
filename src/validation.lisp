@@ -74,13 +74,15 @@
 	   validation-util 
 	   "~a '~a' Mandatory property '~a' missing in form-properties:~%'~a'"
 	   (list (class-of instance) name key property-list))))
-    ;; TODO Add iterator function to cl-html-readme-plist-util
-    (dolist (key (cl-html-readme-plist-util:get-property-list-keys property-list))
+    (cl-html-readme-plist-util:with-properties
+      property-list
+      (lambda (key value)
+	(declare (ignore value))
       (if (not (find key all))
 	  (reject
 	   validation-util
 	   "~a '~a' Property '~a' not supported in form-properties: ~%'~a'"
-	   (list (class-of instance) name key property-list)))))
+	   (list (class-of instance) name key property-list))))))
   nil)
 
 

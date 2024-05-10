@@ -38,7 +38,7 @@
   "Extracts toc and writes toc-root, toc-container, toc-item forms into the builder.
   - toc-properties: The properties of the corresponding toc-form"
   (flet ((remove-toc-property (properties)
-	   (cl-html-readme-plist-util:filter-property-list-entries
+	   (cl-html-readme-plist-util:filter-properties
 	    properties
 	    (lambda(keyword) (not (eq keyword :toc))))))
     (let ((toc-headings (get-toc-headings doc)))
@@ -111,7 +111,7 @@
 	       (cl-html-readme-base-dsl:open-form
 		tree-builder
 		form-symbol
-		(cl-html-readme-plist-util:filter-property-list-entries
+		(cl-html-readme-plist-util:filter-properties
 		 form-properties
 		 (lambda (keyword)
 		   (if (eq :toc keyword)

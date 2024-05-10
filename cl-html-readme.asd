@@ -34,6 +34,7 @@
 		:serial t
 		:components ((:file "packages")
 			     (:file "util")
+			     (:file "plist-util-test")
 			     (:file "walk-tree-test")
 			     (:file "doc-to-string-test")
 			     (:file "validate-test")
