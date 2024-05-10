@@ -24,8 +24,3 @@
 	    (push (getf plist key) result)
 	    (push key result))))
     result))
-
-;; Yes, this check is expensive...for now lets go with it...
-(defun has-property (plist keyword)
-  "Returns t if the propery list contains a property defined by keyword."
-  (find keyword (get-property-list-keys plist)))

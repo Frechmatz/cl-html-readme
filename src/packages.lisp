@@ -18,8 +18,7 @@
   (:use :cl)
   (:export
    :get-property-list-keys
-   :filter-property-list-entries
-   :has-property))
+   :filter-property-list-entries))
 
 (defpackage :cl-html-readme-validation
   (:use :cl)
