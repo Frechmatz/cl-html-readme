@@ -227,11 +227,11 @@
    the target DSL represention. The target representation is passed to the
    HTML rendering backend."
   ;; Validate against dsl
-  (cl-html-readme-base-dsl:validate-documentation (cl-html-readme-dsl:instance) documentation)
+  (cl-html-readme-base-dsl:walk (cl-html-readme-dsl:instance) documentation)
   ;; Compile to target-dsl
   (setf documentation (expand-toc documentation))
   (setf documentation (set-heading-indentation-levels documentation))
   ;; Validate against target-dsl
-  (cl-html-readme-base-dsl:validate-documentation (cl-html-readme-target-dsl:instance) documentation)
+  (cl-html-readme-base-dsl:walk (cl-html-readme-target-dsl:instance) documentation)
   documentation)
 

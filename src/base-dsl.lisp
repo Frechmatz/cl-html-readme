@@ -257,7 +257,7 @@
 
 (defmethod walk
     ((instance dsl) documentation
-     &key open-form-handler close-form-handler text-handler &allow-other-keys)
+     &key (open-form-handler nil) (close-form-handler nil) (text-handler nil) &allow-other-keys)
   (labels
       ((walk-tree-impl (l)
 	 (if (not (listp l))
@@ -291,13 +291,3 @@
 
 (defun instance()
   *instance*)
-
-(defun validate-documentation (dsl documentation)
-  "Validate a documentation object against the DSL."
-  (walk
-   dsl
-   documentation
-   :open-form-handler nil
-   :close-form-handler nil
-   :text-handler nil))
-

@@ -38,7 +38,6 @@
    :property-list-validator
    :get-special-form-validator
    :walk
-   :validate-documentation
    ;; Builder
    :tree-builder
    :make-builder
