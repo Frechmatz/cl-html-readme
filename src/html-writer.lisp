@@ -40,7 +40,7 @@
 ;; HTML generation
 ;;
 
-(defun format-extra-attributes-impl (attrs)
+(defun format-custom-attributes-impl (attrs)
   (let ((string-output-stream (make-string-output-stream))
 	(reading-key t)
 	(cur-key nil)
@@ -70,8 +70,8 @@
 	       (if (<= level 5)
 		   (format nil "h~a" (+ 1 level))
 		   (format nil "h6"))))
-	   (format-extra-attributes (fn properties)
-	     (format-extra-attributes-impl
+	   (format-custom-attributes (fn properties)
+	     (format-custom-attributes-impl
 	      (funcall fn properties))))
     (let ((toc-properties nil))
       (cl-html-readme-base-dsl:walk
@@ -92,7 +92,7 @@
 	     "<~a~a~a>~a</~a>"
 	     (format-heading form-properties)
 	     (format-id form-properties)
-	     (format-extra-attributes *get-heading-attributes* form-properties)
+	     (format-custom-attributes *get-heading-attributes* form-properties)
 	     (getf form-properties :name)
 	     (format-heading form-properties))
 	    nil)
@@ -106,7 +106,7 @@
 	     output-stream
 	     "<~a~a>"
 	     (getf form-properties :name)
-	     (format-extra-attributes *get-semantic-attributes* form-properties))
+	     (format-custom-attributes *get-semantic-attributes* form-properties))
 	    (format nil "</~a>" (getf form-properties :name)))
 	   ;;
 	   ;; Toc-Root
@@ -118,7 +118,7 @@
 	    (format
 	     output-stream
 	     "<ul~a>"
-	     (format-extra-attributes *get-toc-root-attributes* toc-properties))
+	     (format-custom-attributes *get-toc-root-attributes* toc-properties))
 	    "</ul>")
 	   ;;
 	   ;; Toc-Item
@@ -129,7 +129,7 @@
 	    (format
 	     output-stream
 	     "<li~a><a href=\"#~a\">~a</a></li>"
-	     (format-extra-attributes *get-toc-item-attributes* toc-properties)
+	     (format-custom-attributes *get-toc-item-attributes* toc-properties)
 	     (getf form-properties :id)
 	     (getf form-properties :name))
 	    nil)
@@ -144,10 +144,10 @@
 	    (format
 	     output-stream
 	     "<li~a><a href=\"#~a\">~a</a><ul~a>"
-	     (format-extra-attributes *get-toc-item-attributes* toc-properties)
+	     (format-custom-attributes *get-toc-item-attributes* toc-properties)
 	     (getf form-properties :id)
 	     (getf form-properties :name)
-	     (format-extra-attributes *get-toc-container-attributes* toc-properties))
+	     (format-custom-attributes *get-toc-container-attributes* toc-properties))
 	    "</ul></li>")
 	   (t (error (format nil "Dont know how to serialize ~a" form-symbol)))))
        :close-form-handler
