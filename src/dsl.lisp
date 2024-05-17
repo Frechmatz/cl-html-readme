@@ -25,14 +25,14 @@
 
 (defparameter *semantic-validator*
   (make-instance
-   'cl-html-readme-validation:property-list-validator
+   'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-dsl:*semantic-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
-   'cl-html-readme-validation:property-list-validator
+   'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-dsl:*heading-validator*"
    :properties '((:indicator :name :mandatory :t)
 		 (:indicator :toc)
@@ -40,7 +40,7 @@
    
 (defparameter *toc-validator*
   (make-instance
-   'cl-html-readme-validation:property-list-validator
+   'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-dsl:*toc-validator*"
    :properties '((:indicator :app))))
 

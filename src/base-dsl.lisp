@@ -24,6 +24,21 @@
 (define-condition unbalanced-tree-error (simple-error)()
   (:documentation "Signalled when a documentation object to be programmatically build has opened a DSL special form but not closed it or a DSL special form is being closed but has not been opened."))
 
+;;
+;;
+;;
+
+(defclass property-list-validator (cl-html-readme-validation:property-list-validator) ())
+
+(defmethod cl-html-readme-validation:reject
+    ((instance property-list-validator)
+     format-control format-arguments)
+  (let ((error (make-instance
+		'syntax-error
+		:format-control format-control
+		:format-arguments format-arguments)))
+    (format t "~%Error: ~a~%" error)
+    (error error)))
 
 ;;
 ;; Tree Builder Interface
@@ -56,9 +71,6 @@
    nil of the form-symbol is not supported by the DSL. The function has the
    following parameters:
    <ul><li>form-symbol A symbol</li></ul>"))
-
-(defgeneric make-validation-util (dsl)
-  (:documentation "Creates an instance of cl-html-readme-validation:validation-util."))
 
 (defgeneric walk (dsl
 		  documentation
@@ -110,10 +122,8 @@
 	(signal-fatal-error
 	 "FATAL ERROR: Unsupported special form '~a'"
 	 (list form-symbol)))
-    ;; TODO Consider deferred instantiation of validation-util
     (cl-html-readme-validation:validate
      validator
-     (make-validation-util dsl)
      form-properties)))
 
 (defun validate-text (dsl text)
@@ -222,21 +232,6 @@
       tree)))
 
 ;;
-;; Default implementation of cl-html-readme-validation:validation-util
-;;
-
-(defclass default-validation-util (cl-html-readme-validation:validation-util)
-  ())
-
-(defmethod cl-html-readme-validation:reject ((instance default-validation-util) format-control format-arguments)
-  (let ((error (make-instance
-		'syntax-error
-		:format-control format-control
-		:format-arguments format-arguments)))
-    (format t "~%Error: ~a~%" error)
-    (error error)))
-
-;;
 ;; Default implementation of cl-html-readme-validation:property-validator
 ;;
 
@@ -244,15 +239,13 @@
   ()
   (:documentation "A validator that does not apply any checks"))
 
-(defmethod cl-html-readme-validation:validate ((instance default-property-validator) validation-util object)
-  (declare (ignore validation-util object))
+(defmethod cl-html-readme-validation:validate ((instance default-property-validator) object)
   nil)
 
 ;;
 ;; DSL implementation
 ;;
 
-(defparameter *default-validation-util* (make-instance 'default-validation-util))
 (defparameter *default-property-validator* (make-instance 'default-property-validator))
 
 (defmethod make-builder ((instance dsl))
@@ -261,9 +254,6 @@
 (defmethod get-special-form-validator ((instance dsl) form-symbol)
   (declare (ignore form-symbol))
   *default-property-validator*)
-
-(defmethod make-validation-util ((instance dsl))
-  *default-validation-util*)
 
 (defmethod walk
     ((instance dsl) documentation

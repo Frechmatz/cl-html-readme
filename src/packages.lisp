@@ -23,10 +23,9 @@
 (defpackage :cl-html-readme-validation
   (:use :cl)
   (:export
-   :validation-util
    :reject
-   :validator
    :validate
+   :validator
    :property-list-validator))
 
 (defpackage :cl-html-readme-base-dsl
@@ -36,13 +35,8 @@
    :instance
    :syntax-error
    :unbalanced-tree-error
-   :validation-util
-   :reject
-   :property-validator
-   :validate
-   :default-property-validator
+   :property-list-validator
    :get-special-form-validator
-   :make-validation-util
    :walk
    :validate-documentation
    ;; Builder

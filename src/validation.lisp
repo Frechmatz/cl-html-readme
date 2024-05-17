@@ -1,31 +1,16 @@
 (in-package :cl-html-readme-validation)
 
-;;
-;;
-;;
-
-(defclass validation-util ()
-  ()
-  (:documentation "Validation utility"))
-
-(defgeneric reject (validation-util format-control format-arguments)
-  (:documentation "Error handler"))
-
-;;
-;;
-;;
-
 (defclass validator ()
   ((name
     :initarg :name
     :documentation "Name of the validator"))
   (:documentation ""))
 
-(defgeneric validate (validator validation-util object)
-  (:documentation "Validate properties. The function has the following parameters:
-    <ul>
-    <li>validation-util Error handler. An instance of <code>validation-util</code></li>
-    <li>object An object to be validated.</li></ul>"))
+(defgeneric reject (validator format-control format-arguments)
+  (:documentation "Error handler"))
+
+(defgeneric validate (validator object)
+  (:documentation "Validate properties."))
 
 ;;
 ;;
@@ -66,12 +51,12 @@
 	(getf p :indicator))
       properties))))
 
-(defmethod validate ((instance property-list-validator) validation-util property-list)
+(defmethod validate ((instance property-list-validator) property-list)
   (with-slots (mandatory optional all name) instance
     (dolist (key mandatory)
       (if (not (getf property-list key))
 	  (reject
-	   validation-util 
+	   instance
 	   "~a '~a' Mandatory property '~a' missing in form-properties:~%'~a'"
 	   (list (class-of instance) name key property-list))))
     (cl-html-readme-plist-util:with-properties
@@ -80,7 +65,7 @@
 	(declare (ignore value))
       (if (not (find key all))
 	  (reject
-	   validation-util
+	   instance
 	   "~a '~a' Property '~a' not supported in form-properties: ~%'~a'"
 	   (list (class-of instance) name key property-list))))))
   nil)
