@@ -113,7 +113,7 @@
 	   ;; Heading
 	   ;;
 	   ((string= "HEADING" (string-upcase (symbol-name form-symbol)))
-	    ;; <h{level} id={id} {render-hook}> {name} </h{level}>
+	    ;; <h{level} id={id} {custom-attributes}> {name} </h{level}>
 	    (newline)
 	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
 	      (add-attribute attribute-renderer :id (getf form-properties :id))
@@ -141,7 +141,7 @@
 	       (funcall
 		*get-semantic-attributes*
 		form-properties))
-	      ;; <{name {render-hook}}>...</{name}>
+	      ;; <{name {custom-attributes}}>...</{name}>
 	      (format
 	       output-stream
 	       "<~a~a>"
@@ -160,7 +160,7 @@
 	       (funcall
 		*get-toc-root-attributes*
 		toc-properties))
-	      ;; <ul {render-hook}>...</ul>
+	      ;; <ul {custom-attributes}>...</ul>
 	      (format
 	       output-stream
 	       "<ul~a>"
@@ -170,7 +170,7 @@
 	   ;; Toc-Item
 	   ;;
 	   ((string= "TOC-ITEM" (string-upcase (symbol-name form-symbol)))
-	    ;; <li {render-hook}><a href=#{id}> {name} </a> </li>
+	    ;; <li {custom-attributes}><a href=#{id}> {name} </a> </li>
 	    (newline)
 	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
 	      (add-attributes
@@ -189,8 +189,8 @@
 	   ;; Toc-Container
 	   ;;
 	   ((string= "TOC-CONTAINER" (string-upcase (symbol-name form-symbol)))
-	    ;; <li {render-hook}> <a href=#{id}> {name} </a>
-	    ;; <ul {render-hook}>...</ul>
+	    ;; <li {custom-attributes}> <a href=#{id}> {name} </a>
+	    ;; <ul {custom-attributes}>...</ul>
 	    ;; </li>
 	    (newline)
 	    (let ((li-attribute-renderer (make-instance 'attribute-renderer))
