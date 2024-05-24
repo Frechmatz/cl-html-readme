@@ -48,8 +48,10 @@
 	   (let ((recorded-properties (getf recorded-entry :form-properties))
 		 (expected-properties (getf expected-entry :form-properties)))
 	     (assert-equal (length expected-properties) (length recorded-properties))
-	     (let ((keys (get-property-list-keys expected-properties)))
-	       (dolist (key keys)
+	     (cl-html-readme-plist-util:with-properties
+	       expected-properties
+	       (lambda (key value)
+		 (declare (ignore value))
 		 (assert-equal
 		  (getf expected-properties key)
 		  (getf recorded-properties key)))))
