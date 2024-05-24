@@ -122,6 +122,67 @@
       (assert-equal expected-html rendered-html))))
 
 ;;
+;; Generic rendering hook tests
+;;
+
+(define-test test-html-rendering-generic-hook-simple ()
+  (let ((cl-html-readme:*get-heading-attributes*
+	  (lambda (properties)
+            (list
+             :class "the-class"
+	     :style "the-style"))))
+    (let ((doc '((heading (:name "H1")))))
+      (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
+	    (expected-html "<h1 class=\"the-class\" style=\"the-style\">H1</h1>"))
+	(assert-equal expected-html rendered-html)))))
+
+(define-test test-html-rendering-generic-hook-filter-empty-1 ()
+  (let ((cl-html-readme:*get-heading-attributes*
+	  (lambda (properties)
+            (list
+             :class ""
+	     :empty nil
+	     :style "the-style"))))
+    (let ((doc '((heading (:name "H1")))))
+      (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
+	    (expected-html "<h1 style=\"the-style\">H1</h1>"))
+	(assert-equal expected-html rendered-html)))))
+
+(define-test test-html-rendering-generic-hook-filter-non-string-1 ()
+  (let ((cl-html-readme:*get-heading-attributes*
+	  (lambda (properties)
+            (list
+             :class (list "the-class")
+	     :empty nil
+	     :style "the-style"))))
+    (let ((doc '((heading (:name "H1")))))
+      (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
+	    (expected-html "<h1 style=\"the-style\">H1</h1>"))
+	(assert-equal expected-html rendered-html)))))
+
+(define-test test-html-rendering-generic-hook-attr-sorting ()
+  (let ((cl-html-readme:*get-heading-attributes*
+	  (lambda (properties)
+            (list
+	     :style "the-style"
+             :class "the-class"))))
+    (let ((doc '((heading (:name "H1")))))
+      (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
+	    (expected-html "<h1 class=\"the-class\" style=\"the-style\">H1</h1>"))
+	(assert-equal expected-html rendered-html)))))
+
+(define-test test-html-rendering-generic-hook-last-attr-wins-1 ()
+  (let ((cl-html-readme:*get-heading-attributes*
+	  (lambda (properties)
+            (list
+             :class "the-class-1"
+	     :class "the-class-2"))))
+    (let ((doc '((heading (:name "H1")))))
+      (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
+	    (expected-html "<h1 class=\"the-class-2\">H1</h1>"))
+	(assert-equal expected-html rendered-html)))))
+
+;;
 ;; Heading Rendering Hooks
 ;;
 
@@ -129,18 +190,12 @@
   (let ((cl-html-readme:*get-heading-attributes*
 	  (lambda (properties)
             (list
-             :class (cl-html-readme-test::get-app-property properties :class)
-	     :style "STYLE"
-	     :a nil
-	     :b (list "")
-	     :c :KEYWORD
-	     :d ""
-	     :e (cl-html-readme-test::get-app-property properties :style)))))
-    (let ((doc '((heading (:name "H1" :app (:class "CLASS" :style ""))))))
+             :class "the-class"
+	     :style (cl-html-readme-test::get-app-property properties :style)))))
+    (let ((doc '((heading (:name "H1" :app (:style "the-style"))))))
       (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
-	    (expected-html "<h1 class=\"CLASS\" style=\"STYLE\">H1</h1>"))
+	    (expected-html "<h1 class=\"the-class\" style=\"the-style\">H1</h1>"))
 	(assert-equal expected-html rendered-html)))))
-
 
 ;;
 ;; Semantic Rendering Hooks
@@ -150,16 +205,11 @@
   (let ((cl-html-readme:*get-semantic-attributes*
 	  (lambda (properties)
             (list
-             :class (cl-html-readme-test::get-app-property properties :class)
-	     :style "STYLE"
-	     :a nil
-	     :b (list "")
-	     :c :KEYWORD
-	     :d ""
-	     :e (cl-html-readme-test::get-app-property properties :style)))))
-    (let ((doc '((semantic (:name "article" :app (:class "CLASS" :style ""))))))
+             :class "the-class"
+	     :style (cl-html-readme-test::get-app-property properties :style)))))
+    (let ((doc '((semantic (:name "article" :app (:style "the-style"))))))
       (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
-	    (expected-html "<article class=\"CLASS\" style=\"STYLE\"></article>"))
+	    (expected-html "<article class=\"the-class\" style=\"the-style\"></article>"))
 	(assert-equal expected-html rendered-html)))))
 
 ;;

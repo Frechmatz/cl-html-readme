@@ -1,5 +1,9 @@
 (in-package :cl-html-readme)
 
+;;
+;; Renderer hooks
+;;
+
 (defparameter *get-heading-attributes*
   (lambda (properties)
     (declare (ignore properties))
@@ -31,69 +35,87 @@
     nil)
     "Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as <code>\"&lt;ul&gt;\"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
+;;
+;; Unit tests hook
+;;
+
 (defparameter *print-newline*
   (lambda (stream)
     (princ #\Newline stream))
   "Private helper hook for unit tests to get more predictable HTML output.")
 
 ;;
-;; Attribute rendering helper class
+;; HTML attributes rendering helper class
 ;;
 
 (defclass attribute-renderer ()
-  ((attributes :initform nil)))
+  ((attributes :initform nil :documentation "A property list in reverse insertion order")))
 
 (defgeneric add-attribute (attribute-renderer indicator value))
-(defgeneric add-attributes (attribute-renderer plist))
-(defgeneric omit-attribute (attribute-renderer value))
 (defgeneric render-attributes (attribute-renderer &key prepend-space &allow-other-keys))
 
-(defmethod omit-attribute ((instance attribute-renderer) value)
-  (if (and (stringp value) (< 0 (length value)))
-      nil
-      t))
-  
 (defmethod add-attribute ((instance attribute-renderer) indicator value)
-  (let ((attribute-name
-	  (if (keywordp indicator)
-	      (string-downcase (symbol-name indicator))
-	      indicator)))
-    (with-slots (attributes) instance
-      (if (not (omit-attribute instance value))
-	  (push (list :name attribute-name :value value) attributes)))
-    nil))
-
-(defmethod add-attributes ((instance attribute-renderer) plist)
-  (cl-html-readme-plist-util:with-properties
-      plist
-      (lambda (key value)
-	(add-attribute instance (string-downcase (symbol-name key)) value)))
+  (assert (keywordp indicator))
+  (if (not (and (stringp value) (< 0 (length value))))
+      (format
+       t
+       "~%Skipping HTML attribute '~a' because its value is nil or not a string or an empty string. ~a"
+       indicator value)
+      (with-slots (attributes) instance
+	(progn
+	  (push value attributes)
+	  (push indicator attributes))))
   nil)
 
 (defmethod render-attributes ((instance attribute-renderer) &key prepend-space)
-  (let ((first-attr t) (string-output-stream (make-string-output-stream)))
-    (with-slots (attributes) instance
-      ;; follow insertion order
-      (dolist (attribute (reverse attributes))
-	(let ((name (getf attribute :name))
-	      (value (getf attribute :value)))
+  (let ((processed-keys nil) (processed-attributes nil))
+    ;; Filter away duplicates (last one wins)
+    (cl-html-readme-plist-util:with-properties
+	(slot-value instance 'attributes)
+      (lambda (key value)
+	(if (not (find key processed-keys))
+	    (progn
+	      (push key processed-keys)
+	      (push value processed-attributes)
+	      (push key processed-attributes)))))
+    (let ((first-attr t) (string-output-stream (make-string-output-stream)))
+      (cl-html-readme-plist-util:with-properties
+	  ;; Sort properties in order to have a stable (predictable) rendering output
+	  (cl-html-readme-plist-util:sort-by-key processed-attributes)
+	(lambda (key value)
 	  (if (not first-attr)
 	      (format string-output-stream " "))
 	  (format
 	   string-output-stream
-	   "~a=\"~a\"" name value))
-	(setf first-attr nil)))
-    (let ((rendered (get-output-stream-string string-output-stream)))
-      (if (and prepend-space (< 0 (length rendered)))
-	  (format nil " ~a" rendered)
-	  rendered))))
+	   "~a=\"~a\"" (string-downcase (symbol-name key)) value)
+	  (setf first-attr nil)))
+      (let ((rendered (get-output-stream-string string-output-stream)))
+	(if (and prepend-space (< 0 (length rendered)))
+	    (format nil " ~a" rendered)
+	    rendered)))))
+
+;;
+;; Helper function to call a renderer hook and add attributes to renderer
+;;
+
+(defun add-custom-attributes (attribute-renderer fn form-properties)
+  (let ((attributes (funcall fn form-properties)))
+    (cl-html-readme-plist-util:with-properties
+      attributes
+      (lambda (key value)
+	(if (not (keywordp key))
+	    (error 'simple-error
+		   :format-control
+		   "HTML attribute indicator must be a keyword. Indicator: '~a' Value: '~a')"
+		   :format-arguments (list key value)))
+	(add-attribute attribute-renderer key value)))))
 
 ;;
 ;; HTML generation
 ;;
 
 (defun serialize (output-stream doc)
-  "Render documentation object. The object is supposed to follow the syntax of cl-html-readme-target-dsl."
+  "Render documentation object that follows cl-html-readme-target-dsl::dsl."
   (labels ((newline ()
 	     (funcall *print-newline* output-stream))
 	   (format-heading (properties)
@@ -116,12 +138,12 @@
 	    ;; <h{level} id={id} {custom-attributes}> {name} </h{level}>
 	    (newline)
 	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (add-attribute attribute-renderer :id (getf form-properties :id))
-	      (add-attributes
+	      (let ((id (getf form-properties :id)))
+		(if id (add-attribute attribute-renderer :id id)))
+	      (add-custom-attributes
 	       attribute-renderer
-	       (funcall
-		*get-heading-attributes*
-		form-properties))
+	       *get-heading-attributes*
+	       form-properties)
 	      (format
 	       output-stream
 	       "<~a~a>~a</~a>"
@@ -136,11 +158,10 @@
 	   ((string= "SEMANTIC" (string-upcase (symbol-name form-symbol)))
 	    (newline)
 	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (add-attributes
+	      (add-custom-attributes
 	       attribute-renderer
-	       (funcall
-		*get-semantic-attributes*
-		form-properties))
+	       *get-semantic-attributes*
+	       form-properties)
 	      ;; <{name {custom-attributes}}>...</{name}>
 	      (format
 	       output-stream
@@ -155,11 +176,10 @@
 	    (setf toc-properties form-properties)
 	    (newline)
 	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (add-attributes
+	      (add-custom-attributes
 	       attribute-renderer
-	       (funcall
-		*get-toc-root-attributes*
-		toc-properties))
+	       *get-toc-root-attributes*
+	       toc-properties)
 	      ;; <ul {custom-attributes}>...</ul>
 	      (format
 	       output-stream
@@ -173,11 +193,10 @@
 	    ;; <li {custom-attributes}><a href=#{id}> {name} </a> </li>
 	    (newline)
 	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (add-attributes
+	      (add-custom-attributes
 	       attribute-renderer
-	       (funcall
-		*get-toc-item-attributes*
-		toc-properties))
+	       *get-toc-item-attributes*
+	       toc-properties)
 	      (format
 	       output-stream
 	       "<li~a><a href=\"#~a\">~a</a></li>"
@@ -195,16 +214,14 @@
 	    (newline)
 	    (let ((li-attribute-renderer (make-instance 'attribute-renderer))
 		  (ul-attribute-renderer (make-instance 'attribute-renderer))		  )
-	      (add-attributes
+	      (add-custom-attributes
 	       li-attribute-renderer
-	       (funcall
-		*get-toc-item-attributes*
-		toc-properties))
-	      (add-attributes
+	       *get-toc-item-attributes*
+	       toc-properties)
+	      (add-custom-attributes
 	       ul-attribute-renderer
-	       (funcall
-		*get-toc-container-attributes*
-		toc-properties))
+	       *get-toc-container-attributes*
+	       toc-properties)
 	      (format
 	       output-stream
 	       "<li~a><a href=\"#~a\">~a</a><ul~a>"
@@ -223,7 +240,6 @@
 	 (format output-stream "~a" str)))
       nil)))
 
-
 ;;
 ;; API
 ;;
@@ -232,7 +248,7 @@
   "Renders a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream nil or a stream into which the resulting HTML is written.</li>
-       <li>documentation A documentation object following the syntax as defined by the package of the cl-html-readme-dsl.</li>
+       <li>documentation A documentation object following cl-html-readme-dsl::dsl.</li>
    </ul>"
   (let ((compiled (cl-html-readme-dsl-compiler:compile-documentation documentation)))
     (if output-stream
