@@ -18,7 +18,8 @@
   (:use :cl)
   (:export
    :filter-properties
-   :with-properties))
+   :with-properties
+   :sort-by-key))
 
 (defpackage :cl-html-readme-validation
   (:use :cl)

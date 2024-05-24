@@ -1,6 +1,6 @@
 (in-package :cl-html-readme-test)
 
-(define-test test-plist-util-1 ()
+(define-test test-plist-util-with-properties-1 ()
   (let ((result nil))
     (cl-html-readme-plist-util:with-properties
 	(list :a "AA" :b "BB")
@@ -14,7 +14,7 @@
     (assert-equal :b (third result))
     (assert-equal "BB" (fourth result))))
 
-(define-test test-plist-util-2 ()
+(define-test test-plist-util-filter-properties-1 ()
   (let ((result
 	  (cl-html-readme-plist-util:filter-properties
 	   (list :a "AA" :b "BB")
@@ -22,3 +22,27 @@
     (assert-equal 2 (length result))
     (assert-equal :a (first result))
     (assert-equal "AA" (second result))))
+
+(define-test test-plist-util-sort-by-key-1 ()
+  (let ((sorted
+	  (cl-html-readme-plist-util:sort-by-key
+	   (list :b "BB" :a "AA"))))
+    (assert-equal 4 (length sorted))
+    (assert-equal :a (first sorted))
+    (assert-equal "AA" (second sorted))
+    (assert-equal :b (third sorted))
+    (assert-equal "BB" (fourth sorted))))
+
+(define-test test-plist-util-sort-by-key-2 ()
+  (let ((sorted
+	  (cl-html-readme-plist-util:sort-by-key
+	   (list :b "BB"))))
+    (assert-equal 2 (length sorted))
+    (assert-equal :b (first sorted))
+    (assert-equal "BB" (second sorted))))
+
+(define-test test-plist-util-sort-by-key-3 ()
+  (let ((plist (list :b "BB")))
+    (let ((sorted (cl-html-readme-plist-util:sort-by-key plist)))
+	  (assert-true (eq plist sorted)))))
+

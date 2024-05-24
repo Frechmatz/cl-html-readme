@@ -1,14 +1,5 @@
 (in-package :cl-html-readme-test)
 
-(defun get-property-list-keys (plist)
-  "Get the keys of a property list"
-  (let ((keys nil) (push-key t))
-    (dolist (item plist)
-      (if push-key
-	  (push item keys))
-      (setf push-key (not push-key)))
-    keys))
-
 (defun doc-to-string (doc &key (string-enclosure-character "'"))
   "Deterministic stringification of a documentation object.
    Does not apply validation.
@@ -30,14 +21,7 @@
 	   ((not item)
 	    (format nil "nil"))
 	   (t
-	    (format nil "t"))))
-       (get-plist-keys-sorted (plist)
-	 (sort
-	  (get-property-list-keys plist)
-	  (lambda (a b)
-	    (string-lessp
-	     (format-item a)
-	     (format-item b))))))
+	    (format nil "t")))))
     (let ((buffer (make-string-output-stream)))
       (labels
 	  ((make-space-printer ()
@@ -48,11 +32,13 @@
 		 (setf first-space nil))))
 	   (print-plist-content (plist)
 	     (let ((print-space (make-space-printer)))
-	       (dolist (key (get-plist-keys-sorted plist))
-		 (funcall print-space)
-		 (format buffer "~a" (format-item key))
-		 (funcall print-space)
-		 (format buffer "~a" (format-item (getf plist key))))))
+	       (cl-html-readme-plist-util:with-properties
+		   (cl-html-readme-plist-util:sort-by-key plist)
+		    (lambda (key value)
+		      (funcall print-space)
+		      (format buffer "~a" (format-item key))
+		      (funcall print-space)
+		      (format buffer "~a" (format-item value))))))
 	   (print-doc-content ()
 	     (let ((print-space (make-space-printer)))
 	       (cl-html-readme-base-dsl:walk
