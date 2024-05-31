@@ -182,6 +182,17 @@
 	    (expected-html "<h1 class=\"the-class-2\">H1</h1>"))
 	(assert-equal expected-html rendered-html)))))
 
+(define-test test-html-rendering-generic-hook-last-valid-attr-wins-1 ()
+  (let ((cl-html-readme:*get-heading-attributes*
+	  (lambda (properties)
+            (list
+             :class nil
+	     :class "the-class-2"))))
+    (let ((doc '((heading (:name "H1")))))
+      (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
+	    (expected-html "<h1 class=\"the-class-2\">H1</h1>"))
+	(assert-equal expected-html rendered-html)))))
+
 ;;
 ;; Heading Rendering Hooks
 ;;
