@@ -8,13 +8,13 @@
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the attributes of a heading form. A heading is rendered as a <code>\"&lt;h1&gt;\"</code> ... <code>\"&lt;h6&gt;\" </code> HTML element. The hook is called with the properties of the DSL <code>heading</code> form.")
+  "Get the attributes of a heading form. A heading is rendered as a <code>\"&lt;h1&gt;\"</code> ... <code>\"&lt;h6&gt;\" </code> HTML element. The hook is called with the properties of the DSL <code>heading</code> form.")
 
 (defparameter *get-semantic-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the attributes of a semantic form. A semantic form is rendered as a <code>\"&lt;${properties.name}&gt;\"</code> HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.")
+  "Get the attributes of a semantic form. A semantic form is rendered as a <code>\"&lt;${properties.name}&gt;\"</code> HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.")
 
 (defparameter *get-toc-root-attributes*
   (lambda (properties)
@@ -22,18 +22,18 @@
     nil)
   "Get the attributes of the TOC root form. This form is created during the TOC expansion. The TOC root is rendered as a <code>\"&lt;ul&gt;\"</code>
  HTML element. The hook is called with the properties of the DSL <code>toc</code> form.")
-					    
+
 (defparameter *get-toc-item-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the attributes of a TOC item form. Such forms are created during the TOC expansion. Each entry of the TOC is represented by an item. Items are rendered as <code>\"&lt;li&gt;\"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
+  "Get the attributes of a TOC item form. Such forms are created during the TOC expansion. Each entry of the TOC is represented by an item. Items are rendered as <code>\"&lt;li&gt;\"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
 (defparameter *get-toc-container-attributes*
   (lambda (properties)
     (declare (ignore properties))
     nil)
-    "Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as <code>\"&lt;ul&gt;\"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
+  "Get the HTML attributes of a TOC container form. Such forms are created during the TOC expansion. A container is an entry of the TOC that has sub-entries. Containers are rendered as <code>\"&lt;ul&gt;\"</code> HTML elements. The hook is called with the properties of the DSL <code>toc</code> form.")
 
 ;;
 ;; Unit tests hook
@@ -56,10 +56,11 @@
 
 (defmethod add-attribute ((instance attribute-renderer) indicator value)
   (if (not (keywordp indicator))
-      (error 'simple-error
-	     :format-control
-	     "HTML attribute indicator must be a keyword. Indicator: '~a' Value: '~a')"
-	     :format-arguments (list indicator value)))
+      (error
+       'simple-error
+       :format-control
+       "HTML attribute indicator must be a keyword. Indicator: '~a' Value: '~a')"
+       :format-arguments (list indicator value)))
   (if (not (and (stringp value) (< 0 (length value))))
       (format
        t
@@ -112,7 +113,7 @@
 ;;
 
 (defun serialize (output-stream doc)
-  "Render documentation object that follows cl-html-readme-target-dsl::dsl."
+  "Render documentation object that follows cl-html-readme-target-dsl."
   (labels ((newline ()
 	     (funcall *print-newline* output-stream))
 	   (format-heading (properties)
@@ -182,7 +183,7 @@
 	       output-stream
 	       "<ul~a>"
 	       (render-attributes attribute-renderer :prepend-space t)))
-	      "</ul>")
+	    "</ul>")
 	   ;;
 	   ;; Toc-Item
 	   ;;
