@@ -72,31 +72,23 @@
   nil)
 
 (defmethod render-attributes ((instance attribute-renderer) &key prepend-space)
-  (let ((processed-keys nil) (processed-attributes nil))
-    ;; Filter away duplicates (last one wins)
+  (let ((first-attr t) (string-output-stream (make-string-output-stream)))
     (cl-html-readme-plist-util:with-properties
-	(slot-value instance 'attributes)
+	;; Remove duplicates
+	;; Sort to gain stable rendering output
+	(cl-html-readme-plist-util:unique
+	 (cl-html-readme-plist-util:sort-by-key (slot-value instance 'attributes)))
       (lambda (key value)
-	(if (not (find key processed-keys))
-	    (progn
-	      (push key processed-keys)
-	      (push value processed-attributes)
-	      (push key processed-attributes)))))
-    (let ((first-attr t) (string-output-stream (make-string-output-stream)))
-      (cl-html-readme-plist-util:with-properties
-	  ;; Sort properties in order to have a stable (predictable) rendering output
-	  (cl-html-readme-plist-util:sort-by-key processed-attributes)
-	(lambda (key value)
-	  (if (not first-attr)
-	      (format string-output-stream " "))
-	  (format
-	   string-output-stream
-	   "~a=\"~a\"" (string-downcase (symbol-name key)) value)
-	  (setf first-attr nil)))
-      (let ((rendered (get-output-stream-string string-output-stream)))
-	(if (and prepend-space (< 0 (length rendered)))
-	    (format nil " ~a" rendered)
-	    rendered)))))
+	(if (not first-attr)
+	    (format string-output-stream " "))
+	(format
+	 string-output-stream
+	 "~a=\"~a\"" (string-downcase (symbol-name key)) value)
+	(setf first-attr nil)))
+    (let ((rendered (get-output-stream-string string-output-stream)))
+      (if (and prepend-space (< 0 (length rendered)))
+	  (format nil " ~a" rendered)
+	  rendered))))
 
 ;;
 ;; Helper function to call a renderer hook and add attributes to renderer
