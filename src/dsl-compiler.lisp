@@ -1,6 +1,12 @@
 (in-package :cl-html-readme-dsl-compiler)
 
 ;;
+;; Compilation of DSL as defined by cl-html-readme-dsl:instance
+;; to DSL as defined by cl-html-readme-target-dsl:instance
+;;
+
+
+;;
 ;; TOC Processing
 ;;
 
@@ -36,7 +42,13 @@
 
 (defun write-toc (doc toc-properties tree-builder)
   "Extracts toc and writes toc-root, toc-container, toc-item forms into the builder.
-  - toc-properties: The properties of the corresponding toc-form"
+   The function has the following parameters:
+   <ul>
+   <li>doc An object following cl-html-readme-base-dsl:instance</li>
+   <li>toc-properties The properties of the toc-form</li>
+   <li>tree-builder An instance of cl-html-readme-base-dsl:tree-builder into which
+   the resulting document is written</li>
+   </ul>"
   (flet ((remove-toc-property (properties)
 	   (cl-html-readme-plist-util:filter-properties
 	    properties
@@ -88,10 +100,11 @@
 	    (cl-html-readme-base-dsl:close-form tree-builder))))))
 
 (defun clean-headings (doc)
-  "<p>Helper function to cleanup heading properties</p><ul>
+  "<p>Helper function to cleanup heading properties</p>
+   <ul>
    <li>Remove ids of heading forms that are not marked as toc relevant<li>
    <li>Remove toc indicator from all headings</li>
-   <ul>"
+   </ul>"
   (let ((tree-builder (cl-html-readme-base-dsl:make-builder (cl-html-readme-base-dsl:instance))))
     (cl-html-readme-base-dsl:walk
      (cl-html-readme-base-dsl:instance)

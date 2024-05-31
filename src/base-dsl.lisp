@@ -25,7 +25,7 @@
   (:documentation "Signalled when a documentation object to be programmatically build has opened a DSL special form but not closed it or a DSL special form is being closed but has not been opened."))
 
 ;;
-;;
+;; Validation
 ;;
 
 (defclass property-list-validator (cl-html-readme-validation:property-list-validator) ())
@@ -64,7 +64,7 @@
 
 (defclass dsl ()
   ()
-  (:documentation "DSL"))
+  (:documentation "The base DSL"))
 
 (defgeneric get-special-form-validator (dsl form-symbol)
   (:documentation "Returns an instance of cl-html-readme-validation:property-validator or
@@ -76,11 +76,12 @@
 		  documentation
 		  &key open-form-handler close-form-handler text-handler
 		  &allow-other-keys)
-  (:documentation "Traversal of a documentation object. The function has the following parameters:
+  (:documentation
+   "Validating traversal of a documentation object. The function has the following parameters:
    <ul>
    <li>open-form-handler: A function that is called when a DSL special form is opened. Can be nil.
      <code>(lambda (form-symbol form-properties content))</code>
-    Returns a context that is passed to on-close-form</li>
+    Returns a context that is passed to close-form-handler.</li>
    <li>close-form-handler: A function that is called when a previously opened DSL special
     form is closed. Can be nil. <code>(lambda (context))</code></li>
    <li>text-handler: A function that is called for plain string occurences outside of
@@ -88,7 +89,7 @@
   </ul>"))
 
 (defgeneric make-builder (dsl)
-  (:documentation "Creates an instance of tree-builder"))
+  (:documentation "Creates an instance of a validating tree-builder"))
 
 ;;
 ;; Non-overloadable internal validation functions which
@@ -237,7 +238,7 @@
 
 (defclass default-property-validator (cl-html-readme-validation:validator)
   ()
-  (:documentation "A validator that does not apply any checks"))
+  (:documentation "A validator that does not apply any checks."))
 
 (defmethod cl-html-readme-validation:validate ((instance default-property-validator) object)
   nil)
@@ -287,7 +288,7 @@
       (walk-tree-impl item))
     nil))
 
-(defparameter *instance* (make-instance 'dsl))
+(defparameter *dsl* (make-instance 'dsl))
 
 (defun instance()
-  *instance*)
+  *dsl*)

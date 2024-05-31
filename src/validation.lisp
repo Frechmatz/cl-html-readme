@@ -1,16 +1,20 @@
 (in-package :cl-html-readme-validation)
 
+;;
+;; Validation
+;;
+
 (defclass validator ()
   ((name
     :initarg :name
     :documentation "Name of the validator"))
-  (:documentation ""))
+  (:documentation "Validator interface"))
 
 (defgeneric reject (validator format-control format-arguments)
   (:documentation "Error handler"))
 
 (defgeneric validate (validator object)
-  (:documentation "Validate properties."))
+  (:documentation "Validate properties"))
 
 ;;
 ;;

@@ -1,6 +1,13 @@
 (in-package :cl-html-readme)
 
 ;;
+;; Rendering of documentation objects
+;; following cl-html-readme-target-dsl:instance
+;; to HTML
+;;
+
+
+;;
 ;; Renderer hooks
 ;;
 
@@ -49,7 +56,7 @@
 ;;
 
 (defclass attribute-renderer ()
-  ((attributes :initform nil :documentation "A property list in reverse insertion order")))
+  ((attributes :initform nil :documentation "A property list")))
 
 (defgeneric add-attribute (attribute-renderer indicator value))
 (defgeneric render-attributes (attribute-renderer &key prepend-space &allow-other-keys))
@@ -76,7 +83,7 @@
   (let ((first-attr t) (string-output-stream (make-string-output-stream)))
     (cl-html-readme-plist-util:with-properties
 	;; Remove duplicates
-	;; Sort to gain stable rendering output
+	;; Sort in order to gain stable rendering output
 	(cl-html-readme-plist-util:unique
 	 (cl-html-readme-plist-util:sort-by-key (slot-value instance 'attributes)))
       (lambda (key value)
@@ -92,7 +99,7 @@
 	  rendered))))
 
 ;;
-;; Helper function to call a renderer hook and add attributes to renderer
+;; Helper function to call a hook and adding returned attributes to an attribute renderer
 ;;
 
 (defun add-custom-attributes (attribute-renderer fn form-properties)
