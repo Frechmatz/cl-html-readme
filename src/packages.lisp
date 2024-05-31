@@ -19,7 +19,8 @@
   (:export
    :filter-properties
    :with-properties
-   :sort-by-key))
+   :sort-by-key
+   :unique))
 
 (defpackage :cl-html-readme-validation
   (:use :cl)

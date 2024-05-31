@@ -47,7 +47,7 @@
 	  (assert-true (eq plist sorted)))))
 
 
-(define-test test-plist-util-sort-by-key-4 ()
+(define-test test-plist-util-sort-by-key-stable ()
   (let ((sorted
 	  (cl-html-readme-plist-util:sort-by-key
 	   (list :a "a1" :a "a2" :b "b1" :a "a3" :b "b2"))))
@@ -67,3 +67,25 @@
     ;;
     (assert-equal :b (ninth sorted))
     (assert-equal "b2" (tenth sorted))))
+
+
+(define-test test-plist-util-unique-1 ()
+  (let ((plist
+	  (list :a "a1" :a "a2" :b "b1" :a "a3" :b "b2")))
+    (let ((unique (cl-html-readme-plist-util:unique plist)))
+      (assert-equal 4 (length unique))
+      ;;
+      (assert-equal :a (first unique))
+      (assert-equal "a1" (second unique))
+      ;;
+      (assert-equal :b (third unique))
+      (assert-equal "b1" (fourth unique)))))
+
+(define-test test-plist-util-unique-2 ()
+  (let ((plist
+	  (list :a "a1")))
+    (let ((unique (cl-html-readme-plist-util:unique plist)))
+      (assert-equal 2 (length unique))
+      ;;
+      (assert-equal :a (first unique))
+      (assert-equal "a1" (second unique)))))

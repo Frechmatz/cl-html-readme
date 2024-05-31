@@ -54,3 +54,18 @@
 	      (push (getf entry :key) result)
 	      (push (getf entry :value) result))
 	    (reverse result))))))
+
+(defun unique (plist)
+  "Remove duplicate keys. First occurence of a key wins."
+  (if (= 2 (length plist))
+      plist
+      (let ((result nil) (known-keys nil))
+	(with-properties
+	  plist
+	  (lambda (key value)
+	    (if (not (find key known-keys))
+		(progn
+		  (push key known-keys)
+		  (push key result)
+		  (push value result)))))
+	(reverse result))))
