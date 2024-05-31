@@ -30,28 +30,27 @@
     result))
 
 (defun sort-by-key (plist)
-  "Sort a property by its keys. Ascending (A...Z). Keys converted to lowercase symbol-name.
-   Order is not defined for multiple occurrences of same key."
+  "Stable sort of a property list by its keys. Ascending (A...Z).
+   Key comparison via lowercase symbol-name."
   (if (= 2 (length plist))
       plist
-      (let ((keys nil))
-	;; Collect keys
+      ;; Create intermediate representation
+      (let ((intermediate nil))
 	(with-properties
 	  plist
 	  (lambda (key value)
-	    (declare (ignore value))
-	    (push key keys)))
-	;; Sort keys
-	(let ((sorted-keys
-		(sort
-		 keys
+	    (push (list :key key :value value) intermediate)))
+	;; Sort
+	(let ((sorted
+		(stable-sort
+		 (reverse intermediate)
 		 (lambda (a b)
 		   (string-lessp
-		    (string-downcase (symbol-name a))
-		    (string-downcase (symbol-name b)))))))
-	  ;; Create sorted plist
+		    (string-downcase (symbol-name (getf a :key)))
+		    (string-downcase (symbol-name (getf b :key))))))))
+	  ;; Convert intermediate representation back to plist
 	  (let ((result nil))
-	    (dolist (key sorted-keys)
-	      (push key result)
-	      (push (getf plist key) result))
+	    (dolist (entry sorted)
+	      (push (getf entry :key) result)
+	      (push (getf entry :value) result))
 	    (reverse result))))))

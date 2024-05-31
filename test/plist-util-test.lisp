@@ -46,3 +46,24 @@
     (let ((sorted (cl-html-readme-plist-util:sort-by-key plist)))
 	  (assert-true (eq plist sorted)))))
 
+
+(define-test test-plist-util-sort-by-key-4 ()
+  (let ((sorted
+	  (cl-html-readme-plist-util:sort-by-key
+	   (list :a "a1" :a "a2" :b "b1" :a "a3" :b "b2"))))
+    (assert-equal 10 (length sorted))
+    ;;
+    (assert-equal :a (first sorted))
+    (assert-equal "a1" (second sorted))
+    ;;
+    (assert-equal :a (third sorted))
+    (assert-equal "a2" (fourth sorted))
+    ;;
+    (assert-equal :a (fifth sorted))
+    (assert-equal "a3" (sixth sorted))
+    ;;
+    (assert-equal :b (seventh sorted))
+    (assert-equal "b1" (eighth sorted))
+    ;;
+    (assert-equal :b (ninth sorted))
+    (assert-equal "b2" (tenth sorted))))
