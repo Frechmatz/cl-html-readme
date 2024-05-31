@@ -99,6 +99,12 @@
     (cl-html-readme-plist-util:with-properties
       attributes
       (lambda (key value)
+	(if (eq key :id)
+	    (error
+	     'simple-error
+	     :format-control
+	     ":id is a reserved attribute and cannot be overwritten. Key '~a' Value: '~a')"
+	     :format-arguments (list key value)))
 	(add-attribute attribute-renderer key value)))))
 
 ;;
