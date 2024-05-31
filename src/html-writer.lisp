@@ -120,7 +120,7 @@
 	     (let ((level (getf properties :indentation-level)))
 	       (if (<= level 5)
 		   (format nil "h~a" (+ 1 level))
-		   (format nil "h6")))))
+		   "h6"))))
     (let ((toc-properties nil))
       (cl-html-readme-base-dsl:walk
        (cl-html-readme-target-dsl:instance)
