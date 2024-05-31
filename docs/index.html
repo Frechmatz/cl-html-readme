@@ -20,7 +20,7 @@ as markup language for their docstrings.
 <li><a href="#Installation">Installation</a></li>
 <li><a href="#Change-Log">Change-Log</a></li>
 <li><a href="#DSL">DSL</a><ul>
-<li><a href="#Table of contents">Table of contents</a></li>
+<li><a href="#Table of contents-1">Table of contents</a></li>
 <li><a href="#Semantic elements">Semantic elements</a></li></ul></li>
 <li><a href="#API">API</a><ul>
 <li><a href="#*home-directory*">*home-directory*</a></li>
@@ -52,7 +52,7 @@ as markup language for their docstrings.
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents placeholder. The actual "content" are plain strings that are embedded into this skeleton. These strings are not parsed during the HTML generation but written "as is".
 <h2>Examples</h2>
-<h3 id="Table of contents">Table of contents</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-toc
+<h3 id="Table of contents-1">Table of contents</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-toc
   (:use :cl)
   (:documentation &quot;Example: Table of contents&quot;))
 (in-package :cl-html-readme-make-readme-dsl-example-toc)
@@ -114,7 +114,7 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 <h2 id="doc-to-html">doc-to-html</h2><b>cl-html-readme:doc-to-html</b>&nbsp;(output-stream documentation)<p>Renders a documentation object to HTML. The function has the following parameters:
    <ul>
        <li>output-stream nil or a stream into which the resulting HTML is written.</li>
-       <li>documentation A documentation object following the syntax of the DSL.</li>
+       <li>documentation A documentation object following cl-html-readme-dsl::dsl.</li>
    </ul></p>
 <h2 id="make-path">make-path</h2><b>cl-html-readme:make-path</b>&nbsp;(path)<p>Creates an absolute path. The function has the following parameters:
    <ul>
@@ -153,7 +153,17 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
       <li>:replace-tabs If t then tabs are replaced with spaces according to the *tab-width* variable.</li>
       <li>:escape If t then special characters are replaced with HTML character entities.</li>
    </ul></p>
-<h1 id="Rendering Hooks">Rendering Hooks</h1>Rendering hooks can be used to add custom HTML attributes to the output. A hook is a function that is called with the properties of the (typically) current DSL special form and returns a property list containing the additional attributes. An attribute is omitted from rendering when its value  is nil, not a string or an empty string.
+<h1 id="Rendering Hooks">Rendering Hooks</h1>Rendering hooks provide a means to add custom attributes to the HTML output.
+A hook is a function that is called with the properties of the (typically) current DSL
+special form and returns a property list containing the additional attributes.
+Attribute names are represented by keywords. Attributes are omitted from rendering
+in the following cases:
+<ul>
+  <li>The attribute name is not a keyword</li>
+  <li>The attribute value is not a string</li>
+  <li>The attribute value is an empty string</li>
+</ul>
+In the case of multiple occurences of an attribute the last one that is eligable for rendering wins.
 <h2>Example</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-example-rendering-hook
   (:use :cl)
   (:documentation &quot;Example: Rendering hook&quot;))
@@ -161,18 +171,21 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 
 (defun example ()
   (let ((documentation
-    `((heading (:name &quot;Header&quot; :toc t :class &quot;heading-class&quot;)))))
+    `((heading (:name &quot;Header&quot; :toc t :app (:class &quot;heading-class&quot;))))))
     (let ((cl-html-readme:*get-heading-attributes*
       (lambda (properties)
         (list
-         :class (getf properties :class)
+         :class nil
+         :class &quot;CLASS&quot;
+         :class (getf (getf properties :app) :class)
+         :class nil
          :a nil
          :b (list &quot;&quot;)
          :c &quot;&quot;))))
       (cl-html-readme:doc-to-html nil documentation))))
 
 ;;(example)</code></pre></p>
-<h3>Generated HTML</h3><p><pre><code>&lt;h1 id=&quot;Header&quot; class=&quot;heading-class&quot;&gt;Header&lt;/h1&gt;</code></pre></p>
+<h3>Generated HTML</h3><p><pre><code>&lt;h1 class=&quot;heading-class&quot; id=&quot;Header&quot;&gt;Header&lt;/h1&gt;</code></pre></p>
 <h2 id="*get-heading-attributes*">*get-heading-attributes*</h2><b>cl-html-readme:*get-heading-attributes*</b>&nbsp;<p>Get the attributes of a heading form. A heading is rendered as a <code>"&lt;h1&gt;"</code> ... <code>"&lt;h6&gt;" </code> HTML element. The hook is called with the properties of the DSL <code>heading</code> form.</p>
 <h2 id="*get-semantic-attributes*">*get-semantic-attributes*</h2><b>cl-html-readme:*get-semantic-attributes*</b>&nbsp;<p>Get the attributes of a semantic form. A semantic form is rendered as a <code>"&lt;${properties.name}&gt;"</code> HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.</p>
 <h2 id="*get-toc-root-attributes*">*get-toc-root-attributes*</h2><b>cl-html-readme:*get-toc-root-attributes*</b>&nbsp;<p>Get the attributes of the TOC root form. This form is created during the TOC expansion. The TOC root is rendered as a <code>"&lt;ul&gt;"</code>
@@ -182,4 +195,4 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 <h1 id="Run tests">Run tests</h1><p><pre><code>(asdf:test-system :cl-html-readme)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2024-01-10  22:56:04</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2024-05-31  22:36:06</small></p></footer></body></html>

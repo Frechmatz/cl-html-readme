@@ -217,7 +217,7 @@
        ,(make-function-string :cl-html-readme "cl-html-readme" "read-stream")))
      (heading
       (:name "Rendering Hooks" :toc t)
-      "Rendering hooks can be used to add custom HTML attributes to the output. A hook is a function that is called with the properties of the (typically) current DSL special form and returns a property list containing the additional attributes. An attribute is omitted from rendering when its value  is nil, not a string or an empty string."
+      ,(cl-html-readme:read-file "make-readme/snippets/renderinghooks.html")
       (heading
        (:name "Example")
        ,(make-code-string-from-file "make-readme/examples/rendering-hook.lisp")

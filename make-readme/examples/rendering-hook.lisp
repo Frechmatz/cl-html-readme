@@ -9,7 +9,10 @@
     (let ((cl-html-readme:*get-heading-attributes*
 	    (lambda (properties)
 	      (list
+	       :class nil
+	       :class "CLASS"
 	       :class (getf (getf properties :app) :class)
+	       :class nil
 	       :a nil
 	       :b (list "")
 	       :c ""))))
