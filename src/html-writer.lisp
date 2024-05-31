@@ -55,11 +55,15 @@
 (defgeneric render-attributes (attribute-renderer &key prepend-space &allow-other-keys))
 
 (defmethod add-attribute ((instance attribute-renderer) indicator value)
-  (assert (keywordp indicator))
+  (if (not (keywordp indicator))
+      (error 'simple-error
+	     :format-control
+	     "HTML attribute indicator must be a keyword. Indicator: '~a' Value: '~a')"
+	     :format-arguments (list indicator value)))
   (if (not (and (stringp value) (< 0 (length value))))
       (format
        t
-       "~%Skipping HTML attribute '~a' because its value is nil or not a string or an empty string. ~a"
+       "~%Skipping HTML attribute '~a' because its value is nil or not a string or an empty string. '~a'"
        indicator value)
       (with-slots (attributes) instance
 	(progn
@@ -103,11 +107,6 @@
     (cl-html-readme-plist-util:with-properties
       attributes
       (lambda (key value)
-	(if (not (keywordp key))
-	    (error 'simple-error
-		   :format-control
-		   "HTML attribute indicator must be a keyword. Indicator: '~a' Value: '~a')"
-		   :format-arguments (list key value)))
 	(add-attribute attribute-renderer key value)))))
 
 ;;
