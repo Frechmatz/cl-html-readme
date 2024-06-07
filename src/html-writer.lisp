@@ -108,7 +108,7 @@
     (cl-html-readme-plist-util:with-properties
       attributes
       (lambda (key value)
-	(if (eq key :id)
+	(if (find key reserved-keys)
 	    (format
 	     t
 	     "~%Skipping custom HTML attribute '~a' because it is reserved."
