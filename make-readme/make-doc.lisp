@@ -160,9 +160,17 @@
 	"<li>A more efficient implementation of the TOC generation.</li>"
 	"</ul>"))
       (heading
-       (:name "Version 2.1.0")
+       (:name "Version 3.0.0")
        (heading
-	(:name "Changes")
+	(:name "Breaking changes")
+	"<ul>"
+	"<li>Previous versions of the DSL allowed arbitrary custom form properties. Such properties will now result in an error. Custom properties can be defined via <code>:app</code>, which is supported by all forms.
+<ul>
+<li>Old style: <code>(heading (:name \"Name\" :my-attr \"Value\") ...)</code></li>
+<li>New style: <code>(heading (:name \"Name\" :app (:my-attr \"Value\")) ...)</code></li>
+</ul></li></ul>")
+       (heading
+	(:name "New features")
 	"<ul>"
 	"<li>Added rendering hooks</li>"
 	"</ul>")))
