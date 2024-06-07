@@ -135,107 +135,108 @@
        :open-form-handler
        (lambda(form-symbol form-properties content)
 	 (declare (ignore content))
-	 (cond
-	   ;;
-	   ;; Heading
-	   ;;
-	   ((string= "HEADING" (string-upcase (symbol-name form-symbol)))
-	    ;; <h{level} id={id} {custom-attributes}> {name} </h{level}>
-	    (newline)
-	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (let ((id (getf form-properties :id)))
-		(if id (add-attribute attribute-renderer :id id)))
-	      (add-custom-attributes
-	       attribute-renderer
-	       *get-heading-attributes*
-	       form-properties)
-	      (format
-	       output-stream
-	       "<~a~a>~a</~a>"
-	       (format-heading form-properties)
-	       (render-attributes attribute-renderer :prepend-space t)
-	       (getf form-properties :name)
-	       (format-heading form-properties))
-	      nil))
-	   ;;
-	   ;; Semantic
-	   ;;
-	   ((string= "SEMANTIC" (string-upcase (symbol-name form-symbol)))
-	    (newline)
-	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (add-custom-attributes
-	       attribute-renderer
-	       *get-semantic-attributes*
-	       form-properties)
-	      ;; <{name {custom-attributes}}>...</{name}>
-	      (format
-	       output-stream
-	       "<~a~a>"
-	       (getf form-properties :name)
-	       (render-attributes attribute-renderer :prepend-space t))
-	      (format nil "</~a>" (getf form-properties :name))))
-	   ;;
-	   ;; Toc-Root
-	   ;;
-	   ((string= "TOC-ROOT" (string-upcase (symbol-name form-symbol)))
-	    (setf toc-properties form-properties)
-	    (newline)
-	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (add-custom-attributes
-	       attribute-renderer
-	       *get-toc-root-attributes*
-	       toc-properties)
+	 (let ((form-symbol-name (string-upcase (symbol-name form-symbol))))
+	   (cond
+	     ;;
+	     ;; Heading
+	     ;;
+	     ((string= "HEADING" form-symbol-name)
+	      ;; <h{level} id={id} {custom-attributes}> {name} </h{level}>
+	      (newline)
+	      (let ((attribute-renderer (make-instance 'attribute-renderer)))
+		(let ((id (getf form-properties :id)))
+		  (if id (add-attribute attribute-renderer :id id)))
+		(add-custom-attributes
+		 attribute-renderer
+		 *get-heading-attributes*
+		 form-properties)
+		(format
+		 output-stream
+		 "<~a~a>~a</~a>"
+		 (format-heading form-properties)
+		 (render-attributes attribute-renderer :prepend-space t)
+		 (getf form-properties :name)
+		 (format-heading form-properties))
+		nil))
+	     ;;
+	     ;; Semantic
+	     ;;
+	     ((string= "SEMANTIC" form-symbol-name)
+	      (newline)
+	      (let ((attribute-renderer (make-instance 'attribute-renderer)))
+		(add-custom-attributes
+		 attribute-renderer
+		 *get-semantic-attributes*
+		 form-properties)
+		;; <{name {custom-attributes}}>...</{name}>
+		(format
+		 output-stream
+		 "<~a~a>"
+		 (getf form-properties :name)
+		 (render-attributes attribute-renderer :prepend-space t))
+		(format nil "</~a>" (getf form-properties :name))))
+	     ;;
+	     ;; Toc-Root
+	     ;;
+	     ((string= "TOC-ROOT" form-symbol-name)
+	      (setf toc-properties form-properties)
+	      (newline)
+	      (let ((attribute-renderer (make-instance 'attribute-renderer)))
+		(add-custom-attributes
+		 attribute-renderer
+		 *get-toc-root-attributes*
+		 toc-properties)
+		;; <ul {custom-attributes}>...</ul>
+		(format
+		 output-stream
+		 "<ul~a>"
+		 (render-attributes attribute-renderer :prepend-space t)))
+	      "</ul>")
+	     ;;
+	     ;; Toc-Item
+	     ;;
+	     ((string= "TOC-ITEM" form-symbol-name)
+	      ;; <li {custom-attributes}><a href=#{id}> {name} </a> </li>
+	      (newline)
+	      (let ((attribute-renderer (make-instance 'attribute-renderer)))
+		(add-custom-attributes
+		 attribute-renderer
+		 *get-toc-item-attributes*
+		 toc-properties)
+		(format
+		 output-stream
+		 "<li~a><a href=\"#~a\">~a</a></li>"
+		 (render-attributes attribute-renderer :prepend-space t)
+		 (getf form-properties :id)
+		 (getf form-properties :name))
+		nil))
+	     ;;
+	     ;; Toc-Container
+	     ;;
+	     ((string= "TOC-CONTAINER" form-symbol-name)
+	      ;; <li {custom-attributes}> <a href=#{id}> {name} </a>
 	      ;; <ul {custom-attributes}>...</ul>
-	      (format
-	       output-stream
-	       "<ul~a>"
-	       (render-attributes attribute-renderer :prepend-space t)))
-	    "</ul>")
-	   ;;
-	   ;; Toc-Item
-	   ;;
-	   ((string= "TOC-ITEM" (string-upcase (symbol-name form-symbol)))
-	    ;; <li {custom-attributes}><a href=#{id}> {name} </a> </li>
-	    (newline)
-	    (let ((attribute-renderer (make-instance 'attribute-renderer)))
-	      (add-custom-attributes
-	       attribute-renderer
-	       *get-toc-item-attributes*
-	       toc-properties)
-	      (format
-	       output-stream
-	       "<li~a><a href=\"#~a\">~a</a></li>"
-	       (render-attributes attribute-renderer :prepend-space t)
-	       (getf form-properties :id)
-	       (getf form-properties :name))
-	      nil))
-	   ;;
-	   ;; Toc-Container
-	   ;;
-	   ((string= "TOC-CONTAINER" (string-upcase (symbol-name form-symbol)))
-	    ;; <li {custom-attributes}> <a href=#{id}> {name} </a>
-	    ;; <ul {custom-attributes}>...</ul>
-	    ;; </li>
-	    (newline)
-	    (let ((li-attribute-renderer (make-instance 'attribute-renderer))
-		  (ul-attribute-renderer (make-instance 'attribute-renderer))		  )
-	      (add-custom-attributes
-	       li-attribute-renderer
-	       *get-toc-item-attributes*
-	       toc-properties)
-	      (add-custom-attributes
-	       ul-attribute-renderer
-	       *get-toc-container-attributes*
-	       toc-properties)
-	      (format
-	       output-stream
-	       "<li~a><a href=\"#~a\">~a</a><ul~a>"
-	       (render-attributes li-attribute-renderer :prepend-space t)
-	       (getf form-properties :id)
-	       (getf form-properties :name)
-	       (render-attributes ul-attribute-renderer :prepend-space t))
-	      "</ul></li>"))
-	   (t (error (format nil "Dont know how to serialize ~a" form-symbol)))))
+	      ;; </li>
+	      (newline)
+	      (let ((li-attribute-renderer (make-instance 'attribute-renderer))
+		    (ul-attribute-renderer (make-instance 'attribute-renderer))		  )
+		(add-custom-attributes
+		 li-attribute-renderer
+		 *get-toc-item-attributes*
+		 toc-properties)
+		(add-custom-attributes
+		 ul-attribute-renderer
+		 *get-toc-container-attributes*
+		 toc-properties)
+		(format
+		 output-stream
+		 "<li~a><a href=\"#~a\">~a</a><ul~a>"
+		 (render-attributes li-attribute-renderer :prepend-space t)
+		 (getf form-properties :id)
+		 (getf form-properties :name)
+		 (render-attributes ul-attribute-renderer :prepend-space t))
+		"</ul></li>"))
+	     (t (error (format nil "Dont know how to serialize ~a" form-symbol))))))
        :close-form-handler
        (lambda(context)
 	 (if context
