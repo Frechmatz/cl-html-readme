@@ -130,22 +130,11 @@
 	  (lambda (properties)
             (list
              :class "the-class"
-	     :style "the-style"))))
+	     :style "the-style"
+	     :empty ""))))
     (let ((doc '((heading (:name "H1")))))
       (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
-	    (expected-html "<h1 class=\"the-class\" style=\"the-style\">H1</h1>"))
-	(assert-equal expected-html rendered-html)))))
-
-(define-test test-html-rendering-generic-hook-filter-empty-1 ()
-  (let ((cl-html-readme:*get-heading-attributes*
-	  (lambda (properties)
-            (list
-             :class ""
-	     :empty nil
-	     :style "the-style"))))
-    (let ((doc '((heading (:name "H1")))))
-      (let ((rendered-html (cl-html-readme-test::doc-to-html doc))
-	    (expected-html "<h1 style=\"the-style\">H1</h1>"))
+	    (expected-html "<h1 class=\"the-class\" empty=\"\" style=\"the-style\">H1</h1>"))
 	(assert-equal expected-html rendered-html)))))
 
 (define-test test-html-rendering-generic-hook-filter-non-string-1 ()
@@ -202,6 +191,7 @@
 	  (lambda (properties)
             (list
              :class "the-class"
+	     :id "ID"
 	     :style (cl-html-readme-test::get-app-property properties :style)))))
     (let ((doc '((heading (:name "H1" :app (:style "the-style"))))))
       (let ((rendered-html (cl-html-readme-test::doc-to-html doc))

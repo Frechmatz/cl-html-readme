@@ -68,10 +68,10 @@
        :format-control
        "HTML attribute indicator must be a keyword. Indicator: '~a' Value: '~a')"
        :format-arguments (list indicator value)))
-  (if (not (and (stringp value) (< 0 (length value))))
+  (if (not (stringp value))
       (format
        t
-       "~%Skipping HTML attribute '~a' because its value is nil or not a string or an empty string. '~a'"
+       "~%Skipping HTML attribute '~a' because its value is not a string. '~a'"
        indicator value)
       (with-slots (attributes) instance
 	(progn
@@ -103,17 +103,17 @@
 ;;
 
 (defun add-custom-attributes (attribute-renderer fn form-properties)
-  (let ((attributes (funcall fn form-properties)))
+  (let ((attributes (funcall fn form-properties))
+	(reserved-keys (list :id)))
     (cl-html-readme-plist-util:with-properties
       attributes
       (lambda (key value)
 	(if (eq key :id)
-	    (error
-	     'simple-error
-	     :format-control
-	     ":id is a reserved attribute and cannot be overwritten. Key '~a' Value: '~a')"
-	     :format-arguments (list key value)))
-	(add-attribute attribute-renderer key value)))))
+	    (format
+	     t
+	     "~%Skipping custom HTML attribute '~a' because it is reserved."
+	     key)
+	(add-attribute attribute-renderer key value))))))
 
 ;;
 ;; HTML generation

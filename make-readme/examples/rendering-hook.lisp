@@ -15,7 +15,8 @@
 	       :class nil
 	       :a nil
 	       :b (list "")
-	       :c ""))))
+	       :c ""
+	       :id "ID"))))
       (cl-html-readme:doc-to-html nil documentation))))
 
 ;;(example)
