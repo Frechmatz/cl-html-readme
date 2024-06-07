@@ -27,14 +27,14 @@
   (make-instance
    'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-dsl:*semantic-validator*"
-   :properties '((:indicator :name :mandatory :t)
+   :properties '((:indicator :name :mandatory t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
    'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-dsl:*heading-validator*"
-   :properties '((:indicator :name :mandatory :t)
+   :properties '((:indicator :name :mandatory t)
 		 (:indicator :toc)
 		 (:indicator :app))))
    

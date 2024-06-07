@@ -38,15 +38,15 @@
   (make-instance
    'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-target-dsl:*semantic-validator*"
-   :properties '((:indicator :name :mandatory :t)
+   :properties '((:indicator :name :mandatory t)
 		 (:indicator :app))))
 
 (defparameter *heading-validator*
   (make-instance
    'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-target-dsl:*heading-validator*"
-   :properties '((:indicator :name :mandatory :t)
-		 (:indicator :indentation-level :mandatory :t)
+   :properties '((:indicator :name :mandatory t)
+		 (:indicator :indentation-level :mandatory t)
 		 (:indicator :id)
 		 (:indicator :app))))
    
@@ -60,16 +60,16 @@
   (make-instance
    'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-target-dsl:*toc-container-validator*"
-   :properties '((:indicator :name :mandatory :t)
-		 (:indicator :id :mandatory :t)
+   :properties '((:indicator :name :mandatory t)
+		 (:indicator :id :mandatory t)
 		 (:indicator :app))))
 
 (defparameter *toc-item-validator*
   (make-instance
    'cl-html-readme-base-dsl:property-list-validator
    :name "cl-html-readme-target-dsl:*toc-item-validator*"
-   :properties '((:indicator :name :mandatory :t)
-		 (:indicator :id :mandatory :t)
+   :properties '((:indicator :name :mandatory t)
+		 (:indicator :id :mandatory t)
 		 (:indicator :app))))
 
 (defmethod cl-html-readme-base-dsl:get-special-form-validator
