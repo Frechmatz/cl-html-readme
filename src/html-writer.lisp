@@ -111,7 +111,7 @@
 	(if (find key reserved-keys)
 	    (format
 	     t
-	     "~%Skipping custom HTML attribute '~a' because it is reserved."
+	     "~%Skipping custom HTML attribute '~a'."
 	     key)
 	(add-attribute attribute-renderer key value))))))
 
