@@ -1,7 +1,7 @@
 <html><head><link href="cl-html-readme.css" rel="stylesheet" type="text/css"/></head><body>
 <header>
-<h1>cl-html-readme</h1>This library provides a means to generate documentation for Common Lisp projects that are using HTML
-as markup language for their docstrings.
+<h1>cl-html-readme</h1>This library provides a means to generate HTML documentation for Common Lisp projects that are using HTML
+as markup language for their documentation strings.
 <p>The goal of this library is to make it easy to generate a table of contents or
   to structure the documentation with semantic elements. It shall not impose any styling. To accomplish this, the library provides a DSL as well as a couple of helper functions.</p>
 <p>The general concept is to declare an HTML skeleton using the DSL of cl-html-readme and
@@ -20,8 +20,9 @@ as markup language for their docstrings.
 <li><a href="#Installation">Installation</a></li>
 <li><a href="#Change-Log">Change-Log</a></li>
 <li><a href="#DSL">DSL</a><ul>
-<li><a href="#Table of contents-1">Table of contents</a></li>
-<li><a href="#Semantic elements">Semantic elements</a></li></ul></li>
+<li><a href="#Heading elements">Heading elements</a></li>
+<li><a href="#Semantic elements">Semantic elements</a></li>
+<li><a href="#Add a Table of Contents">Add a Table of Contents</a></li></ul></li>
 <li><a href="#API">API</a><ul>
 <li><a href="#*home-directory*">*home-directory*</a></li>
 <li><a href="#*tab-width*">*tab-width*</a></li>
@@ -47,12 +48,57 @@ as markup language for their docstrings.
 <h2>Version 2.0.0</h2>
 <h3>Breaking changes</h3><ul><li>Support of HTML style and class attributes has been removed.</li></ul>
 <h3>Changes</h3><ul><li>Added read-stream and read-string to the API.</li><li>Improved documentation.</li><li>Increased test coverage.</li><li>A more efficient implementation of the TOC generation.</li></ul>
-<h2>Version 2.1.0</h2>
-<h3>Changes</h3><ul><li>Added rendering hooks</li></ul>
+<h2>Version 3.0.0</h2>
+<h3>Breaking changes</h3><ul><li>Previous versions of the DSL allowed arbitrary custom form properties. Such properties will now result in an error. Custom properties can be defined via <code>:app</code>, which is supported by all forms.
+<ul>
+<li>Old style: <code>(heading (:name "Name" :my-attr "Value") ...)</code></li>
+<li>New style: <code>(heading (:name "Name" :app (:my-attr "Value")) ...)</code></li>
+</ul></li></ul>
+<h3>New features</h3><ul><li>Rendering hooks to add custom HTML attributes.</li></ul>
 <h1 id="DSL">DSL</h1>The DSL (Domain Specific Language) of cl-html-readme is used to declare an
 HTML skeleton consisting of semantic elements, heading elements and a table of contents placeholder. The actual "content" are plain strings that are embedded into this skeleton. These strings are not parsed during the HTML generation but written "as is".
 <h2>Examples</h2>
-<h3 id="Table of contents-1">Table of contents</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-toc
+<h3 id="Heading elements">Heading elements</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-heading
+  (:use :cl)
+  (:documentation &quot;Example: Heading elements&quot;))
+(in-package :cl-html-readme-make-readme-dsl-example-heading)
+
+(defun example ()
+  (let ((documentation
+    `((heading (:name &quot;Example&quot;)
+         &quot;Lorem ipsum&quot;
+         (heading (:name &quot;Chapter 1&quot;))
+         &quot;Lorem ipsum&quot;
+         (heading (:name &quot;Chapter 2&quot;))
+         &quot;&lt;b&gt;Lorem ipsum&lt;/b&gt;&quot;))))
+    (cl-html-readme:doc-to-html nil documentation)))
+
+;;(example)</code></pre></p>
+<h4>Generated HTML</h4><p><pre><code>&lt;h1&gt;Example&lt;/h1&gt;Lorem ipsum
+&lt;h2&gt;Chapter 1&lt;/h2&gt;Lorem ipsum
+&lt;h2&gt;Chapter 2&lt;/h2&gt;&lt;b&gt;Lorem ipsum&lt;/b&gt;</code></pre></p>
+<h3 id="Semantic elements">Semantic elements</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-semantic
+  (:use :cl)
+  (:documentation &quot;Example: Semantic elements&quot;))
+(in-package :cl-html-readme-make-readme-dsl-example-semantic)
+
+(defun example ()
+  (let ((documentation
+    `((semantic (:name &quot;header&quot;)
+          (heading (:name &quot;Example&quot;)))
+      (semantic (:name &quot;section&quot;)
+          (heading (:name &quot;Chapter 1&quot;))
+          &quot;Lorem ipsum&quot;)
+      (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))))
+    (cl-html-readme:doc-to-html nil documentation)))
+
+;;(example)</code></pre></p>
+<h4>Generated HTML</h4><p><pre><code>&lt;header&gt;
+&lt;h1&gt;Example&lt;/h1&gt;&lt;/header&gt;
+&lt;section&gt;
+&lt;h1&gt;Chapter 1&lt;/h1&gt;Lorem ipsum&lt;/section&gt;
+&lt;footer&gt;Lorem ipsum&lt;/footer&gt;</code></pre></p>
+<h3 id="Add a Table of Contents">Add a Table of Contents</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-toc
   (:use :cl)
   (:documentation &quot;Example: Table of contents&quot;))
 (in-package :cl-html-readme-make-readme-dsl-example-toc)
@@ -76,38 +122,6 @@ HTML skeleton consisting of semantic elements, heading elements and a table of c
 &lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1&lt;/h1&gt;Lorem ipsum
 &lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2&lt;/h1&gt;&lt;b&gt;Lorem ipsum&lt;/b&gt;
 &lt;h2&gt;Chapter 2.1&lt;/h2&gt;Lorem ipsum</code></pre></p>
-<h3 id="Semantic elements">Semantic elements</h3><p><pre><code>(defpackage :cl-html-readme-make-readme-dsl-example-semantic
-  (:use :cl)
-  (:documentation &quot;Example: Semantic elements&quot;))
-(in-package :cl-html-readme-make-readme-dsl-example-semantic)
-
-(defun example ()
-  (let ((documentation
-    `((semantic (:name &quot;header&quot;)
-          (heading (:name &quot;Example&quot;)))
-      (semantic (:name &quot;nav&quot;)
-          (heading (:name &quot;Table of contents&quot;)
-             (toc)))
-      (semantic (:name &quot;section&quot;)
-          (heading (:name &quot;Chapter 1&quot; :toc t))
-          &quot;Lorem ipsum&quot;
-          (heading (:name &quot;Chapter 2&quot; :toc t))
-          &quot;&lt;b&gt;Lorem ipsum&lt;/b&gt;&quot;)
-      (semantic (:name &quot;footer&quot;) &quot;Lorem ipsum&quot;))))
-    (cl-html-readme:doc-to-html nil documentation)))
-
-;;(example)</code></pre></p>
-<h4>Generated HTML</h4><p><pre><code>&lt;header&gt;
-&lt;h1&gt;Example&lt;/h1&gt;&lt;/header&gt;
-&lt;nav&gt;
-&lt;h1&gt;Table of contents&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;#Chapter 1&quot;&gt;Chapter 1&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;#Chapter 2&quot;&gt;Chapter 2&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/nav&gt;
-&lt;section&gt;
-&lt;h1 id=&quot;Chapter 1&quot;&gt;Chapter 1&lt;/h1&gt;Lorem ipsum
-&lt;h1 id=&quot;Chapter 2&quot;&gt;Chapter 2&lt;/h1&gt;&lt;b&gt;Lorem ipsum&lt;/b&gt;&lt;/section&gt;
-&lt;footer&gt;Lorem ipsum&lt;/footer&gt;</code></pre></p>
 <h1 id="API">API</h1>
 <h2 id="*home-directory*">*home-directory*</h2><b>cl-html-readme:*home-directory*</b>&nbsp;<p>Home directory of the project for which documentation is to be generated.</p>
 <h2 id="*tab-width*">*tab-width*</h2><b>cl-html-readme:*tab-width*</b>&nbsp;<p>The width of a tab.</p>
@@ -160,8 +174,8 @@ Attribute names are represented by keywords. Attributes are omitted from renderi
 in the following cases:
 <ul>
   <li>The attribute name is not a keyword</li>
+  <li>The attribute name is :id</li>
   <li>The attribute value is not a string</li>
-  <li>The attribute value is an empty string</li>
 </ul>
 In the case of multiple occurences of an attribute the last one that is eligable for rendering wins.
 <h2>Example</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-example-rendering-hook
@@ -181,11 +195,12 @@ In the case of multiple occurences of an attribute the last one that is eligable
          :class nil
          :a nil
          :b (list &quot;&quot;)
-         :c &quot;&quot;))))
+         :c &quot;&quot;
+         :id &quot;ID&quot;))))
       (cl-html-readme:doc-to-html nil documentation))))
 
 ;;(example)</code></pre></p>
-<h3>Generated HTML</h3><p><pre><code>&lt;h1 class=&quot;heading-class&quot; id=&quot;Header&quot;&gt;Header&lt;/h1&gt;</code></pre></p>
+<h3>Generated HTML</h3><p><pre><code>&lt;h1 c=&quot;&quot; class=&quot;heading-class&quot; id=&quot;Header&quot;&gt;Header&lt;/h1&gt;</code></pre></p>
 <h2 id="*get-heading-attributes*">*get-heading-attributes*</h2><b>cl-html-readme:*get-heading-attributes*</b>&nbsp;<p>Get the attributes of a heading form. A heading is rendered as a <code>"&lt;h1&gt;"</code> ... <code>"&lt;h6&gt;" </code> HTML element. The hook is called with the properties of the DSL <code>heading</code> form.</p>
 <h2 id="*get-semantic-attributes*">*get-semantic-attributes*</h2><b>cl-html-readme:*get-semantic-attributes*</b>&nbsp;<p>Get the attributes of a semantic form. A semantic form is rendered as a <code>"&lt;${properties.name}&gt;"</code> HTML element. The hook is called with the properties of the DSL <code>semantic</code> form.</p>
 <h2 id="*get-toc-root-attributes*">*get-toc-root-attributes*</h2><b>cl-html-readme:*get-toc-root-attributes*</b>&nbsp;<p>Get the attributes of the TOC root form. This form is created during the TOC expansion. The TOC root is rendered as a <code>"&lt;ul&gt;"</code>
@@ -195,4 +210,4 @@ In the case of multiple occurences of an attribute the last one that is eligable
 <h1 id="Run tests">Run tests</h1><p><pre><code>(asdf:test-system :cl-html-readme)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2024-05-31  22:36:06</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2024-06-13  18:46:57</small></p></footer></body></html>
