@@ -56,6 +56,7 @@
   :components ((:module "make-readme/examples"
 		:serial t
 		:components ((:file "toc")
+			     (:file "heading")
 			     (:file "semantic")
 			     (:file "escape")
 			     (:file "rendering-hook")))

@@ -172,7 +172,7 @@
        (heading
 	(:name "New features")
 	"<ul>"
-	"<li>Added rendering hooks</li>"
+	"<li>Rendering hooks to add custom HTML attributes.</li>"
 	"</ul>")))
      (heading
       (:name "DSL" :toc t)
@@ -180,19 +180,26 @@
       (heading
        (:name "Examples")
        (heading
-	(:name "Table of contents" :toc t)
-	,(make-code-string-from-file "make-readme/examples/toc.lisp")
+	(:name "Heading elements" :toc t)
+	,(make-code-string-from-file "make-readme/examples/heading.lisp")
 	(heading
 	 (:name "Generated HTML")
 	 ,(make-code-string-from-string
-	   (cl-html-readme-make-readme-dsl-example-toc::example))))
+	   (cl-html-readme-make-readme-dsl-example-heading::example))))
        (heading
 	(:name "Semantic elements" :toc t)
 	,(make-code-string-from-file "make-readme/examples/semantic.lisp")
 	(heading
 	 (:name "Generated HTML")
 	 ,(make-code-string-from-string
-	   (cl-html-readme-make-readme-dsl-example-semantic::example))))))
+	   (cl-html-readme-make-readme-dsl-example-semantic::example))))
+       (heading
+	(:name "Add a Table of Contents" :toc t)
+	,(make-code-string-from-file "make-readme/examples/toc.lisp")
+	(heading
+	 (:name "Generated HTML")
+	 ,(make-code-string-from-string
+	   (cl-html-readme-make-readme-dsl-example-toc::example))))))
      (heading
       (:name "API" :toc t)
       (heading
