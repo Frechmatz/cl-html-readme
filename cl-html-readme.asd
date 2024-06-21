@@ -40,6 +40,7 @@
 			     (:file "validate-test")
 			     (:file "tree-builder-test")
 			     (:file "extract-toc-test")
+			     (:file "readme-util-test")
 			     (:file "html-writer-test"))))
   :perform (test-op (o c) (symbol-call :lisp-unit '#:run-tests :all :cl-html-readme-test)))
 
