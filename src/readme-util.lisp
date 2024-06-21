@@ -17,7 +17,8 @@
       (merge-pathnames path *home-directory*)
       (concatenate 'string *home-directory* path)))
 
-(defun format-string (str &key replace-tabs escape)
+(defun format-string-impl (str replace-tabs escape input-tab-width output-tab-width)
+  (declare (ignore output-tab-width))
   (let ((l 0))
     (let ((string-stream (make-string-output-stream)))
       (labels ((append-char (ch)
@@ -31,8 +32,8 @@
 		     (append-char #\Tab)
 		     (progn 
 		       (append-char #\Space)
-		       (let* ((tab-pos (floor (/ l *tab-width*))) ;; 0...n
-			      (fill-in (- (* (+ tab-pos 1) *tab-width*) l)))
+		       (let* ((tab-pos (floor (/ l input-tab-width))) ;; 0...n
+			      (fill-in (- (* (+ tab-pos 1) input-tab-width) l)))
 			 (dotimes (i fill-in)
 			   (append-char #\Space)))))))
 	(dotimes (i (length str))
@@ -50,6 +51,9 @@
 	       (append-string "&quot;"))
 	      (t (append-char ch)))))
 	(get-output-stream-string string-stream)))))
+
+(defun format-string (str &key replace-tabs escape)
+  (format-string-impl str replace-tabs escape *tab-width* *tab-width*))
 
 (defun read-stream (stream &key (replace-tabs nil) (escape nil))
   "Reads a text stream and returns it as a string. The function has the following parameters:
