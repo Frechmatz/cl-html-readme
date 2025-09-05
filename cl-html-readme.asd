@@ -56,7 +56,8 @@
   :depends-on (:cl-html-readme :docparser)
   :components ((:module "make-readme/examples"
 		:serial t
-		:components ((:file "toc")
+		:components ((:file "intro")
+			     (:file "toc")
 			     (:file "heading")
 			     (:file "semantic")
 			     (:file "escape")

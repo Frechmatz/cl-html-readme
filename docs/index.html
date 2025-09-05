@@ -13,7 +13,38 @@ as markup language for their documentation strings.
 	<li>Generate a Table of contents. Provide full control of what should be part of it.</li>
 	<li>Easily embed source code files as well as HTML files.</li>
     </ul>
-</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p></header>
+</p><p>The source code is available <a href="https://github.com/Frechmatz/cl-html-readme">here</a>.</p>
+<h2>Example</h2><p><pre><code>(defpackage :cl-html-readme-make-readme-intro-example
+  (:use :cl)
+  (:documentation &quot;Example&quot;))
+(in-package :cl-html-readme-make-readme-intro-example)
+
+(defun hello-world ()
+  &quot;Prints &lt;code&gt;Hello, World&lt;/code&gt;&quot;
+  (format t &quot;Hello, World&quot;))
+  
+(defun example ()
+  (let ((documentation
+    `(&quot;&lt;html&gt;&lt;body&gt;Documentation&quot;
+      (heading
+       (:name &quot;Table of contents&quot;)
+       (toc))
+      (heading
+       (:name &quot;API&quot; :toc t)
+       (heading
+        (:name &quot;hello-world&quot; :toc t)
+        ,(documentation #'hello-world 'function)))
+      &quot;&lt;/body&gt;&lt;/html&gt;&quot;)))
+    (cl-html-readme:doc-to-html nil documentation)))
+
+;;(example)</code></pre></p>
+<h3>Generated HTML</h3><p><pre><code>&lt;html&gt;&lt;body&gt;Documentation
+&lt;h1&gt;Table of contents&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#API&quot;&gt;API&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#hello-world&quot;&gt;hello-world&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;h1 id=&quot;API&quot;&gt;API&lt;/h1&gt;
+&lt;h2 id=&quot;hello-world&quot;&gt;hello-world&lt;/h2&gt;Prints &lt;code&gt;Hello, World&lt;/code&gt;&lt;/body&gt;&lt;/html&gt;</code></pre></p></header>
 <nav>
 <h1>Table of contents</h1>
 <ul>
@@ -210,4 +241,4 @@ In the case of multiple occurences of an attribute the last one that is eligable
 <h1 id="Run tests">Run tests</h1><p><pre><code>(asdf:test-system :cl-html-readme)</code></pre></p>
 <h1 id="Generate documentation">Generate documentation</h1><p><pre><code>(asdf:load-system :cl-html-readme/doc)
 (cl-html-readme-make-doc::make-doc)</code></pre></p></section>
-<footer><hr/><p><small>Generated 2024-07-03  21:30:37 (cl-html-readme 3.0.0)</small></p></footer></body></html>
+<footer><hr/><p><small>Generated 2025-09-05  22:19:12 (cl-html-readme 3.0.1)</small></p></footer></body></html>

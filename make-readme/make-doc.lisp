@@ -115,9 +115,15 @@
     (semantic
      (:name "header")
      (heading
-      (:name "cl-html-readme"))
+      (:name "cl-html-readme")
      ,(cl-html-readme:read-file "make-readme/snippets/introduction.html")
-     "<p>The source code is available <a href=\"https://github.com/Frechmatz/cl-html-readme\">here</a>.</p>")
+     "<p>The source code is available <a href=\"https://github.com/Frechmatz/cl-html-readme\">here</a>.</p>"
+
+     (heading (:name "Example")
+	      ,(make-code-string-from-file "make-readme/examples/intro.lisp")
+	      (heading (:name "Generated HTML")
+	      	       ,(make-code-string-from-string
+			 (cl-html-readme-make-readme-intro-example::example))))))
     (semantic
      (:name "nav")
      (heading
